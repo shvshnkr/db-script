@@ -2,7 +2,7 @@
 
 **Проект:** DBSCRIPT v4 (c) **dj--alex** — PHP CMS/редактор БД.  
 **Активная ветка:** `php8-port` → PHP **8.2**, MySQL через **mysqli**.  
-**Remote:** https://github.com/dj--alex/db-script.git
+**Upstream:** https://github.com/dj--alex/db-script.git · **Push:** `github` → https://github.com/shvshnkr/db-script.git (`php8-port`)
 
 | | |
 |---|---|
@@ -17,7 +17,7 @@
 
 1. `git add` только релевантные файлы (не `_conf/`, `_logs/`, `AI/`).
 2. Короткий commit message — **why**, не перечень файлов.
-3. `git push -u origin php8-port` (или текущую ветку), если remote доступен.
+3. `git push github php8-port` (или текущую ветку на настроенный push-remote), если remote доступен. `origin` (dj--alex) — 403 без доступа.
 
 Исключение: секреты и локальный runtime (`_conf/*.cfg` с паролями) — **никогда** в git.
 

@@ -2,23 +2,25 @@
 
 **Проект:** DBSCRIPT v4.3.x (c) dj--alex — web CMS с редактором таблиц, reader, file manager, admin.  
 **Путь:** `C:\Users\user\projects\dbscript4_djalex`  
-**Ветка:** `php8-port` · **Remote:** https://github.com/dj--alex/db-script.git
+**Ветка:** `php8-port` · **Push remote:** `github` → https://github.com/shvshnkr/db-script.git · **Upstream:** https://github.com/dj--alex/db-script.git
 
 ## Цель (текущая фаза)
 
-Порт на **PHP 8.2** + **mysqli**; dev/test через **Docker Compose** (Apache + MySQL 8) на **Windows (Docker Desktop)** — контейнеры уже подняты, WSL не нужен.
+**Runtime hardening** после механического порта: PHP **8.2** + **mysqli**, полный HTTP-smoke в **Docker Compose** (Apache + MySQL 8) на **Windows (Docker Desktop)**. WSL не нужен.
 
 ## Статус (2026-06-06)
 
 | Этап | Статус |
 |------|--------|
-| Ветка `php8-port` | ✅ локально |
-| `import_request_variables` → `extract()` | ✅ в изменённых entry + `dbscore.lib` |
-| `mysql_*` → `mysqli_*` в `dbscore.lib` | ✅ в работе |
-| Dev Docker (`dev/docker-compose.yml`) | ✅ добавлен, не запушен |
+| Ветка `php8-port` | ✅ локально, синхрон с `github/php8-port` |
+| `import_request_variables` → `extract()` | ✅ |
+| `mysql_*` → `mysqli_*` в `dbscore.lib` | ✅ (verify grep green; в коде только комментарии) |
+| Dev Docker (`dev/docker-compose.yml`) | ✅ в репо, контейнеры `dev-web-1` / `dev-db-1` |
 | `scripts/verify.sh` | ✅ синтаксис + grep-guards |
-| Smoke install/login/editor | ✅ full wizard → login → `w.php` → `r.php` → `admin.php` |
-| Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/` |
+| Smoke full cycle | ✅ install → login → `w.php` → `r.php` → `admin.php` |
+| Barewords `admin.php` / `w.php` | ✅ `scripts/fix-barewords.php` + ручные правки |
+| **Следующее** | `filemgr.php` barewords; dev flock на bind-mount |
+| Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/`, `AI/*` локально |
 
 ## Entry points (HTTP)
 
@@ -82,8 +84,16 @@ Verify / smoke:
 
 ```powershell
 & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/verify.sh
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/smoke-curl.sh http://127.0.0.1
 & "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/smoke-install.sh http://127.0.0.1
 ```
+
+| Скрипт | Когда |
+|--------|-------|
+| `verify.sh` | После каждого PHP-диффа |
+| `smoke-curl.sh` | Быстрая проверка уже установленного сайта |
+| `smoke-install.sh` | Полный цикл (пересоздаёт install или нужен чистый `_conf`) |
+| `fix-barewords.php` | Механика кавычек для `cmsg`/`lprint`/`rmsg`/`submitkey` |
 
 Rollback (только Docker):
 

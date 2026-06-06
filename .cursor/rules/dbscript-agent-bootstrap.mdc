@@ -56,7 +56,7 @@ PowerShell: использовать `;` вместо `&&`; для compose/exec 
 
 ## Git — коммить сам
 
-После логической порции работы: add → commit → `git push origin php8-port`. Не `_conf/`, не `AI/`.
+После логической порции работы: add → commit → `git push github php8-port`. Не `_conf/`, не `AI/`. `origin` (dj--alex) — только при наличии доступа.
 
 ## Не повторять каждую сессию
 
