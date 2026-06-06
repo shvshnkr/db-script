@@ -3507,8 +3507,8 @@ if (($write==cmsg ("KEY_COMPARE"))AND($prdbdata[$tbl][12]!="fdb")) {
 		groupdbprint ($list,"Group",$prdbdata,$tbl,$groupdb); // wat &   db lost (real name) 
     $groupdbthisname="groupdb2";
 		groupdbprint ($list,"Group2",$prdbdata,$tbl,$groupdb);
-hidekey ("hidemenu",1);/
-hidekey ("menudisable",on);
+hidekey ("hidemenu",1);
+hidekey ("menudisable","on");
    submitkey ("write","KEY_COMPARE_2");
 }
 //

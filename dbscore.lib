@@ -489,7 +489,7 @@ $verlang=iconvx("windows-1251","utf-8",$verlang);
 $encoder="";
 function iconvx ($from,$to,$var) {
     global $sd,$encoder;
-//$verlang=$data[0][0];
+    $verlang=$var;
   if (extension_loaded('iconv')) {
        if (($sd[19]??'')=="utf-8") { $verlang=iconv($from,$to,$var); $encoder="iconv"; }
   } elseif (extension_loaded('mbstring')) {
@@ -1932,6 +1932,7 @@ function backkey () { //3157
 // используется для вывода кнопок подтверждений, только с cmsg  usage=90%
 function submitkey ($name,$cmsg)
 { global $trafeconom;  		// style=\"dbscriptstyles.css\"  //onDblClick
+ $idadd=$jsadd=$hladd=$selected="";
  if (!$trafeconom) { $idadd=" id=\"".$name."\" ";
  	$jsadd="onMouseOver=\"OM(this)\" onMouseOut=\"OMOut(this)\" onClick=\"AL(this)\"";};
   //if ($name=="BACK_") {$jsadd="onClick=\"javascript:window.history.back()\"";}; //onMouseOver=\"window.history.back()\"

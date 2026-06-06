@@ -25,7 +25,8 @@ alwaysApply: true
 | Verify | `bash scripts/verify.sh` |
 | Install URL | http://localhost:8080/install.php |
 | MySQL in Docker | host `db`, pass `dbscript_root`, db `dbscript_test` |
-| Mechanical port | `php scripts/port-mechanical.php` |
+| Verify in container | `docker exec dev-web-1 bash scripts/verify.sh` |
+| Docker CLI (Win) | `C:\Program Files\Docker\Docker\resources\bin\docker.exe` — не в PATH агента |
 
 ## Entry PHP — не repo-wide grep
 

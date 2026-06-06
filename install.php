@@ -1,5 +1,7 @@
 <?php ob_start ();
 extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
+$step = $step ?? 0;
+$lang = $lang ?? '';
 //$writefullcfgdiscrwin=1;
 // СКАЖЕМ НЕТ ШАБЛОНАМ, мы за оригинальное программирование!
 // только ломая шаблоны и стереотипы можно добится чего то нового.

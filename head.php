@@ -15,9 +15,9 @@ $verhead="Header v4.3.12 (c) dj--alex"; //hide
 $p = $p ?? 0;
 $pagename = $pagename ?? '';
 if ($p!=0) $pagename=$pgcontent[$p+1][3] ?? $pagename;
-$element=$vID ?? ''; settype ($element, "integer"); if ($element=="0") unset ($element);
+$element=$vID ?? ''; settype ($element, "integer"); if ($element==0) $element='';
 if (($sd[19] ?? '')=="utf-8") $pagename=iconvx("windows-1251","utf-8",$pagename);
-$titleout= ($sd[16] ?? 'Dbscript')." - ".$pagename." - ".($write ?? '')." $element ";
+$titleout= ($sd[16] ?? 'Dbscript')." - ".$pagename." - ".($write ?? '')." ".$element." ";
 echo $titleout ;
 ?></title>
  <?php if ((!($pr[97]??null))and (!($pr[98]??null))) { echo "<script src=\"jquery142.js\"></script>" ; };

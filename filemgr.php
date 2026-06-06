@@ -83,8 +83,8 @@ if ((!$countf)AND($searchfilenew)) { echo "</table>No one files found. Or it not
     $fileforaction=$destinationfilename;// multiaction unimplemented  ������ ������� destination???
     $filesize=$filesizeinmb;
     // echo "Redirect accepted from fmgr side<br>;";
-    $cmd{0}=cmsg ("FMG_SHARE");
-    //$cmd{1}=cmsg ("FMG_SHARE");
+    $cmd[0]=cmsg ("FMG_SHARE");
+    //$cmd[1]=cmsg ("FMG_SHARE");
     $pid=0;
  }
 
@@ -191,31 +191,31 @@ global $pr ; //dobaw nastr w adm gde budet enable disable ico for filemgr to all
 if ($prauth[$ADM][40]) $noscreenmode=1;
  if ($noscreenmode==false) {
  if ($pid>0){ // ��� ������ �� ��������.
- if (isset ($FMG_SRCH_x)) $cmd{$pid}=cmsg ("FMG_SRCH");
- if (isset ($FMG_ENTER_x)) $cmd{$pid}=cmsg ("FMG_ENTER");
- if (isset ($FMG_EXIT_x)) $cmd{$pid}=cmsg ("FMG_EXIT");
- if (isset ($FMG_DRV_x)) $cmd{$pid}=cmsg ("FMG_DRV");
- if (isset ($FMG_MKDIR_x)) $cmd{$pid}=cmsg ("FMG_MKDIR");
- if ($codekey!==5) if (isset ($FMG_DELALL_x)) $cmd{$pid}=cmsg ("FMG_DELALL");
- if ($codekey!==5) if (isset ($FMG_JOINFIL_x)) $cmd{$pid}=cmsg ("FMG_JOINFIL");
- if (isset ($FMG_EXECUTE_x)) $cmd{$pid}=cmsg ("FMG_EXECUTE");
- if ($codekey!==5) if (isset ($FMG_DEL_x)) $cmd{$pid}=cmsg ("FMG_DEL");
- if ($codekey!==5) if (isset ($FMG_REN_x)) $cmd{$pid}=cmsg ("FMG_REN");
-  if ($codekey!==5) if (isset ($FMG_EDIT_x)) $cmd{$pid}=cmsg ("FMG_EDIT");
- if (isset ($FMG_NEW_x)) $cmd{$pid}=cmsg ("FMG_NEW");
- if (isset ($FMG_DOWNLOAD_x)) $cmd{$pid}=cmsg ("FMG_DOWNLOAD");
- if ($codekey!==5) if (isset ($FMG_UPLOAD_x)) $cmd{$pid}=cmsg ("FMG_UPLOAD");
- if ($codekey!==5) if (isset ($FMG_SHARE_x)) $cmd{$pid}=cmsg ("FMG_SHARE");
- if ($codekey!==5) if (isset ($FMG_UNZIP_x)) $cmd{$pid}=cmsg ("FMG_UNZIP");
- if (isset ($FMG_TEST_x)) $cmd{$pid}=cmsg ("FMG_TEST");
- if ($OSTYPE=="LINUX") if ($codekey!==5) if (isset ($FMG_UNRAR_x)) $cmd{$pid}=cmsg ("FMG_UNRAR");
-  if ($OSTYPE=="LINUX") if ($codekey!==5) if (isset ($FMG_RAR_x)) $cmd{$pid}=cmsg ("FMG_RAR");
-if (isset ($FMG_REF_x)) $cmd{$pid}=cmsg ("FMG_REF");
- if (isset ($FMG_RESET_x)) $cmd{$pid}=cmsg ("FMG_RESET");
- if ($codekey!==5) if (isset ($FMG_CPY_F_x)) $cmd{$pid}=cmsg ("FMG_CPY_F");
- if ($codekey!==5) if (isset ($FMG_MOV_F_x)) $cmd{$pid}=cmsg ("FMG_MOV_F");
-if ($codekey!==5) if (isset ($FMG_CPY_FLD_x)) $cmd{$pid}=cmsg ("FMG_CPY_FLD");
-if ($codekey!==5) if (isset ($FMG_MOV_FLD_x)) { $cmd{$pid}=cmsg ("FMG_MOV_FLD"); $pathx=$path1;$path1=$path2;$path2=$pathx;}
+ if (isset ($FMG_SRCH_x)) $cmd[$pid]=cmsg ("FMG_SRCH");
+ if (isset ($FMG_ENTER_x)) $cmd[$pid]=cmsg ("FMG_ENTER");
+ if (isset ($FMG_EXIT_x)) $cmd[$pid]=cmsg ("FMG_EXIT");
+ if (isset ($FMG_DRV_x)) $cmd[$pid]=cmsg ("FMG_DRV");
+ if (isset ($FMG_MKDIR_x)) $cmd[$pid]=cmsg ("FMG_MKDIR");
+ if ($codekey!==5) if (isset ($FMG_DELALL_x)) $cmd[$pid]=cmsg ("FMG_DELALL");
+ if ($codekey!==5) if (isset ($FMG_JOINFIL_x)) $cmd[$pid]=cmsg ("FMG_JOINFIL");
+ if (isset ($FMG_EXECUTE_x)) $cmd[$pid]=cmsg ("FMG_EXECUTE");
+ if ($codekey!==5) if (isset ($FMG_DEL_x)) $cmd[$pid]=cmsg ("FMG_DEL");
+ if ($codekey!==5) if (isset ($FMG_REN_x)) $cmd[$pid]=cmsg ("FMG_REN");
+  if ($codekey!==5) if (isset ($FMG_EDIT_x)) $cmd[$pid]=cmsg ("FMG_EDIT");
+ if (isset ($FMG_NEW_x)) $cmd[$pid]=cmsg ("FMG_NEW");
+ if (isset ($FMG_DOWNLOAD_x)) $cmd[$pid]=cmsg ("FMG_DOWNLOAD");
+ if ($codekey!==5) if (isset ($FMG_UPLOAD_x)) $cmd[$pid]=cmsg ("FMG_UPLOAD");
+ if ($codekey!==5) if (isset ($FMG_SHARE_x)) $cmd[$pid]=cmsg ("FMG_SHARE");
+ if ($codekey!==5) if (isset ($FMG_UNZIP_x)) $cmd[$pid]=cmsg ("FMG_UNZIP");
+ if (isset ($FMG_TEST_x)) $cmd[$pid]=cmsg ("FMG_TEST");
+ if ($OSTYPE=="LINUX") if ($codekey!==5) if (isset ($FMG_UNRAR_x)) $cmd[$pid]=cmsg ("FMG_UNRAR");
+  if ($OSTYPE=="LINUX") if ($codekey!==5) if (isset ($FMG_RAR_x)) $cmd[$pid]=cmsg ("FMG_RAR");
+if (isset ($FMG_REF_x)) $cmd[$pid]=cmsg ("FMG_REF");
+ if (isset ($FMG_RESET_x)) $cmd[$pid]=cmsg ("FMG_RESET");
+ if ($codekey!==5) if (isset ($FMG_CPY_F_x)) $cmd[$pid]=cmsg ("FMG_CPY_F");
+ if ($codekey!==5) if (isset ($FMG_MOV_F_x)) $cmd[$pid]=cmsg ("FMG_MOV_F");
+if ($codekey!==5) if (isset ($FMG_CPY_FLD_x)) $cmd[$pid]=cmsg ("FMG_CPY_FLD");
+if ($codekey!==5) if (isset ($FMG_MOV_FLD_x)) { $cmd[$pid]=cmsg ("FMG_MOV_FLD"); $pathx=$path1;$path1=$path2;$path2=$pathx;}
 
 
  }
@@ -223,9 +223,9 @@ if ($codekey!==5) if (isset ($FMG_MOV_FLD_x)) { $cmd{$pid}=cmsg ("FMG_MOV_FLD");
 
 if ($prauth[$ADM][40]) $cmdtmp=$cmd;
 	for ($a=0;$a<100;$a++) { // save pid data
-	$cmdname="cmd".$a;//$cmd1=$cmd{1};  $cmd2=$cmd{2};
-	$$cmdname=$cmd{$a};
-	//echo "$a=".$$cmd{$a}.";;";
+	$cmdname="cmd".$a;//$cmd1=$cmd[1];  $cmd2=$cmd[2];
+	$$cmdname=$cmd[$a];
+	//echo "$a=".$$cmd[$a].";;";
 	}
 //Filemgr ne trebuet registracii � ��������� ����� ��� ���.
 //echo $sd[10];
@@ -275,12 +275,12 @@ if ($prauth[$ADM][37]) $maxmgrs=$prauth[$ADM][37]; else $maxmgrs=2;
 	for ($a=1;$a<$maxmgrs+1;$a++) { // generate filemgr windows save pid data ����� ���� ��������� ����� � ���� � ������� ���������
 		//$fileforaction1="ept";		$cmd1="ept";
 	$cmdname="cmd".$a;
-	//echo "cmd{1}=".$cmd{1}.";<br>";
-	$strokaname="stroka".$a;//$$strokaname=$stroka{$a};//$cmd1=$cmd{1};  $cmd2=$cmd{2};
-	$pathname="path".$a;//$$pathname=$path{$a};
-	$fileforactionname="fileforaction".$a;//$$fileforactionname=$fileforaction{$a};
+	//echo "cmd{1}=".$cmd[1].";<br>";
+	$strokaname="stroka".$a;//$$strokaname=$stroka[$a];//$cmd1=$cmd[1];  $cmd2=$cmd[2];
+	$pathname="path".$a;//$$pathname=$path[$a];
+	$fileforactionname="fileforaction".$a;//$$fileforactionname=$fileforaction[$a];
     // ��� ����� ����� ��������� multiple files CFG OPT FUTURE
-	$maskname="mask".$a;//$$maskname=$mask{$a};
+	$maskname="mask".$a;//$$maskname=$mask[$a];
 	$cmd=${$cmdname};$stroka=${$strokaname};$path=${$pathname};$fileforaction=${$fileforactionname};$mask=${$maskname};
         ////echo "cmd1=$cmd1;<br>";
 	if ($nokeys==1) nokeys (1);

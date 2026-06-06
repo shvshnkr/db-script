@@ -159,7 +159,7 @@ $datasplitters=explode (",",$prdbdata[$tbl][20]);
 
 					if ($a===0) { $values="'".$myrow[$a];} 				// self-control
 					if ($a>0) {$values="".$values."','".$myrow[$a]; }	//self-control
-                       $z{$a}=$myrow[$a]; echo "<td>";
+                       $z[$a]=$myrow[$a]; echo "<td>";
                        $myrow[1]==$prauth[$ADM][0]; //username fix
                         if ($a==6) { txtarea ("z6",$lensa,99)  ; }; //  ������ ������ ����� ��� 5 ���� - ���������.
                            if ($a!=6) {inputtext ("z$a",20,$myrow[$a]);}
@@ -184,7 +184,7 @@ $datasplitters=explode (",",$prdbdata[$tbl][20]);
 					if ($a>0) {$values="".$values."','".$myrow[$a]; }	//self-control
 			?>			</td>
 			<?php if ($prauth[$ADM][41]) echo "</tr><tr>"; //optional Box,not linear edit.
-                       $z{$a}=$myrow[$a]; echo "<td>"; //�������� ������� �������� ����� ����������� � ��� editor base
+                       $z[$a]=$myrow[$a]; echo "<td>"; //�������� ������� �������� ����� ����������� � ��� editor base
                        $myrow[1]==$prauth[$ADM][0];
                         if ($a==6) { txtarea ("z6",$lensa,99)  ; }; //  ������ ������ ����� ��� 5 ���� - ���������.
                            if ($a!=6) {inputtext ("z$a",20,$myrow[$a]);}
@@ -355,7 +355,7 @@ if (($write==cmsg ("KEY_ADD"))AND(1==1)) {
 			echo "$mycolvirtualname[$a] ";
 			if ($mycol[$md2column]===$mycol[$a]) echo "<ii>(ID1)</ii>";
 			if ($mycol[$virtualid]===$mycol[$a]) echo "<ii>(ID2)</ii>";
-                       $z{$a}=$myrow[$a];
+                       $z[$a]=$myrow[$a];
                        if ($a==7) { $value=$dateinunix;echo "($date)";};
                               echo "<td>";
                         if ($a==6) { txtarea ("z$a",$lensa,1)  ; }; //  ������ ������ ����� ��� 5 ���� - ���������.
@@ -377,7 +377,7 @@ if (($write==cmsg ("KEY_ADD"))AND(1==1)) {
 			?>			</td>
 			<?if ($prauth[$ADM][41]) echo "</tr><tr>"; //optional Box,not linear edit.
 
-                       $z{$a}=$myrow[$a];
+                       $z[$a]=$myrow[$a];
                                 if ($a==7) { $value=$dateinunix;echo "($date)";};
                        echo "<td>";
                         if ($a==6) { txtarea ("z$a",$lensa,1)  ; }; //  ������ ������ ����� ��� 5 ���� - ���������.
