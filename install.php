@@ -15,8 +15,7 @@ echo "<a href=\"https://github.com/dj--alex/db-script/\"> Github</a>";
 echo "<br> Module: $verinst<br>";
 
 if (($_POST["step"] ?? 0)<1) {echo "Checking ini<br><div style=\"position:absolute; z-index:4;  top:0; right:0; color: #FFFFFF ; background: #0000aF \"><img src=\"_style/dbsDeusModuslogo.jpg\"></div>";
-    $phpver=(float)PHP_VERSION;
-    if ($phpver<8.2) die ("$ei <font color=red>Fatal error</font>: PHP 8.2+ required, current ".PHP_VERSION."<br>");
+    if (version_compare(PHP_VERSION, '8.0.0', '<')) die ("$ei <font color=red>Fatal error</font>: PHP 8.0+ required, current ".PHP_VERSION."<br>");
     if (!extension_loaded('mysqli')) die ("$ei <font color=red>Fatal error</font>: php extension mysqli is required.<br>");
     //переписать msgexiterror  c учётом функции window и вообще сделать там наконец возможность менять размер окна и возможно перемещать его.
     $phpmem=ini_get ("memory_limit");if ((int)$phpmem>0 AND (int)$phpmem<100) echo "$ei settings php.ini memory_limit=$phpmem , recommend inscrease value at least 100M (for big files and dumps - higher)<br>";

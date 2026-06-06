@@ -1,7 +1,7 @@
 # Dbscript 4 — правила для агентов
 
 **Проект:** DBSCRIPT v4 (c) **dj--alex** — PHP CMS/редактор БД.  
-**Активная ветка:** `php8-port` → PHP **8.2**, MySQL через **mysqli**.  
+**Активная ветка:** `php8-port` → PHP **8.0+** (verified **8.2 LTS** + **8.3**; PHP 7 не поддерживается), MySQL через **mysqli**. Требования: [`README-PHP8.md`](./README-PHP8.md#требования-к-php).  
 **Upstream:** https://github.com/dj--alex/db-script.git · **Push:** `github` → https://github.com/shvshnkr/db-script.git (`php8-port`)
 
 | | |
@@ -74,6 +74,6 @@
 
 ## AI (локальная карта, gitignored)
 
-Папка [`AI/`](./AI/) — карта и журнал (см. [`AI/README.md`](./AI/README.md)). В репо: **AGENTS.md**, **MAP.md**, **`.cursor/rules/`**.
+Папка [`AI/`](./AI/) — карта и журнал (см. [`AI/README.md`](./AI/README.md)). В репо: **AGENTS.md**, **MAP.md**. Локально (gitignored): **`AI/`**, **`.cursor/`** (в т.ч. bootstrap rule).
 
 **Не усложнять** архитектуру вразрез с `invariants` в `AI/project-map.toml`.

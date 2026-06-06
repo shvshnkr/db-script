@@ -6,7 +6,17 @@
 
 ## Цель (текущая фаза)
 
-**Prod-testing** — многослойное тестирование перед prod: L0 verify → L1–L2 smoke HTTP → L3–L4 PHPUnit → L5 security/links. PHP **8.2** + **mysqli**, Docker Compose на **Windows (Docker Desktop)**. WSL не нужен.
+**Prod-testing** — многослойное тестирование перед prod: L0 verify → L1–L2 smoke HTTP → L3–L4 PHPUnit → L5 security/links. **PHP 8.2 LTS** (primary) + **8.3** (matrix), мин. **8.0+** на `php8-port`, **mysqli**, Docker Compose на **Windows (Docker Desktop)**. WSL не нужен.
+
+## Требования
+
+| | |
+|---|---|
+| PHP (проверено) | **8.2.x** (primary) · **8.3.x** (matrix) |
+| PHP (минимум) | **8.0+** · PHP 7.x не поддерживается |
+| MySQL | 8.0 |
+| Расширения | mysqli, mbstring, gd, zip |
+| Документация | [`README-PHP8.md`](./README-PHP8.md#требования-к-php) |
 
 ## Статус (2026-06-06)
 
@@ -27,10 +37,11 @@
 | Smoke cold paths (wx/dblinker/filemgr/getfile/main) | ✅ `scripts/smoke-cold-paths.sh` |
 | `filemgr.php` + `$dbdataskip` | ✅ prdbdata init, fileforaction array guard |
 | **Многослойное тестирование** | ✅ `scripts/smoke-all.sh` + `docs/TEST-MATRIX.md` |
+| **PHP version matrix 8.2 + 8.3** | ✅ `scripts/test-php-matrix.sh`, `PHP_VERSION` build arg |
 | smoke-lib + L2/L5 scripts | ✅ security, index-router, editor-crud, reader, filemgr, dblinker, admin-save, links, news |
 | PHPUnit L3 unit | ✅ `composer.json`, `tests/Unit/*` |
 | **Следующее** | L4 integration HTTP tests; L6 manual checklist sign-off; prod deploy |
-| Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/`, `AI/*` локально |
+| Agent map / worklog | ✅ AGENTS.md, MAP.md в репо; `.cursor/`, `AI/*` локально |
 
 ## Entry points (HTTP)
 
@@ -110,6 +121,7 @@ Verify / smoke:
 | `smoke-security.sh` | 403 на `_conf`/`_logs`, install guard |
 | `smoke-editor-crud.sh` | POST add/del denywords.cfg |
 | `docs/TEST-MATRIX.md` | Матрица функция → слой → статус |
+| `scripts/test-php-matrix.sh` | PHP 8.2 + 8.3 — verify, PHPUnit, optional smoke |
 | `fix-barewords.php` | Механика кавычек для `cmsg`/`lprint`/`rmsg`/`submitkey` |
 
 Rollback (только Docker):
