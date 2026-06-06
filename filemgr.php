@@ -282,6 +282,7 @@ if ($prauth[$ADM][37]) $maxmgrs=$prauth[$ADM][37]; else $maxmgrs=2;
     // ��� ����� ����� ��������� multiple files CFG OPT FUTURE
 	$maskname="mask".$a;//$$maskname=$mask[$a];
 	$cmd=${$cmdname};$stroka=${$strokaname};$path=${$pathname};$fileforaction=${$fileforactionname};$mask=${$maskname};
+	if (!is_array($fileforaction ?? null)) { $fileforaction = ($fileforaction ?? '') === '' ? array() : array($fileforaction); }
         ////echo "cmd1=$cmd1;<br>";
 	if ($nokeys==1) nokeys (1);
   if ($daysleft<1) expire ();

@@ -24,7 +24,9 @@
 | Barewords `wx.php` / `dblinker.php` / `readfilemenu.php` | ✅ `fix-barewords.php` |
 | Barewords `dbscore.lib` / `main.php` / `str0.php` | ✅ `fix-barewords.php` |
 | `settype()` bareword types | ✅ quoted in dbscore.lib, w/wx, readfilemenu, classAudioFile |
-| **Следующее** | smoke wx/dblinker *(если нужно)*; cold paths news/nedit/window |
+| Smoke cold paths (wx/dblinker/filemgr/getfile/main) | ✅ `scripts/smoke-cold-paths.sh` |
+| `filemgr.php` + `$dbdataskip` | ✅ prdbdata init, fileforaction array guard |
+| **Следующее** | news/nedit/window *(если нужно)* |
 | Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/`, `AI/*` локально |
 
 ## Entry points (HTTP)
@@ -100,6 +102,7 @@ Verify / smoke:
 | `smoke-curl.sh` | Быстрая проверка уже установленного сайта |
 | `smoke-install.sh` | Полный цикл (пересоздаёт install или нужен чистый `_conf`) |
 | `smoke-admin-test.sh` | `admin.php?cmd=test` после login |
+| `smoke-cold-paths.sh` | wx → dblinker → filemgr → getfile → main (cookie после login) |
 | `fix-barewords.php` | Механика кавычек для `cmsg`/`lprint`/`rmsg`/`submitkey` |
 
 Rollback (только Docker):

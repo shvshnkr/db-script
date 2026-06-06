@@ -185,6 +185,8 @@ $filbas="_conf/dbdata.cfg";
 if ($data===-1) { $dbheader=$dbplevel=array(); $prdbdata=array(array()); $prdbdatacnt=0; }
 else { $dbheader=$data[0];$dbplevel=$data[1];$prdbdata=$data[2];$prdbdatacnt=$data[3]; }
 if ($dbdata) @fclose ($dbdata);
+} elseif (!is_array($prdbdata ?? null)) {
+$dbheader=$dbplevel=array(); $prdbdata=array(array()); $prdbdatacnt=0;
 }
 
 if (!($pr[43]??null)) $mainhostmysql=$prdbdata[1][6] ?? "localhost";// потом надо будет вывести в админку переменную 
@@ -435,7 +437,7 @@ if (!($pr[54]??null)) {
 if ($pr[54]??null) {$pr[46]=0; $pr[44]=130; //автоматическое выключение меню если работает DeusModus menu  $pr[45]=0;
 }
 
-$totalbas = $prdbdatacnt;
+$totalbas = $prdbdatacnt ?? 0;
 ##загрузка определений стиля и языка
 
 $styletemplateuser=$prauth[$ADM][21]??'';
@@ -519,7 +521,7 @@ if (!($pr[8]??null)) $debugmode=1;
 //окончание загрузки стилей и языков
 //   DEFAULT VARIABLES FOR ALL FILES  ****************
 $limits = array(32,64,128,256,512,1024,2048,3000,4000,5000,6000,7000,8000);
-if(in_array($sd[18] ?? null, $limits)) { ini_set( "memory_limit",$sd[18].'M' ); $memlim="lsd=". $limits[$sd[18]]."sd=".$sd[18].",[8000max]<br>";}
+if(in_array($sd[18] ?? null, $limits)) { ini_set( "memory_limit",($sd[18] ?? '128').'M' ); $memlim="sd=".($sd[18] ?? '').",[8000max]<br>";}
 //..echo "$memlim";
 $trafeconom=$prauth[$ADM][24]??null;
 //   END DEF VAR FOR ALL             *****************
@@ -538,7 +540,9 @@ $filbas=$userfolder."/macros.cfg";
 @$macros=csvopen ($filbas,"r",0); 
 $data=readfullcsv ($macros,"new");
 //SUKA if ($macros==false) {$data[0][0]="CMD";$data[0][1]="EXECUTING"; $data[1][0]="0";$data[1][1]="0";}
+if (is_array($data ?? null)) {
 $macrosheader=$data[0];$macrosplevel=$data[1];$macroscontent=$data[2];$macroscnt=$data[3];
+} else { $macrosheader=$macrosplevel=array(); $macroscontent=array(); $macroscnt=0; }
 if ($macros) @fclose ($macros);	
 
 
@@ -547,7 +551,9 @@ $filbas=$userfolder."/best.cfg";  // возможно будет дб в initse 
 @$best=csvopen ($filbas,"r",0);
 // SUKA if ($best==false) {$data[0][0]="Table";$data[0][1]="List"; $data[1][0]="0";$data[1][1]="0";}
 $data=readfullcsv ($best,"new");
+if (is_array($data ?? null)) {
 $bestheader=$data[0];$bestplevel=$data[1];$bestcontent=$data[2];$bestcnt=$data[3];
+} else { $bestheader=$bestplevel=array(); $bestcontent=array(); $bestcnt=0; }
 if ($best) @fclose ($best);  //  поточнее проверить
 
 /*
@@ -2839,6 +2845,7 @@ function printcmp ($name){
 
 function groupdbdetect ($prdbdata) {
 	$grouplist[]="Unsorted";
+	if (!is_array($prdbdata)) return $grouplist;
 	$totalbas=count ($prdbdata)-1;
 		for ($a=1;$a<$totalbas;$a++) {
 			if ($prdbdata[$a][17]=="0") continue;
@@ -2851,6 +2858,7 @@ function groupdbdetect ($prdbdata) {
 
 function groupdbfielddetect ($prdbdata,$fieldid) {
 	$grouplist[]="Unsorted";
+	if (!is_array($prdbdata)) return $grouplist;
 	$totalbas=count ($prdbdata)-1;
 		for ($a=1;$a<$totalbas;$a++) {
 			if ($prdbdata[$a][$fieldid]=="0") continue;
