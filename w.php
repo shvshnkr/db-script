@@ -264,9 +264,9 @@ if ($menudisable==1) { if ($prdbdata[$tbl][0]=="") exit; };
 
 
 if (($errorredirectdb)) { //dblinker enter
-	echo "<br><red>".cmsg (REQ_LINK)." $tab ".cmsg (AND_DB)." $dblk".cmsg (M_SEL_DB)." $dblk<br></red>";
-	if ($modeselectsimilartable) echo cmsg (WORK_MODE).":".cmsg (MOD_SEL_TAB)."<br>";
-    if (!$modeselectsimilartable) echo cmsg (WORK_MODE).":".cmsg (MOD_SIM_TAB)."<br>";
+	echo "<br><red>".cmsg("REQ_LINK")." $tab ".cmsg("AND_DB")." $dblk".cmsg("M_SEL_DB")." $dblk<br></red>";
+	if ($modeselectsimilartable) echo cmsg("WORK_MODE").":".cmsg("MOD_SEL_TAB")."<br>";
+    if (!$modeselectsimilartable) echo cmsg("WORK_MODE").":".cmsg("MOD_SIM_TAB")."<br>";
  //echo "write=$write;";
 }
 
@@ -445,7 +445,7 @@ if ($write==cmsg ("KEY_S_UNDO")) {
 	dbs_selectdb ($prdbdata[$tbl][9], $connect,$dbtype);
 	executesql ($query,$connect,1);
 	$a=dbserr ();
-	if ($a) { lprint (NO_DB_QUE) ;}
+	if ($a) { lprint("NO_DB_QUE") ;}
 	$action="KEY_S_UNDO db:".$prdbdata[$tbl][9]." table=".$prdbdata[$tbl][6]." cannot request data ";logwrite ($action);
 }
 
@@ -967,10 +967,10 @@ if (($write==cmsg("BACKUPS"))AND ($prdbdata[$tbl][12]!="fdb")) {
 
 	$data=readdescripters ();// получение данных заголовка массив mycol кол-во mycols
  if ($data==-1) exit; 
- lprint(WF_AR_TAB);echo "<br>";
+ lprint("WF_AR_TAB");echo "<br>";
 	  submitkey ("write","WF_ARCH");
 	 submitkey ("write","WF_UNARCH");echo "<br>";
-	 echo "<br>"	 	  ;lprint (WF_AR_OTH);echo "<br>";
+	 echo "<br>"	 	  ;lprint("WF_AR_OTH");echo "<br>";
 	 checkbox (1,"addname");lprint ("ADD_NAME");
 	 checkbox (1,"adddata");lprint ("ADD_DATA");
 	 checkbox ($addtxt,"addtxt");lprint ("WRIT_NM");inputtxt("txtfordb",10);
@@ -998,7 +998,7 @@ if (($write==cmsg("BACKUPS"))AND ($prdbdata[$tbl][12]!="fdb")) {
 if (($write==cmsg("WF_BCK_UNARCH"))AND ($prdbdata[$tbl][12]!="fdb")) {
 @$connect=dbs_connect ($prdbdata[$tbl][6],$sd[14],$sd[17],$dbtype);
 if (!$prauth[$ADM][6]) { lprint ("ACCDEN");exit;};
-lprint (W_BCK_UNARCH_TIP);
+lprint("W_BCK_UNARCH_TIP");
 $separator="¦";lprint ("GEN_DB_SEL");
 $cmd="SHOW DATABASES";
 $a=dbs_query ($cmd,$connect,$dbtype);;
@@ -1050,7 +1050,7 @@ if (($write==cmsg("WF_BCK_ARCH"))AND ($prdbdata[$tbl][12]!="fdb")) {
 	hidekey ("backupdbname",$backupdbname);
 	hidekey ("dbname",$prdbdata[$tbl][9]);
 	
-echo cmsg (BCK_CRT_ALL)." ".$prdbdata[$tbl][9]." ".cmsg (W_NM)." :".$backupdbname."<br>";
+echo cmsg("BCK_CRT_ALL")." ".$prdbdata[$tbl][9]." ".cmsg("W_NM")." :".$backupdbname."<br>";
 lprint ("REQ_TIME");
 submitkey ("start","START");
 }
@@ -1101,7 +1101,7 @@ if (($start==cmsg ("SQL_REM_START"))AND($dumpdbname)AND ($prdbdata[$tbl][12]!="f
 	@$connect2 = dbs_connect ($mysqlserver2,$sd[14],$sd[17],$dbtype);
 
 	set_time_limit(0);
-        echo cmsg (W_CRT_DMP)." $backupdbname...<br>";
+        echo cmsg("W_CRT_DMP")." $backupdbname...<br>";
 	echo "�����: Dbscript side, data";
 	if ($structure) echo "+structure";
 	echo "<br>";
@@ -1245,7 +1245,7 @@ submitkey ("start","SQL_BCK");
 //CREATING DUMP AT SQL SIDE AS FILETABLES
 if (($start==cmsg ("SQL_BCK"))AND($dumpdbname)AND ($prdbdata[$tbl][12]!="fdb")) {
 	set_time_limit(0);// CFG OPT FUTURE  TODO:?
-	echo cmsg (W_CRT_DMP)." $dumpdbname...<br>";
+	echo cmsg("W_CRT_DMP")." $dumpdbname...<br>";
 	echo "Режим: SQL side<br>";
 @$connect=dbs_connect ($prdbdata[$tbl][6],$sd[14],$sd[17],$dbtype);
 	//generate table list
@@ -1282,7 +1282,7 @@ for ($a=0;$a<count ($tablelist);$a++) {
 
 //CREATING DUMP AT DBSCRIPT SIDE AS ONE SQL FILE
 if (($start==cmsg ("SELF_BCK"))AND($dumpdbname)AND ($prdbdata[$tbl][12]!="fdb")AND(!$pr[20])) {
-	echo cmsg (W_CRT_DMP)." $backupdbname...<br>";
+	echo cmsg("W_CRT_DMP")." $backupdbname...<br>";
 	echo "�����: Dbscript side, data";
 	if ($structure) echo "+structure";// проверить правильно ли мы получаем соединение если указан сервер из servlst.cfg
 	echo "<br>";
@@ -1460,8 +1460,8 @@ echo "</select><br>";
         if (($pr[39])AND(is_dir($pr[39]))) $path=$pr[39];
         
         
-	echo cmsg (PATH_DUMP_DBS)."$path<br>";
-	echo cmsg (SEL_FILE)."<br>";  //oldcore copy filemgr mod  ..
+	echo cmsg("PATH_DUMP_DBS")."$path<br>";
+	echo cmsg("SEL_FILE")."<br>";  //oldcore copy filemgr mod  ..
 	//echo "Path=$path<br>";
 		$path2=$fldup."/_local/dump";
 			$mask="*.*";//wse ok
@@ -1489,11 +1489,11 @@ echo "<select name=\"dump[]\" multiple size=10>";
 			}
 			unset ($files);
 echo "</select><br>";
-checkbox ($views,"views") ; echo cmsg (WF_LOG).cmsg (NORECOMM)."<br>";
-checkbox ($dumpmode1,"dumpmode1") ; echo cmsg (OLDCOREDUMPEX)."<br>";
-checkbox ($dumpmode2,"dumpmode2") ; echo cmsg (OLDCOREDUMPEX2)."<br>";
-checkbox (0,"mysqldump") ; echo cmsg (M_DMP_UPL)."<br>";
-//checkbox ($disviews,"disviews") ; echo cmsg (WF_LOG).cmsg (NORECOMM)."<br>";
+checkbox ($views,"views") ; echo cmsg("WF_LOG").cmsg("NORECOMM")."<br>";
+checkbox ($dumpmode1,"dumpmode1") ; echo cmsg("OLDCOREDUMPEX")."<br>";
+checkbox ($dumpmode2,"dumpmode2") ; echo cmsg("OLDCOREDUMPEX2")."<br>";
+checkbox (0,"mysqldump") ; echo cmsg("M_DMP_UPL")."<br>";
+//checkbox ($disviews,"disviews") ; echo cmsg("WF_LOG").cmsg("NORECOMM")."<br>";
         echo "Encoding can be set in table (alias) properties.<br>";
         echo "manual set encoding:";inputtxt ("encodeset",15);echo " (utf-8 , not utf8)<br>";
 
@@ -1506,7 +1506,7 @@ echo "<form method=\"post\" action=\"filemgr.php\" target=_blank>";
 }
 // для одинаковых надписей мож доб пот. перем. step  1.1 1.2 1.3 :)))
 // процедура восстановления базы данных из дампа..
-if (($dump)AND($start==cmsg(DALEE))) {
+if (($dump)AND($start==cmsg("DALEE"))) {
 if (($dblk)AND(!$forcedb)) {$forcedb=1;$dbselected=$dblk;	}
 	$path=getcwd ()."/_local/dump/";
         $dbtype="mysql"; // default dbtype in CFG OPT FUTURE  TODO:! 
@@ -1559,11 +1559,11 @@ if (($dblk)AND(!$forcedb)) {$forcedb=1;$dbselected=$dblk;	}
 						$b=str_replace ("SELECT DATABASE ","CREATE DATABASE ",$a);//3.5.25 ver only 
 						$a=str_replace ("SELECT DATABASE ","USE ",$a);
 						dbs_query ($b,$connect,$dbtype);;
-						echo "<br>".cmsg (W_NDB_FORC2)."($a)<br>";
+						echo "<br>".cmsg("W_NDB_FORC2")."($a)<br>";
 						}
 	if ($najti3!==false) {dbs_query ($a,$connect,$dbtype);;
 						$a=str_replace ("create database if not exists","USE ",$a);
-						echo "<br>".cmsg (W_NDB_FORC)."($a)<br>";
+						echo "<br>".cmsg("W_NDB_FORC")."($a)<br>";
 							}
 	if ($forcedb) {
 			$cmd="USE $dbselected;";
@@ -1585,17 +1585,17 @@ if (($dblk)AND(!$forcedb)) {$forcedb=1;$dbselected=$dblk;	}
 
 	}
 	if (!$pr[8]) echo "DEBUG $query.<br>";
-$x=cmsg (WF_EXQUES)."$queries";	echo "$x<br>";
+$x=cmsg("WF_EXQUES")."$queries";	echo "$x<br>";
 //$x=cmsg ("BCK_TBL+")."".$tables;	echo "$x<br>";
-$x=cmsg (BCK_SKIP).$skipped; 	echo "$x<br>";
-$x=cmsg (BCK_ERR).$err;	echo "$x<br>";
+$x=cmsg("BCK_SKIP").$skipped; 	echo "$x<br>";
+$x=cmsg("BCK_ERR").$err;	echo "$x<br>";
 $query="";
 	mysqli_close($connect);
 	fclose ($f);
 	ob_clean();
 	$action="WF_BCK_FILEDUMP_UNARCH $path.$dumpfile -q $queries -e $err -s $skipped force $dbselected";logwrite ($action);
 	//apache_child_terminate();
-lprint (COMPLETED);exit;//теперь не должно быть никаких First select id please
+lprint("COMPLETED");exit;//теперь не должно быть никаких First select id please
 }
 //конец выполнения восстановления из дампа
 
@@ -1864,8 +1864,8 @@ if ($pl[5]) if (is_integer($intpl)===true) $id5=getidbyid ($prdbdata,0,"realid",
 
 if ($pl[1]) echo "<BR><BR>tbl connected as link=".$pl[1]." (reg conf realid #$id1) [".$prdbdata[$pl[1]][9].".".$prdbdata[$pl[1]][5]."] with method ".$pl[2]." (No ".$pl[3].") displays as  ".$pl[4]."<br>";  //tabbydb,columnname,columnnomer,0"////tabbydb,columnname,columnnomer,0
 if ($pl[5]) echo "tbl connected as help=".$pl[5]." (reg conf realid #$id5) [".$prdbdata[$pl[5]][9].".".$prdbdata[$pl[5]][5]."] with method ".$pl[6]." (No ".$pl[7].") displays as  ".$pl[8]."<br>";  //tabbydb,columnname,columnnomer,0"////tabbydb,columnname,columnnomer,0
-if (!$pl[1]) echo cmsg (TLNK_NOT)."<br>";
-if (!$pl[5]) echo cmsg (HLNK_NOT)."<br>";
+if (!$pl[1]) echo cmsg("TLNK_NOT")."<br>";
+if (!$pl[5]) echo cmsg("HLNK_NOT")."<br>";
 //если данные уже будут присутствовать - их нужно будет брать отсюда. ^_^ в идеале может приниматься не только 2 пунта :)
 //.getidbyid($db,$idsrchcolumn,$idrescolumn,$stringкот ищут) 	 выбор таблицы, для 2 пунктов, потом выбор метода и колонки и имени соединения.
 	//exit;
@@ -1897,7 +1897,7 @@ if (($write==cmsg("TARGET"))) {
 if (($write==cmsg("TARGET2"))) {
 //	echo "!!!!!!!!!!!!!";
         $tlb=$activetableid;
-     //   echo "PRINTLINK 1809 $prauth,$prdbdata,$ADM,$tbl,$grouplist,tbllink,cmsg(ELLINK),$groupdb,$ipfilter,6)<br>;";
+     //   echo "PRINTLINK 1809 $prauth,$prdbdata,$ADM,$tbl,$grouplist,tbllink,cmsg("ELLINK"),$groupdb,$ipfilter,6)<br>;";
      //   echo "id1=$id1  id5=$id5  columnname=$columnname columnnomer=$columnnomer <br>";
      //  print_r ($grouplist) ;echo "<br>";
        $tablelist=array (1=>"tbllink", 2=>"tblhelp");
@@ -4241,7 +4241,7 @@ $bestedit=1;};
 //=========================================
  //модуль запуска      AND($prdbdata[$tbl][12]!="fdb")
 if (($write==cmsg ("KEY_MASS_OPER"))AND($prauth[$ADM][45])) { //  CFG OPT FUTURE  TODO:
-lprint (M_OP_INF);echo "<bR>";
+lprint("M_OP_INF");echo "<bR>";
 
 $data=readdescripters ();
 echo "";
@@ -4254,7 +4254,7 @@ radio ("massoper",1,"M_OP_1") ;//printfield ($data,"addif1");
 if ($prdbdata[$tbl][12]!="fdb") radio ("massoper",2,"M_OP_2") ;echo "<bR>";
 if (!$prauth[$ADM][5]) echo "<gray>".cmsg ("M_OP_3").cmsg ("BLOCK")."</gray>";
 if ($prauth[$ADM][5]) radio ("massoper",3,"M_OP_3") ;echo "<bR>";
-radio ("massoper",4,"TO_BEST") ;checkbox ($rewr,"rewr"); lprint (REW_IF_PRES);echo "<br>";
+radio ("massoper",4,"TO_BEST") ;checkbox ($rewr,"rewr"); lprint("REW_IF_PRES");echo "<br>";
 radio ("massoper",5,"NOP") ;echo "<bR>";
 
 
@@ -4310,7 +4310,7 @@ echo "</select><br>";
 }
    decodecols ($res16);
    if ($data>-1) {	
-   	checkbox ($selectenable,"selectenable");	echo cmsg (SORT_BY).":";printfield ($data,"field");
+   	checkbox ($selectenable,"selectenable");	echo cmsg("SORT_BY").":";printfield ($data,"field");
 	checkbox ($limitenable,"limitenable") ; lprint ("WF_EX_LIM"); 
 	inputtxt ("printlimit",3);echo "<Br>";
         checkbox ($disabledbselect,"disabledbselect") ;  lprint ("WF_EX_AUDB");
@@ -4463,7 +4463,7 @@ $sourcetable="`".$prdbdata[$tbl][5]."`";// целевая база данных 
 	}
 	
 	};
-	if (($countqueries-1)>1) {echo "<br>".cmsg (WF_SEND_SQL_E_T)." ".($cntque-1-$error)."/".($countqueries-1)."<br>";
+	if (($countqueries-1)>1) {echo "<br>".cmsg("WF_SEND_SQL_E_T")." ".($cntque-1-$error)."/".($countqueries-1)."<br>";
 	if ($skipped) echo cmsg ("BCK_SKIP").$skipped."<br>";
 	if ($error) echo cmsg ("BCK_ERR").$error."<br>";
 	}	
@@ -4487,7 +4487,7 @@ function importexporttbl ()
 	if ($prauth[$ADM][2]==false) { lprint ("ACCDEN"); exit;};
  //не разрешает администрировать не имея этого права - защита от альтернативного входа ($prauth[$ADM][10]<2) образец
 	 if ($prauth[$ADM][16]==0) {
-	 echo cmsg (CONV_NOTE)."<br>";
+	 echo cmsg("CONV_NOTE")."<br>";
 	 }
 
 	?> <form action=w.php method=post><?php hidekey ("vID",$vID);

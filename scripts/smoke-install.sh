@@ -113,4 +113,18 @@ else
     fail "r.php content"
 fi
 
-echo "ALL OK: install → login → w.php → r.php"
+echo -n "admin.php ... "
+if ! curl -fsS -b "$COOKIE" -L --max-time 60 "$BASE_URL/admin.php" -o "$OUT"; then
+    fail "admin.php GET"
+fi
+if grep -qE 'Fatal error|Uncaught Error' "$OUT"; then
+    fail "admin.php"
+fi
+if grep -qE 'Admin v4|A_WELC|cmd=note|Self-test|My profile' "$OUT"; then
+    echo "OK"
+else
+    grep -E 'login\.php|notright|Fatal|disable' "$OUT" | head -5
+    fail "admin.php content"
+fi
+
+echo "ALL OK: install → login → w.php → r.php → admin.php"

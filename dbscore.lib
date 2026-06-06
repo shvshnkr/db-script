@@ -9,6 +9,8 @@ $coreloadskip = $coreloadskip ?? false;
 $installermode = $installermode ?? false;
 $dbdataskip = $dbdataskip ?? false;
 $exitpoint = $exitpoint ?? null;
+$nomnu = $nomnu ?? 0;
+$menuloaded = $menuloaded ?? 0;
 // ajax test - <script>$.get("my.php",[],function(res) { alert("a") });</script>
 // SE repo
 $svn1="http://db-script.googlecode.com/svn/trunk/";
@@ -194,11 +196,13 @@ if (!$coreloadskip) if ($data==-1) errorlog ("E_CFG:Not found $filbas"); //layer
 	
 // RIGHTS MODULE
 $ADM=0;$prauthen=1;$prauthcnt=1;
+if (!is_array($prauth)) { $prauth=array(array()); $prauthcnt=1; }
 while (($prauth[$prauthcnt-1][0]??false)==true)	{
-	$dbuserpswd=($prauth[$prauthcnt][1]); // dbpsw
-	$dbusername=strtolower($prauth[$prauthcnt][0]);
-	$enteredname=strtolower($_SERVER['PHP_AUTH_USER']);
-	$servpw=$_SERVER['PHP_AUTH_PW'];// Entered password
+	if (!is_array($prauth[$prauthcnt] ?? null)) { $prauthcnt++; continue; }
+	$dbuserpswd=($prauth[$prauthcnt][1] ?? ''); // dbpsw
+	$dbusername=strtolower($prauth[$prauthcnt][0] ?? '');
+	$enteredname=strtolower($_SERVER['PHP_AUTH_USER'] ?? '');
+	$servpw=$_SERVER['PHP_AUTH_PW'] ?? '';// Entered password
 	$oldencenteredpswd=md5 (md5 ($servpw));
 	$enteredpswd=hashgen ($servpw);
 	if (($dbusername===$enteredname)AND($dbuserpswd===$oldencenteredpswd)) { $ADM=$prauthcnt ;};
@@ -3548,7 +3552,7 @@ if ($filedescripter==false) {
 }}}
 if ($mode!=="r") {
 	$err=0;
-	if (strlen ($mode)>3) @fclose ($filedescripter);
+	if (strlen ($mode)>3 && $filedescripter) @fclose ($filedescripter);
 	//if (strlen ($mode)>3) echo "fileforaction=$fileforaction,   fileforcopy=$fileforcopy<br>";
 	//
 	if ($mode=="delete") { $err=unlink ($fileforaction); }; //++
@@ -3623,7 +3627,7 @@ function writefullcsv ($filedescripter,$header,$plevel,$massive) {
 	//$cnt=1;$cntmax=count ($massive); REMOVED   cnt--stroke
 	
 for ($stroke=1;$stroke<count($massive);$stroke++) {    // imploding
-		//if ($OSTYPE=="LINUX") $a=implode ($separator,$massive[$cnt]);		//$tojoin=$massive[$stroke];
+		if (!is_array($massive[$stroke] ?? null)) continue;
 		@$a=implode($separator, $massive[$stroke]);//if ($OSTYPE=="WINDOWS")
 		if ($testlinuxlinefeed) if ($OSTYPE=="LINUX") $a=$a."\n"; // Perewod stroki teryetsya ne tut//TEST MAY FIX BUG WITH TEST LINKS AND CAUSE BUG CONF EDIT
 		//leaving THIS line is runs dblinker (remove bug) and adds some bugs in another places

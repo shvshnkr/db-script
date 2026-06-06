@@ -124,8 +124,8 @@ if (($write==cmsg ("A_ACSS_ED"))or($go==cmsg("A_ACSS_ED"))) { cssed () ;exit; };
  	
    	echo $veradm."<br>";
 	echo lprint ("VCONF").": ".$pr[1]."<br> ".cmsg("A_DOW_LOG")."<a href='_logs/log.dat'>Log</a>,<a href='_logs/errorlog.dat'>Errorlog</a>,<a href='_logs/undolog.dat'>Undolog</a>,<a href='_logs/reportlog.dat'>reportlog</a>,<a href='_logs/execsqllog.dat'>execsqllog</a>";
+	echo '<a target=help href="http://code.google.com/p/db-script/issues"><img src=_ico/bug1.png border=1 title="'.cmsg("BUGDET")." ".$write.'"></a>';
 ?>
-    <a target=help href="http://code.google.com/p/db-script/issues"><img src=_ico/bug1.png border=1 title="<?php echo cmsg (BUGDET)." ".$write?>"></a>
     <br>
     <?php
 
@@ -151,10 +151,7 @@ $backupstate=@csvopen ("_conf/dbdata.cfg.backup.dat","r","0");
 ?>
 <input type= hidden name= tbl value=0>
 </form>
-<?php//   submitkey ("go","A_SQLRES"); hiddenkey ("write","KEY_S_EXEC	");hidekey ("tbl",1);hidekey ("vd","SHOW PROCESSLIST ;");
- // echo "<form action=w.php method=post>";  submitkey ("go","A_SQLDBS");  hiddenkey ("write","KEY_S_EXEC");hidekey ("tbl",1);hidekey ("vd","SHOW DATABASES ;"); echo "</form>";
-  // echo "<form action=w.php method=post>";submitkey ("go","A_SQLCFG"); hiddenkey ("write","KEY_S_EXEC");hidekey ("tbl",1);hidekey ("vd","SHOW VARIABLES ;"); echo "</form>";
-		?> <form action=admin.php method=post>
+	<form action=admin.php method=post>
 <?php  submitkey ("write","A_TEST");submitkey ("write","DB_MGR");submitkey ("write","CHK_UPD");submitkey ("write","CHK_LIC");?> </form>
 <?php if ($prauth[$ADM][10]>1) { ?>
 		<form action=admin.php method=post>
@@ -171,7 +168,7 @@ $backupstate=@csvopen ("_conf/dbdata.cfg.backup.dat","r","0");
  
  		<?php if ($prauth[$ADM][42]) {?>
  		<form action=admin.php method=post>
-	<?php echo "</red>";lprint (SRV_SU_MSG);echo "<br>";
+	<?php echo "</red>";lprint("SRV_SU_MSG");echo "<br>";
 	submitkey ("write","MYSQL_START"); 
 	submitkey ("write","MYSQL_STOP"); 
 	submitkey ("write","MYSQL_REBOOT"); 
@@ -516,15 +513,15 @@ $comfile="msgerr.css";simpleedit($comfile,-10000);
  function chkupd () {
  	global $vernumb;
  	$fp=@fopen ("http://dj.chg.su/dbscript/update.txt","r");
- 	if ($fp==false) { lprint (UPD_NONE) ; dispref();exit;}
+ 	if ($fp==false) { lprint("UPD_NONE") ; dispref();exit;}
  	$f=fread ($fp,1000);
  	$v=explode (";",$f); 
  $vercharnew=$v[1];$vernumbnew=$v[0];$updatefile=$v[2];
- if ($vernumbnew>$vernumb) {lprint (UPD_NEED);echo $vercharnew;
+ if ($vernumbnew>$vernumb) {lprint("UPD_NEED");echo $vercharnew;
      echo"<br><form action=admin.php>";submitkey ("write","SVN_UPD"); echo "<br></form>";
  		if ($updatefile) echo "<br>Download update: ".$updatefile;
   		exit;}
- if ($vernumbnew<$vernumb) {lprint (UPD_NONEED); exit;}
+ if ($vernumbnew<$vernumb) {lprint("UPD_NONEED"); exit;}
  }
 
 function chklic () {
@@ -546,10 +543,10 @@ $datamassive=readfullcsv ($lic,"new");
   $licnumber=getidbyid ($lcontent,2,"realidcontain",$actcod);  // fix for lost license 4.1.8  what?? 
   //echo "($licnumber=getidbyid ($lcontent,2,0,$actcod))";
   //print_r ($lcontent);
-echo "<br>".cmsg (LIC_I)."<br><br>";
-if ($datamassive==-1) echo cmsg (LIC_F);
-if (!$licnumber) echo cmsg (LIC_N) ;
-if ($licnumber) echo cmsg ("LIC")."$licnumber ".cmsg (REG)." ".$lcontent[$licnumber][5]." for ".$lcontent[$licnumber][6]." at ".$lcontent[$licnumber][7]."." ;
+echo "<br>".cmsg("LIC_I")."<br><br>";
+if ($datamassive==-1) echo cmsg("LIC_F");
+if (!$licnumber) echo cmsg("LIC_N") ;
+if ($licnumber) echo cmsg ("LIC")."$licnumber ".cmsg("REG")." ".$lcontent[$licnumber][5]." for ".$lcontent[$licnumber][6]." at ".$lcontent[$licnumber][7]."." ;
 }
 //
 
@@ -579,7 +576,7 @@ while ($tbl<$prdbdatacnt-1) {
 					 $fixmsg=$code[7];$warnmsg=$code[8];
 					 if (strlen ($fixmsg)>15) { echo "$msfixed ".$fixmsg;$fixed++; };
 				 	 if (strlen ($warnmsg)>15) { echo "$mswarn ".$warnmsg;$warn++; };
-					if ($code==-1) { echo "$mserror SQL ".cmsg (A_T_DB)." ".$prdbdata[$tbl][0]," ".cmsg (NOREP)."<br>";$exist=0; $error++;
+					if ($code==-1) { echo "$mserror SQL ".cmsg("A_T_DB")." ".$prdbdata[$tbl][0]," ".cmsg("NOREP")."<br>";$exist=0; $error++;
 					$errortables[]=$prdbdata[$tbl];  //continue;//added cont  for test
 									}
 						}
@@ -590,7 +587,7 @@ while ($tbl<$prdbdatacnt-1) {
 					 $fixmsg=$code[7];$warnmsg=$code[8];
 					 if (strlen ($fixmsg)>15) { echo "$msfixed ".$fixmsg;$fixed++; };
 					 if (strlen ($warnmsg)>15) { echo "$mswarn ".$warnmsg;$warn++; };
-					 if ($code==-1) { echo "$mserror DAT  ".cmsg (A_T_DB)." ".$prdbdata[$tbl][0]." ".cmsg (NOREP)."<br>";$error++;//$tbl++; именно эта параша всё сбивала.
+					 if ($code==-1) { echo "$mserror DAT  ".cmsg("A_T_DB")." ".$prdbdata[$tbl][0]." ".cmsg("NOREP")."<br>";$error++;//$tbl++; именно эта параша всё сбивала.
                                              $errortables[]=$prdbdata[$tbl];	//continue; remove as tes
 								};
 				$mycols=$mzcnt;   $mycolsreal=$code[6]; 
@@ -598,22 +595,22 @@ while ($tbl<$prdbdatacnt-1) {
 // К этому моменту  уже должны быть базы обновлены
 		
 			if (($prdbdata[$tbl][12]=="1")) {  
-		echo "$msfixed ".cmsg (TB)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_UDBT)." -sql-<br>";$prdbdata[$tbl][12]="mysql";$fixed++;$edit=1 ;}
+		echo "$msfixed ".cmsg("TB")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_UDBT")." -sql-<br>";$prdbdata[$tbl][12]="mysql";$fixed++;$edit=1 ;}
 		
 			if (($prdbdata[$tbl][12]===false)OR($prdbdata[$tbl][12]==="0")) { 
-		echo "$msfixed  ".cmsg (TB)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_UDBT)." -fdb-<br>";$prdbdata[$tbl][12]="fdb";$fixed++;$edit=1 ;}
+		echo "$msfixed  ".cmsg("TB")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_UDBT")." -fdb-<br>";$prdbdata[$tbl][12]="fdb";$fixed++;$edit=1 ;}
 		
 		if (($prdbdata[$tbl][9]=="")AND($prdbdata[$tbl][12]=="mysql")) { 
-		echo "$msfixed ".cmsg (TB)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_NC_DEF)." <br>";$prdbdata[$tbl][9]="default";$fixed++;$edit=1 ;}
+		echo "$msfixed ".cmsg("TB")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_NC_DEF")." <br>";$prdbdata[$tbl][9]="default";$fixed++;$edit=1 ;}
 		
 	if (($prdbdata[$tbl][5]=="")AND($prdbdata[$tbl][1]!=="")) { 
-		echo "$msfixed ".cmsg (A_SF_NAMTBL)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_CPY_MIRR)."<br>";$prdbdata[$tbl][5]=$prdbdata[$tbl][1];$fixed++;$edit=1 ;}
+		echo "$msfixed ".cmsg("A_SF_NAMTBL")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_CPY_MIRR")."<br>";$prdbdata[$tbl][5]=$prdbdata[$tbl][1];$fixed++;$edit=1 ;}
 		
 	if (($prdbdata[$tbl][1]=="")AND($prdbdata[$tbl][5]!=="")) { 
-		echo "$msfixed ".cmsg (A_SF_NAMMIRR)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_CPY_NAMTBL)."<br>";$prdbdata[$tbl][1]=$prdbdata[$tbl][5];$fixed++;$edit=1 ;}
+		echo "$msfixed ".cmsg("A_SF_NAMMIRR")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_CPY_NAMTBL")."<br>";$prdbdata[$tbl][1]=$prdbdata[$tbl][5];$fixed++;$edit=1 ;}
 
 	if (($prdbdata[$tbl][0]=="")AND($prdbdata[$tbl][1]!=="")) { 
-		echo "$msfixed ".cmsg (A_SF_NOFLNM)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_CPY_MIRR2)."<br>";$prdbdata[$tbl][0]=$prdbdata[$tbl][5];$fixed++;$edit=1 ;}
+		echo "$msfixed ".cmsg("A_SF_NOFLNM")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_CPY_MIRR2")."<br>";$prdbdata[$tbl][0]=$prdbdata[$tbl][5];$fixed++;$edit=1 ;}
 
 
 if (($prdbdata[$tbl][15]==$prdbdata[$tbl][11])AND($prdbdata[$tbl][15]!=="")) {
@@ -624,21 +621,21 @@ if (($prdbdata[$tbl][15]==$prdbdata[$tbl][11])AND($prdbdata[$tbl][15]!=="")) {
 
 		if ($exist==1) { 
 	if (($prdbdata[$tbl][14]=="")OR($prdbdata[$tbl][14]<0)) { 
-		echo "$msfixed ".cmsg (A_R_TB)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_DEF)."<br>";$prdbdata[$tbl][14]=0;$fixed++;$edit=1 ;}
+		echo "$msfixed ".cmsg("A_R_TB")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_DEF")."<br>";$prdbdata[$tbl][14]=0;$fixed++;$edit=1 ;}
 	
 	if ($prdbdata[$tbl][13]<$prdbdata[$tbl][14]) { $prdbdata[$tbl][13]=(($prdbdata[$tbl][14])+1);
-		echo "$msfixed  ".cmsg (A_R_TB).cmsg (T_WR)." ".$prdbdata[$tbl][1]." ".cmsg (A_R_RW_ERR).cmsg (FIXED)."<br>";$fixed++;$edit=1 ;}
+		echo "$msfixed  ".cmsg("A_R_TB").cmsg("T_WR")." ".$prdbdata[$tbl][1]." ".cmsg("A_R_RW_ERR").cmsg("FIXED")."<br>";$fixed++;$edit=1 ;}
     $writerights=$prdbdata[$tbl][13];
     if ($writerights!=="d") {settype ($writerights,"integer");
 		if ($writerights=="") { $prdbdata[$tbl][13]=(($prdbdata[$tbl][14])+1);
-		echo "$msfixed ".cmsg (A_R_TB).cmsg (T_WR)." ".$prdbdata[$tbl][1]." ".cmsg (A_R_RW_ERR).cmsg (FIXED)."<br>";$fixed++;$edit=1 ;}
+		echo "$msfixed ".cmsg("A_R_TB").cmsg("T_WR")." ".$prdbdata[$tbl][1]." ".cmsg("A_R_RW_ERR").cmsg("FIXED")."<br>";$fixed++;$edit=1 ;}
     }
 		
-	if (($prdbdata[$tbl][10])>$mycols) { echo "$mserror ".cmsg (A_T_FROW1).$prdbdata[$tbl][10].") ( ".cmsg (ITB)." ".$prdbdata[$tbl][1].cmsg (A_MCOLS)."$mycols <br>"; $error++;}
- 	 if (($prdbdata[$tbl][11])>$mycols) { echo "$mserror  ".cmsg (A_T_CROW1).$prdbdata[$tbl][11].") ( ".cmsg (ITB)." ".$prdbdata[$tbl][1].cmsg (A_MCOLS)."$mycols <br>"; $error++;}
- 	 if (($prdbdata[$tbl][4])>$mycols) { echo "$mserror  ".cmsg (A_T_CGROW1).$prdbdata[$tbl][4].") ( ".cmsg (ITB)." ".$prdbdata[$tbl][1].cmsg (A_MCOLS)."$mycols <br>"; $error++;}
-	  if (($prdbdata[$tbl][8])>$mycols) { echo "$mswar  ".cmsg (A_T_SCROW1).$prdbdata[$tbl][8].")  ".cmsg (ITB)." ".$prdbdata[$tbl][1].cmsg (A_MCOLS)."$mycols <br>"; $warn++;}
- 	  if (($prdbdata[$tbl][8]!==false)AND($prdbdata[$tbl][3]===false)) { echo "$mswar ".cmsg (A_T_SCRPRS).$prdbdata[$tbl][8].") ".cmsg (ITB)." ".$prdbdata[$tbl][1]." ".cmsg (A_F_EMP)."<br>"; $war++;}
+	if (($prdbdata[$tbl][10])>$mycols) { echo "$mserror ".cmsg("A_T_FROW1").$prdbdata[$tbl][10].") ( ".cmsg("ITB")." ".$prdbdata[$tbl][1].cmsg("A_MCOLS")."$mycols <br>"; $error++;}
+ 	 if (($prdbdata[$tbl][11])>$mycols) { echo "$mserror  ".cmsg("A_T_CROW1").$prdbdata[$tbl][11].") ( ".cmsg("ITB")." ".$prdbdata[$tbl][1].cmsg("A_MCOLS")."$mycols <br>"; $error++;}
+ 	 if (($prdbdata[$tbl][4])>$mycols) { echo "$mserror  ".cmsg("A_T_CGROW1").$prdbdata[$tbl][4].") ( ".cmsg("ITB")." ".$prdbdata[$tbl][1].cmsg("A_MCOLS")."$mycols <br>"; $error++;}
+	  if (($prdbdata[$tbl][8])>$mycols) { echo "$mswar  ".cmsg("A_T_SCROW1").$prdbdata[$tbl][8].")  ".cmsg("ITB")." ".$prdbdata[$tbl][1].cmsg("A_MCOLS")."$mycols <br>"; $warn++;}
+ 	  if (($prdbdata[$tbl][8]!==false)AND($prdbdata[$tbl][3]===false)) { echo "$mswar ".cmsg("A_T_SCRPRS").$prdbdata[$tbl][8].") ".cmsg("ITB")." ".$prdbdata[$tbl][1]." ".cmsg("A_F_EMP")."<br>"; $war++;}
 
  	  $fields=count($prdbdata[$tbl]);
 if ($fields<199) { 
@@ -671,24 +668,24 @@ if ($a1==202) { if ($OSTYPE=="LINUX") $prdbdata[$tbl][$a1].="\n"; //  испра
  	 $a=$prdbdata[$tbl][17];//echo "ept 17=$a<br>";
  if ((strlen (trim ($a))<2)or($a===" ")) {$ungroup=1;}; if ((strlen (trim ($a))>1)) { $ungroup=0;};
   	  if (($ungroup==1)AND($prdbdata[$tbl][12]=="mysql")AND($prdbdata[$tbl][9]==true)) { 
-		echo "$msfixed ".cmsg (A_SF_GRP_TBL)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_NO)." (".$prdbdata[$tbl][17].cmsg (A_DEF_GRP).$prdbdata[$tbl][9].")<br>";
+		echo "$msfixed ".cmsg("A_SF_GRP_TBL")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_NO")." (".$prdbdata[$tbl][17].cmsg("A_DEF_GRP").$prdbdata[$tbl][9].")<br>";
 		$prdbdata[$tbl][17]=$prdbdata[$tbl][9];
 		$fixed++;$edit=1 ;$ungroup=0;}  //CFG OPT FUTURE  TODO:  отключаемое 2 реж 1-база может отличатся от 2-база вс=базе.
 
      if ($pr[38]) if (($prdbdata[$tbl][12]=="mysql")AND($prdbdata[$tbl][9]!==$prdbdata[$tbl][17])) { 
-		echo "$msfixed ".cmsg (A_SF_GRP_TBL)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_GRP_DECL)." ".$prdbdata[$tbl][17].")-->(".$prdbdata[$tbl][9].")<br>";
+		echo "$msfixed ".cmsg("A_SF_GRP_TBL")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_GRP_DECL")." ".$prdbdata[$tbl][17].")-->(".$prdbdata[$tbl][9].")<br>";
 		$prdbdata[$tbl][17]=$prdbdata[$tbl][9];
 		$fixed++;$edit=1 ;$ungroup=0;} 
      
 		if (($ungroup==1)AND($prdbdata[$tbl][12]=="fdb")) { 
-		echo "$msfixed ".cmsg (A_SF_GRP_TBL)." ".$prdbdata[$tbl][1]." ".cmsg (A_SF_NO)." (".$prdbdata[$tbl][17].cmsg (A_DEF_GRP)."fdb)<br>";
+		echo "$msfixed ".cmsg("A_SF_GRP_TBL")." ".$prdbdata[$tbl][1]." ".cmsg("A_SF_NO")." (".$prdbdata[$tbl][17].cmsg("A_DEF_GRP")."fdb)<br>";
 		$prdbdata[$tbl][17]="fdb";
 		$fixed++;$edit=1 ;$ungroup=0;}  //CFG OPT FUTURE  TODO:  отключаемое 2 реж 1-база может отличатся от 2-база вс=базе.AS Mysql 
 }
 //*/$prdbdata[$tbl][18]="\n"; поможе если все таки достигнули крайнее число колонок.
 		
  $tbl++;
- } echo "<br>".cmsg (A_SF_ALLDB).($prdbdatacnt-2)."<br>---------------------------------------<br>";
+ } echo "<br>".cmsg("A_SF_ALLDB").($prdbdatacnt-2)."<br>---------------------------------------<br>";
 
 ##проверка на факт редактирования должна быть обязательно везде - незачем постоянно делать сохранения.
  if ($edit==1) {
@@ -709,17 +706,17 @@ if ($a1==202) { if ($OSTYPE=="LINUX") $prdbdata[$tbl][$a1].="\n"; //  испра
   while ($cnt<$prauthcnt) {
 
 if (((strlen ($prauth[$cnt][1]))<32)AND($prauth[$cnt][0]==true)) {
-	echo "$msfixed ".cmsg (A_SF_U_NOCYPH).$prauth[$cnt][0]." ".cmsg (A_SF_U_CYHP)."<br>";$fixed++;$edit=1;
+	echo "$msfixed ".cmsg("A_SF_U_NOCYPH").$prauth[$cnt][0]." ".cmsg("A_SF_U_CYHP")."<br>";$fixed++;$edit=1;
 $prauth[$cnt][1]=hashgen ($prauth[$cnt][1]);
 }
 
 if ((($prauth[$cnt][1][0])!=="!")AND($prauth[$cnt][0]==true)) {
-	echo "$mswar ".cmsg(A_SF_U_NOCYPH)." ".$prauth[$cnt][0]." ".cmsg (A_OLD_ENC)."<br>";$war++;
+	echo "$mswar ".cmsg("A_SF_U_NOCYPH")." ".$prauth[$cnt][0]." ".cmsg("A_OLD_ENC")."<br>";$war++;
 }
 
 $su=$su+$prauth[$cnt][42];
  $admins=$admins+$prauth[$cnt][2];$a=$prauth[$cnt][10];if ($a) { $users=$users+1;};
- $cnt++;	} echo "<br>".cmsg (A_SU)." $su ".cmsg (A_T_ADMFRUSR)." $admins ".cmsg (A_IZ)." $users ".cmsg (A_USRS).".<br>---------------------------------------<br>";
+ $cnt++;	} echo "<br>".cmsg("A_SU")." $su ".cmsg("A_T_ADMFRUSR")." $admins ".cmsg("A_IZ")." $users ".cmsg("A_USRS").".<br>---------------------------------------<br>";
 
 
    ###rewrite cfg### :)))
@@ -738,8 +735,8 @@ $su=$su+$prauth[$cnt][42];
   $cnt=1;
   while ($cnt<$edcnt) {
   $cnt++;
-   if (($edcontent[$cnt][0]!=="")AND($edcontent[$cnt][1]=="")) {echo "$mswar ".cmsg (A_T_EDAT)." $cnt (".$edcontent[$cnt][0]." (".$prdbdata[$edcontent[$cnt][0]][0].")) ".cmsg (A_T_EDATEMP)."<br>";$war++;}
- } echo "<br> ".cmsg (A_T_EDCFGS)." ".($edcnt-2)."<br>---------------------------------------<br>";
+   if (($edcontent[$cnt][0]!=="")AND($edcontent[$cnt][1]=="")) {echo "$mswar ".cmsg("A_T_EDAT")." $cnt (".$edcontent[$cnt][0]." (".$prdbdata[$edcontent[$cnt][0]][0].")) ".cmsg("A_T_EDATEMP")."<br>";$war++;}
+ } echo "<br> ".cmsg("A_T_EDCFGS")." ".($edcnt-2)."<br>---------------------------------------<br>";
 
 
    ###rewrite cfg### :)))
@@ -755,20 +752,20 @@ $su=$su+$prauth[$cnt][42];
  $cnt=1;
  while ($cnt<$pgcnt) {
 //if ($cnt>10) { echo "Страница $cnt (".$pgcontent[$cnt][1].") не может быть обслужена из за встроенных ограничений.<br>"; $war++;}
-if ($pgcontent[$cnt][1]==="") {echo "$mserror  ".cmsg (A_PAGE)." $cnt (".$pgcontent[$cnt][1].") ".cmsg (A_T_PGNOCONN).".<br>";$error++;}
-if ((strpos($pgcontent[$cnt][1],"readfile.php"))!==false) {echo "$msfixed ".cmsg (A_PAGE)." $cnt (".$pgcontent[$cnt][1].") up to 3.5.18+.<br>";
+if ($pgcontent[$cnt][1]==="") {echo "$mserror  ".cmsg("A_PAGE")." $cnt (".$pgcontent[$cnt][1].") ".cmsg("A_T_PGNOCONN").".<br>";$error++;}
+if ((strpos($pgcontent[$cnt][1],"readfile.php"))!==false) {echo "$msfixed ".cmsg("A_PAGE")." $cnt (".$pgcontent[$cnt][1].") up to 3.5.18+.<br>";
 $pgcontent[$cnt][1]=str_replace("readfile.php","r.php",$pgcontent[$cnt][1]);$fixed++;$edit=1;}
-if ((strpos($pgcontent[$cnt][1],"edit.php"))!==false) {echo "$msfixed ".cmsg (A_PAGE)." $cnt (".$pgcontent[$cnt][1].") up to 3.6.1+.<br>";
+if ((strpos($pgcontent[$cnt][1],"edit.php"))!==false) {echo "$msfixed ".cmsg("A_PAGE")." $cnt (".$pgcontent[$cnt][1].") up to 3.6.1+.<br>";
 $pgcontent[$cnt][1]=str_replace("edit.php","login.php",$pgcontent[$cnt][1]);$fixed++;$edit=1;}
 
-if ((strpos($pgcontent[$cnt][1],"writefile.php"))!==false) {echo "$msfixed  ".cmsg (A_PAGE)." $cnt (".$pgcontent[$cnt][1].") up to 3.5.18+.<br>";
+if ((strpos($pgcontent[$cnt][1],"writefile.php"))!==false) {echo "$msfixed  ".cmsg("A_PAGE")." $cnt (".$pgcontent[$cnt][1].") up to 3.5.18+.<br>";
 $pgcontent[$cnt][1]=str_replace("writefile.php","w.php",$pgcontent[$cnt][1]);$fixed++;$edit=1;}
 
-if ($pgcontent[$cnt][3]==="") {echo "$mswar  ".cmsg (A_PAGE)."$cnt (".$pgcontent[$cnt][1].") ".cmsg (A_T_PGNOHDR).".<br>";$war++;}
- if (($pgcontent[$cnt][6]>0)AND($pgcontent[$cnt][7]<4)) {echo "$mswar  ".cmsg (A_PAGE)." $cnt (".$pgcontent[$cnt][1].") ".cmsg (A_T_PGUPTM).$dbc[7]."<br>";$war++;}
-  if (($pgcontent[$cnt][4]==1)AND($pgcontent[$cnt][2]==false)) {echo "$mserror ".cmsg (A_PAGE)." $cnt (".$pgcontent[$cnt][1].") ".cmsg (A_T_PGRDR).".<br>";$error++;}
+if ($pgcontent[$cnt][3]==="") {echo "$mswar  ".cmsg("A_PAGE")."$cnt (".$pgcontent[$cnt][1].") ".cmsg("A_T_PGNOHDR").".<br>";$war++;}
+ if (($pgcontent[$cnt][6]>0)AND($pgcontent[$cnt][7]<4)) {echo "$mswar  ".cmsg("A_PAGE")." $cnt (".$pgcontent[$cnt][1].") ".cmsg("A_T_PGUPTM").$dbc[7]."<br>";$war++;}
+  if (($pgcontent[$cnt][4]==1)AND($pgcontent[$cnt][2]==false)) {echo "$mserror ".cmsg("A_PAGE")." $cnt (".$pgcontent[$cnt][1].") ".cmsg("A_T_PGRDR").".<br>";$error++;}
 
- $cnt++;} echo "<br>".cmsg (A_T_ALLPG).($pgcnt-2)."<br>---------------------------------------<br>";
+ $cnt++;} echo "<br>".cmsg("A_T_ALLPG").($pgcnt-2)."<br>---------------------------------------<br>";
 
  
    ###rewrite cfg### :)))
@@ -785,7 +782,7 @@ if ($pgcontent[$cnt][3]==="") {echo "$mswar  ".cmsg (A_PAGE)."$cnt (".$pgcontent
 	 $warn++;};
  	
 	$cnt++;
- }echo "<br>".cmsg (A_DNW_ALL)." ".($dncnt-2)."<br>---------------------------------------<br>";
+ }echo "<br>".cmsg("A_DNW_ALL")." ".($dncnt-2)."<br>---------------------------------------<br>";
 
 
    ###rewrite cfg### :)))
@@ -839,8 +836,8 @@ if (!($fildata[$cnt][6]==2))  if (!file_exists ($fildata[$cnt][5])){
 	$cnt++;
 }
 
-echo "<br>".cmsg (A_FIL_DWN).": $downloadedfiles<br>";
- echo "<br>".cmsg (A_FIL_ALL)." ".(count ($fildata)-2)."<br>---------------------------------------<br>";
+echo "<br>".cmsg("A_FIL_DWN").": $downloadedfiles<br>";
+ echo "<br>".cmsg("A_FIL_ALL")." ".(count ($fildata)-2)."<br>---------------------------------------<br>";
 
 
    ###rewrite cfg### :)))
@@ -855,7 +852,7 @@ echo "<br>".cmsg (A_FIL_DWN).": $downloadedfiles<br>";
  $cnt=1;
  while ($cnt<$stcnt) {
 	 echo"";break;
- }echo "<br>".cmsg (A_STL_ALL)." ".($stcnt-2)."<br>---------------------------------------<br>";
+ }echo "<br>".cmsg("A_STL_ALL")." ".($stcnt-2)."<br>---------------------------------------<br>";
 
 //планируется стили подключать  просто как папки
 
@@ -870,7 +867,7 @@ echo "<br>".cmsg (A_FIL_DWN).": $downloadedfiles<br>";
   $cnt=1;
  while ($cnt<$lscnt) {
 	 echo"";break;
- }echo "<br>".cmsg (A_LNG_ALL)." ".($lscnt-2)."<br>---------------------------------------<br>";
+ }echo "<br>".cmsg("A_LNG_ALL")." ".($lscnt-2)."<br>---------------------------------------<br>";
 
 
 
@@ -887,9 +884,9 @@ if ($vpropcheck>0.8){ $error+1;  msgexiterror ("cfgnewwarn","noexit","disable");
 if ($vpropcheck<-0.8) { $error+1; msgexiterror ("cfgoldwarn","noexit","disable");}
 
 echo "=============================<br>=============================<br>";
-echo "".cmsg (A_T_ALLERR)." : ".($error+$war+$fixed)."<br>";
-echo "".cmsg (A_T_FROM)." :<br>".cmsg (A_T_CRIT)." $error <br>".cmsg (A_T_NOCRIT)." $war <br> ".cmsg (A_T_FIXED)." $fixed <br>";
-if ($error+$warn>0) echo "".cmsg (A_T_REC)." ";
+echo "".cmsg("A_T_ALLERR")." : ".($error+$war+$fixed)."<br>";
+echo "".cmsg("A_T_FROM")." :<br>".cmsg("A_T_CRIT")." $error <br>".cmsg("A_T_NOCRIT")." $war <br> ".cmsg("A_T_FIXED")." $fixed <br>";
+if ($error+$warn>0) echo "".cmsg("A_T_REC")." ";
 $data="";
 if ($debug) print_r ($errortables);
 if ($errortables) { echo "<form action=\"admin.php\"><br>";checkbox (0,"yes");echo count ($errortables);
@@ -985,7 +982,7 @@ $data=readfullcsv ($site,"new");$sd=$data[0];
 	for ($a=0;$a<count ($sd);$a++) { 
 		if ($sd14=="A_DEM_NOSQL")if (($a==14) OR($a==17)) continue;  //skip if public demo
 		$sd[$a]=stripslashes (${"sd".$a});}  //PARTIAL EXCHANGE
-	echo "<bb><h2>".cmsg (A_WRITED)."</bb><br>";    
+	echo "<bb><h2>".cmsg("A_WRITED")."</bb><br>";    
 	
     if (count ($pr)<24)	for ($a=24;$a<200;$a++)
 	{ $sd[$a]="0";	  if ($a>36) $pr[$a]="0";	} //зануляем несделанные  potom mojno ubrat
