@@ -9,6 +9,7 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Token\RegisteredClaims;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -40,7 +41,7 @@ final class JwtAuthService
         return $this->jwt->builder()
             ->issuedAt($now)
             ->expiresAt($now->modify('+' . $ttlSeconds . ' seconds'))
-            ->withClaim('sub', $login)
+            ->relatedTo($login)
             ->withClaim('role', $role)
             ->getToken($this->jwt->signer(), $this->jwt->signingKey());
     }
@@ -77,9 +78,9 @@ final class JwtAuthService
             return null;
         }
 
-        $login = $token->claims()->get('sub');
+        $login = $token->claims()->get(RegisteredClaims::SUBJECT);
         $role = $token->claims()->get('role');
-        if (!is_string($login) || !is_string($role)) {
+        if (!is_string($login) || $login === '' || !is_string($role)) {
             return null;
         }
 

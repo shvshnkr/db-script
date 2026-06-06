@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-namespace Dbscript\Tests\Unit;
-
 use Dbscript\Auth\JwtAuthService;
 use Dbscript\Config\ConfigRepository;
 use Dbscript\Config\TomlLoader;

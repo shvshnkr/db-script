@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-namespace Dbscript\Tests\Unit;
-
 use Dbscript\Config\TomlLoader;
 use PHPUnit\Framework\TestCase;
 

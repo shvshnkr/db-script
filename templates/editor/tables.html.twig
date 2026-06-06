@@ -1,0 +1,13 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block body %}
+<h1>Editor — tables</h1>
+<p>Signed in as {{ user }}</p>
+<ul>
+{% for table in tables %}
+  <li><a href="w-arch.php?tbl={{ table.id }}">{{ table.visual_name|default(table.mysql_table) }}</a></li>
+{% else %}
+  <li>No tables in dbdata.toml</li>
+{% endfor %}
+</ul>
+{% endblock %}

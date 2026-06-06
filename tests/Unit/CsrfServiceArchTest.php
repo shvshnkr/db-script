@@ -1,12 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Dbscript\Tests\Unit;
-
 use Dbscript\Auth\CsrfService;
 use PHPUnit\Framework\TestCase;
 
-final class CsrfServiceTest extends TestCase
+final class CsrfServiceArchTest extends TestCase
 {
     protected function setUp(): void
     {

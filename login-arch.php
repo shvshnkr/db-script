@@ -31,7 +31,7 @@ $request = Request::createFromGlobals();
 $secure = $request->isSecure();
 
 if ($auth->readFromRequest($request) !== null) {
-    header('Location: w.php');
+        header('Location: w-arch.php');
     exit;
 }
 
@@ -43,7 +43,7 @@ if ($request->isMethod('POST')) {
     if ($token === null) {
         $error = 'Invalid login or password.';
     } else {
-        $response = new Response('', 302, ['Location' => 'w.php']);
+        $response = new Response('', 302, ['Location' => 'w-arch.php']);
         $auth->attachCookie($response, $token, $secure);
         $response->send();
         exit;

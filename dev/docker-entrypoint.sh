@@ -17,4 +17,10 @@ if [[ -f /var/www/html/composer.json ]]; then
     fi
 fi
 
+# arch-modern: DBAL needs pdo_mysql (mysqli alone is legacy dbscore.lib)
+if ! php -m 2>/dev/null | grep -q '^pdo_mysql$'; then
+    echo "docker-entrypoint: enabling pdo_mysql for arch-modern/DBAL..."
+    docker-php-ext-install pdo_mysql >/dev/null 2>&1 || echo "WARN: pdo_mysql install failed"
+fi
+
 exec "$@"

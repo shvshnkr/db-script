@@ -8,7 +8,7 @@
         "doctrine/dbal": "^4.2",
         "doctrine/orm": "^3.3",
         "lcobucci/jwt": "^5.4",
-        "php-collective/toml": "^1.0",
+        "php-collective/toml": "^1.0@dev",
         "symfony/http-foundation": "^7.2",
         "twig/twig": "^3.20"
     },
@@ -28,5 +28,7 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {}
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

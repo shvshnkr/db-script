@@ -1,0 +1,21 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block body %}
+<h1>{{ result.visual_name }} ({{ result.table }})</h1>
+<p><a href="w-arch.php">← All tables</a> · {{ user }}</p>
+<p>Total: {{ result.total }} · page {{ result.page }}</p>
+{% if columns is not empty %}
+<table border="1" cellpadding="4" cellspacing="0">
+  <thead>
+    <tr>{% for col in columns %}<th>{{ col }}</th>{% endfor %}</tr>
+  </thead>
+  <tbody>
+  {% for row in result.rows %}
+    <tr>{% for col in columns %}<td>{{ row[col] }}</td>{% endfor %}</tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No rows.</p>
+{% endif %}
+{% endblock %}

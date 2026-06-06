@@ -45,8 +45,8 @@ docker compose exec web bash scripts/smoke-all.sh http://127.0.0.1
 
 1. ✅ Skeleton: composer, `bootstrap.php`, `Application`, docs
 2. 🔄 TOML + install (`install-arch.php`, `InstallWriter`)
-3. 🔄 JWT + login (`login-arch.php`, `AuthMiddleware`)
-4. EditorService + GlobalBridge
+3. ✅ JWT + login (`login-arch.php`, `AuthMiddleware`)
+4. 🔄 EditorService + DBAL (`w-arch.php` list works in Docker)
 5. Twig + lang UTF-8
 6. Thin entry, удаление legacy
 7. Tests, CI, handoff
