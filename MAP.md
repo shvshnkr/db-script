@@ -17,7 +17,7 @@
 | `mysql_*` → `mysqli_*` в `dbscore.lib` | ✅ в работе |
 | Dev Docker (`dev/docker-compose.yml`) | ✅ добавлен, не запушен |
 | `scripts/verify.sh` | ✅ синтаксис + grep-guards |
-| Smoke install/login/editor | ⏳ после `setup-wsl.sh` |
+| Smoke install/login/editor | ⏳ нужен Docker (sudo в WSL) |
 | Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/` |
 
 ## Entry points (HTTP)
