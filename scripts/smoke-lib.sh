@@ -132,7 +132,99 @@ smoke_check_url() {
 
 smoke_admin_test_crit_zero() {
     if grep -qE 'Critical:\s*[1-9][0-9]*' "$SMOKE_OUT"; then
-        grep -E 'Critical:|No critical|Fixed' "$SMOKE_OUT" | head -5 || true
+        grep -E 'Critical:|Noncritical:|Fixed:' "$SMOKE_OUT" | head -5 || true
         smoke_fail "admin.php?cmd=test has critical errors (A_T_CRIT > 0)"
     fi
+}
+
+smoke_admin_test_extended() {
+    smoke_admin_test_crit_zero
+    local noncrit fixed
+    noncrit="$(grep -oE 'Noncritical:\s*[0-9]+' "$SMOKE_OUT" | grep -oE '[0-9]+' | head -1 || echo 0)"
+    fixed="$(grep -oE 'Fixed:\s*[0-9]+' "$SMOKE_OUT" | grep -oE '[0-9]+' | head -1 || echo 0)"
+    noncrit="${noncrit:-0}"
+    fixed="${fixed:-0}"
+    echo "admin self-test: Noncritical=$noncrit Fixed=$fixed"
+    if [[ "$noncrit" -gt 100 ]]; then
+        smoke_fail "admin.php?cmd=test Noncritical > 100 ($noncrit)"
+    fi
+}
+
+smoke_get_no_auth() {
+    local label="$1"
+    local url="$2"
+    local timeout="${3:-30}"
+    local tmp_cookie tmp_out
+    tmp_cookie="$(mktemp)"
+    tmp_out="$(mktemp)"
+    echo -n "$label ... "
+    if ! curl -fsS -c "$tmp_cookie" -b "$tmp_cookie" -L --max-time "$timeout" \
+        "$url" -o "$tmp_out" 2>/dev/null; then
+        rm -f "$tmp_cookie" "$tmp_out"
+        echo "curl error"
+        smoke_fail "$label"
+    fi
+    if grep -qE 'Fatal error|Uncaught Error|Uncaught TypeError' "$tmp_out"; then
+        rm -f "$tmp_cookie" "$tmp_out"
+        echo "php fatal"
+        smoke_fail "$label"
+    fi
+    cp "$tmp_out" "$SMOKE_OUT"
+    rm -f "$tmp_cookie" "$tmp_out"
+    echo "OK"
+}
+
+smoke_assert_denied_or_login() {
+    local label="$1"
+    if grep -qE 'login\.php|ERR_AUTH|notright|notuser|disable|NOTRIGHTS|Your login as anonymous' "$SMOKE_OUT"; then
+        echo "OK: $label denied or redirected"
+        return 0
+    fi
+    smoke_fail "$label should require auth (no login/notright marker)"
+}
+
+smoke_login_expect_fail() {
+    local user="$1"
+    local pass="$2"
+    local tmp_cookie tmp_out
+    tmp_cookie="$(mktemp)"
+    tmp_out="$(mktemp)"
+    echo -n "login fail ${user} ... "
+    curl -sS -c "$tmp_cookie" -b "$tmp_cookie" -L --max-time 60 \
+        -X POST "$SMOKE_BASE_URL/login.php" \
+        -d "dbs_log=${user}&dbs_psw=${pass}&loginstate=To+enter" \
+        -o "$tmp_out" || true
+    if grep -qE 'Fatal error|Uncaught Error' "$tmp_out"; then
+        rm -f "$tmp_cookie" "$tmp_out"
+        smoke_fail "login fail response fatal"
+    fi
+    if grep -q 'editor\.png' "$tmp_out"; then
+        rm -f "$tmp_cookie" "$tmp_out"
+        smoke_fail "wrong credentials must not show editor hub (editor.png)"
+    fi
+    rm -f "$tmp_cookie" "$tmp_out"
+    echo "OK"
+}
+
+smoke_log_scan() {
+    local logdir="${SMOKE_ROOT}/_logs"
+    local found=0
+    echo "=== smoke log scan (_logs) ==="
+    for f in errorlog.dat log.dat execsqllog.dat; do
+        if [[ ! -f "$logdir/$f" ]]; then
+            echo "SKIP: $f missing"
+            continue
+        fi
+        if grep -qE 'Fatal error|Uncaught Error|Uncaught TypeError|mysqli_sql_exception' "$logdir/$f" 2>/dev/null; then
+            echo "WARN: $f contains error markers:"
+            grep -E 'Fatal error|Uncaught Error|Uncaught TypeError|mysqli_sql_exception' "$logdir/$f" | tail -3 || true
+            found=1
+        else
+            echo "OK: $f clean"
+        fi
+    done
+    if [[ "$found" -ne 0 ]]; then
+        smoke_fail "error patterns found in _logs after smoke"
+    fi
+    echo "ALL OK: log scan"
 }

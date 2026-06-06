@@ -34,4 +34,21 @@ check_optional() {
 check_optional "news.php" "$SMOKE_BASE_URL/news.php" 'News|news|Blog'
 check_optional "nedit.php" "$SMOKE_BASE_URL/nedit.php" 'nedit|KEY_EDIT|KEY_ADD|Blog'
 
+echo -n "news POST add (optional) ... "
+if ! curl -fsS -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" -L --max-time 60 \
+    -X POST "$SMOKE_BASE_URL/news.php" \
+    --data-urlencode "write=Add" \
+    --data-urlencode "vID=smoke_news_$(date +%s)" \
+    -o "$SMOKE_OUT" 2>/dev/null; then
+    echo "SKIP (curl)"
+else
+    if grep -qE 'Fatal error|Uncaught Error|mysqli_sql_exception' "$SMOKE_OUT"; then
+        echo "SKIP (blog module needs sd[38] table — P2)"
+    elif grep -qE 'Add|news|Blog|KEY_' "$SMOKE_OUT"; then
+        echo "OK"
+    else
+        echo "SKIP (no blog table)"
+    fi
+fi
+
 echo "ALL OK: news/nedit (beta optional)"

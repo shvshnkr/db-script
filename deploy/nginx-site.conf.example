@@ -1,0 +1,43 @@
+# Dbscript 4 — Nginx + PHP-FPM (example)
+# Install: copy to /etc/nginx/sites-available/, symlink sites-enabled, adjust root and socket.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+
+    root /var/www/dbscript;
+    index index.php;
+
+    client_max_body_size 64m;
+
+    # Config, logs, local runtime, user uploads — never serve over HTTP
+    location ~ ^/_(conf|logs|local|data)(/|$) {
+        deny all;
+        return 403;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        # Debian/Ubuntu PHP 8.2:
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        # or TCP: fastcgi_pass 127.0.0.1:9000;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+
+    access_log /var/log/nginx/dbscript-access.log;
+    error_log  /var/log/nginx/dbscript-error.log;
+}
+
+# Notes:
+# - Dbscript uses direct PHP entry points (w.php, r.php, login.php, …); no front controller rewrite required.
+# - index.php routes ?w / ?r / ?f query prefixes to the corresponding scripts.
+# - After install, remove or block public access to install.php on production.

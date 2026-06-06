@@ -46,8 +46,8 @@ if matches=$(scan_active 'get_magic_quotes'); [[ -n "$matches" ]]; then
     echo "$matches"; echo "FAIL: get_magic_quotes"; FAIL=1
 fi
 
-if matches=$(scan_active '\beach\s*\(\s*\$_(POST|GET|REQUEST)'); [[ -n "$matches" ]]; then
-    echo "$matches"; echo "FAIL: each() on superglobals"; FAIL=1
+if matches=$(scan_active '\beach\s*\(\s*\$'); [[ -n "$matches" ]]; then
+    echo "$matches"; echo "FAIL: each() on variables"; FAIL=1
 fi
 
 if matches=$(scan_active '\bsplit\s*\('); [[ -n "$matches" ]]; then
@@ -56,6 +56,18 @@ fi
 
 if matches=$(scan_active '\bmysql_[a-z_]+\s*\('); [[ -n "$matches" ]]; then
     echo "$matches"; echo "FAIL: mysql_* API"; FAIL=1
+fi
+
+if matches=$(scan_active '\bcreate_function\s*\('); [[ -n "$matches" ]]; then
+    echo "$matches"; echo "FAIL: create_function()"; FAIL=1
+fi
+
+if matches=$(scan_active '\b(ereg|eregi|eregi_replace|ereg_replace|spliti)\s*\('); [[ -n "$matches" ]]; then
+    echo "$matches"; echo "FAIL: ereg/spliti API"; FAIL=1
+fi
+
+if matches=$(scan_active '\b(__autoload|session_register|session_unregister|session_is_registered)\s*\('); [[ -n "$matches" ]]; then
+    echo "$matches"; echo "FAIL: removed session/autoload API"; FAIL=1
 fi
 
 if [[ "$FAIL" -eq 0 ]]; then

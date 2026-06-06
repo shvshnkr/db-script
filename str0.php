@@ -72,14 +72,14 @@ echo "<META HTTP-EQUIV=refresh content=".$pageredirecttime."; URL=".$pageredirec
 }
 
 $wopros=strpos ($loadpage,"?");
-$realloadpage=substr ($loadpage,0,$wopros);
+$realloadpage=substr ($loadpage,0,$wopros !== false ? $wopros : strlen($loadpage));
 $realloadpage=trim ($realloadpage);
-$test=fopen ($realloadpage,"r") ;
-$test2=fopen ($loadpage,"r") ;
+$test=false; $test2=false;
+if ($realloadpage!=="") { $test=@fopen ($realloadpage,"r"); }
+if ($loadpage!=="") { $test2=@fopen ($loadpage,"r"); }
 if (($test2===false)AND($test===false)) { $resload=true;};
-//echo "<frameset><frame src=indexmenu.php name=mainFrame scrolling=NO noresize > </frameset>";exit;};
- fclose ($test);
- @fclose ($test2);
+if (is_resource($test)) { fclose ($test); }
+if (is_resource($test2)) { @fclose ($test2); }
 
  if ($resload==true) {bluescreen ("PAGES:NOT_FOUND<br>$loadpage<br>");exit;}
  

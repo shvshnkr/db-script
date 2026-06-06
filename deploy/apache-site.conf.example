@@ -1,0 +1,24 @@
+# Dbscript 4 — Apache 2.4 (example)
+# Copy to sites-available, adjust paths and ServerName, then a2ensite.
+
+<VirtualHost *:80>
+    ServerName example.com
+    DocumentRoot /var/www/dbscript
+
+    <Directory /var/www/dbscript>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+
+    # Config, logs, local runtime, user uploads — never serve over HTTP
+    <DirectoryMatch "^/var/www/dbscript/_(conf|logs|local|data)">
+        Require all denied
+    </DirectoryMatch>
+
+    ErrorLog ${APACHE_LOG_DIR}/dbscript-error.log
+    CustomLog ${APACHE_LOG_DIR}/dbscript-access.log combined
+</VirtualHost>
+
+# PHP: mod_php (package php8.2-apache) or proxy to php-fpm — per your distro.
+# Same DirectoryMatch rules apply when using php-fpm + ProxyPassMatch.

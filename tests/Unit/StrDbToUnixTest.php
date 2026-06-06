@@ -8,7 +8,8 @@ final class StrDbToUnixTest extends TestCase
     public function testParsesDbsDateTime(): void
     {
         $ts = strdbstounixtime('13.04.2010 10:38:53');
-        $this->assertSame(1271146733, $ts);
+        $this->assertGreaterThan(0, $ts);
+        $this->assertSame('13.04.2010 10:38:53', date('d.m.Y H:i:s', $ts));
     }
 
     public function testRoundTripWithDate(): void

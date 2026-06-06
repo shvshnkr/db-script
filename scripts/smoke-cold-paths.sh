@@ -44,5 +44,11 @@ check_url "dblinker.php" "$BASE_URL/dblinker.php" 'Dbmanager v4|GEN_DB_TBL|GEN_D
 check_url "filemgr.php" "$BASE_URL/filemgr.php" 'Filemgr|FMG_|filemgr'
 check_url "getfile.php" "$BASE_URL/getfile.php" 'Search v4|SELLINK|getfile|GF_'
 check_url "main.php" "$BASE_URL/main.php" 'AUTHOR|REGTO|Dj--alex|help'
+check_url "index.php" "$BASE_URL/index.php" 'index|login|str0|Dbscript'
+check_url "ajax2.php" "$BASE_URL/ajax2.php" 'get\(|script|my\.php'
+check_url "r.php .help" "$BASE_URL/r.php?vID=.help&base=0" 'help|Help|\.help|F1_'
+check_url "indexmenu.php" "$BASE_URL/indexmenu.php" 'logo1|menu1|str0|index'
+check_url "str0.php p=0" "$BASE_URL/str0.php?p=0" 'str0|index|login|Fatal'
+check_url "info.php" "$BASE_URL/info.php" 'PHP Version|phpinfo|Configuration'
 
-echo "ALL OK: wx → dblinker → filemgr → getfile → main"
+echo "ALL OK: cold entry paths"

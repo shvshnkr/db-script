@@ -4,13 +4,18 @@ _logs/
 _local/
 _data/
 
-# Agent local map + worklog (committed stubs: AGENTS.md, MAP.md, .cursor/rules/)
+# Local agent / dev notes (not for public repo)
 AI/
+.cursor/
+AGENTS.md
+MAP.md
+docs/
 
 # Composer / PHPUnit (dev only)
 /vendor/
 /.phpunit.cache/
 composer.lock
+/composer.phar
 
 # OS / editor
 .DS_Store

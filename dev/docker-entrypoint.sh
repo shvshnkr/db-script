@@ -9,4 +9,12 @@ done
 
 chown -R www-data:www-data /var/www/html 2>/dev/null || true
 
+if [[ -f /var/www/html/composer.json ]]; then
+    if [[ ! -x /var/www/html/vendor/bin/phpunit ]]; then
+        echo "docker-entrypoint: composer install (dev test deps)..."
+        composer install --no-interaction --working-dir=/var/www/html || \
+            echo "WARN: composer install failed (phpunit may be skipped)"
+    fi
+fi
+
 exec "$@"

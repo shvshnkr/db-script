@@ -31,7 +31,7 @@ if ($encoder=="not installed") errorlog ("Dbscript need an php encoder - iconv o
 
 
  // настройка префиксов для работы с любым языкомым cmd
-if ($cmd=="test") { testcfgs () ; exit; }
+if ($cmd=="test") { if (($prauth[$ADM][2]??false)==false) { msgexiterror ("notrights"," administrator","admin.php"); exit; } testcfgs () ; exit; }
 if ($cmd=="note") { bloknot (); exit; }
 if ($cmd=="asql") { asqledit (); exit; }
 if ($cmd=="cssed") { cssed (); exit; }

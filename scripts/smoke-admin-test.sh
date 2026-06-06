@@ -12,9 +12,9 @@ smoke_login
 smoke_get "admin.php?cmd=test" "$SMOKE_BASE_URL/admin.php?cmd=test" 120
 
 if grep -q '=============================\|A_T_ALLERR\|Critical:' "$SMOKE_OUT"; then
-    smoke_admin_test_crit_zero
+    smoke_admin_test_extended
     echo "OK: admin.php?cmd=test completed (A_T_CRIT = 0)"
-    grep -E 'Critical:|No critical|Fixed' "$SMOKE_OUT" | head -5 || true
+    grep -E 'Critical:|Noncritical:|Fixed:' "$SMOKE_OUT" | head -5 || true
     exit 0
 fi
 

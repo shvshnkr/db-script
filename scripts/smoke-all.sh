@@ -32,14 +32,19 @@ fi
 run smoke-admin-test.sh
 run smoke-cold-paths.sh
 run smoke-security.sh
+run smoke-auth.sh
 run smoke-index-router.sh
 run smoke-editor-crud.sh
+run smoke-wx-post.sh
 run smoke-reader.sh
 run smoke-filemgr-ops.sh
 run smoke-dblinker.sh
+run smoke-getfile-roundtrip.sh
 run smoke-admin-save.sh
+run smoke-acl.sh
 run smoke-links.sh
 run smoke-news.sh
+run smoke-cold-paths.sh
 
 if [[ -x "$ROOT/vendor/bin/phpunit" ]] || [[ -f "$ROOT/vendor/bin/phpunit" ]]; then
     echo ""
@@ -48,12 +53,18 @@ if [[ -x "$ROOT/vendor/bin/phpunit" ]] || [[ -f "$ROOT/vendor/bin/phpunit" ]]; t
         echo "WARN: phpunit unit suite failed or incomplete"
         exit 1
     }
+    (cd "$ROOT" && vendor/bin/phpunit --testsuite integration) || {
+        echo "WARN: phpunit integration suite failed"
+        exit 1
+    }
 else
     echo ""
     echo "SKIP: vendor/bin/phpunit not found (run: composer install --dev)"
 fi
 
+run smoke-post-logs.sh
+
 echo ""
 echo "=========================================="
-echo "ALL OK: smoke-all completed (L0–L5)"
+echo "ALL OK: smoke-all completed (L0–L5 + extended)"
 echo "=========================================="

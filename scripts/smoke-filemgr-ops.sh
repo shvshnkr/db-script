@@ -29,8 +29,25 @@ smoke_assert_no_fatal "FMG_MKDIR"
 echo "OK"
 
 if [[ -d "$TARGET" ]]; then
-    rmdir "$TARGET" 2>/dev/null || rm -rf "$TARGET" 2>/dev/null || true
-    echo "OK: directory created on disk"
+    REN="${DIR}_ren"
+    echo -n "FMG_REN try ... "
+    curl -fsS -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" -L --max-time 60 \
+        -X POST "$SMOKE_BASE_URL/filemgr.php" \
+        --data-urlencode "cmd=Rename" \
+        --data-urlencode "stroka0=${REN}" \
+        --data-urlencode "fileforaction=${DIR}" \
+        --data-urlencode "path0=${SMOKE_ROOT}/_data/" \
+        --data-urlencode "pid=0" \
+        --data-urlencode "mask0=*.*" \
+        -o "$SMOKE_OUT" || { echo "curl error"; smoke_fail "FMG_REN"; }
+    smoke_assert_no_fatal "FMG_REN"
+    echo "OK"
+    if [[ -d "$SMOKE_ROOT/_data/${REN}" ]]; then
+        rmdir "$SMOKE_ROOT/_data/${REN}" 2>/dev/null || rm -rf "$SMOKE_ROOT/_data/${REN}" 2>/dev/null || true
+        echo "OK: rename on disk"
+    else
+        echo "OK: rename not applied (prauth[12]=0)"
+    fi
 else
     echo "OK: mkdir not applied (TEST prauth[12]=0 — manual L6 if needed)"
 fi
