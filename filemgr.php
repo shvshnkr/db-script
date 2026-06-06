@@ -6,7 +6,7 @@ $verfilemgr="Filemgr  v 4.3.5 (c) dj--alex ";
   $enterpoint=$verfilemgr;#end of conf
 // ��� ���� ����������� - ob_start();ob_end_flush();
 autoexecsql ();// ob_flush ();exit; zdes menueshe est.
-extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
+dbs_lock_adm();
 dbs_require_csrf ();
 
 // redir - w dbscore
@@ -51,7 +51,7 @@ if ($cmd==cmsg("FMG_DUMP_UPLOAD")) {
                        if (($prauth[$ADM][2])OR($prauth[$ADM][2])) {
                       //����� �������� ��������� ����� ��� �������������� ������ � �������� ������������ ������? ??
                             $commstr="_ico/errorcritical.png";
-                           echo "<a target=b3 href='$scriptpath?c=".$fildata[$a][4]."&d=".$fildata[$a][12]."'><img src=$commstr border=0 title='".cmsg ("PHYS_DEL")."'></a>";
+                           dbs_fm_delete_form($fildata[$a][4], $fildata[$a][12], $commstr, cmsg("PHYS_DEL"));
                        }
                     echo "</td></tr>";
                          }
@@ -145,6 +145,10 @@ else {msgexiterror ("notrights","F_DWN_USR You not in userlist this file! ","fil
 if (is_dir ($pathwithfile)==true) { $sharedir=1; echo "FMG_TEST: Directory mod<Br>";  };
 
 if (($d)and($pathwithfile)and($f)) {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        msgexiterror('csrf', '', 'disable');
+        exit;
+    }
     if (is_dir ($pathwithfile)==true) { echo "FMG_TEST: Cannot remove dir<Br>";  exit;};
     if (($prauth[$ADM][2])AND($d)) { unlink ($pathwithfile); echo "Administrative remove file<br>";exit; }
     //echo "hashdel=$hashdel  d=$d";exit;
@@ -375,9 +379,11 @@ $link.="<br>".cmsg ("FL_UP_IMG")."[img]http://".$_SERVER['SERVER_NAME'].$_SERVER
 
 echo $link;
 
- echo cmsg ("D_LNK")." <a href='$scriptpath?c=".$fildata[$count][14]."&d=".$fildata[$count][12]."'>remove link</a> ".cmsg ("Y_LNK_I")."<br>";
+ echo cmsg ("D_LNK");
+ dbs_fm_delete_form($fildata[$count][14], $fildata[$count][12], '_ico/errorcritical.png', cmsg("PHYS_DEL"));
+ echo " ".cmsg ("Y_LNK_I")."<br>";
  //echo "server name=".$_SERVER['SERVER_NAME']."<br>"; echo "php self=".$_SERVER['PHP_SELF']."<br>"; echo "doc root=".$_SERVER['DOCUMENT_ROOT']."<br>";
-$link="<br>http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."?c=".$fildata[$count][14]."&d=".$fildata[$count][12]."<br><br>";
+$link="<br>http://".dbs_h($_SERVER['SERVER_NAME']).dbs_h($_SERVER['PHP_SELF'])." (POST f,d required for delete)<br><br>";
 
 echo $link;
 //echo "hash from filesdata-2 massive: ".$table[$count][4]."<br>";
@@ -452,8 +458,10 @@ $link="<br>http://".$_SERVER['SERVER_NAME']."$scriptpath?c=".$fildata[$id][14]."
 $link.="<br>".cmsg ("FL_UP_SIT")."[url]http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."?c=".$fildata[$id][14]."[/url]<br><br>";
 $link.="<br>".cmsg ("FL_UP_IMG")."[img]http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."?c=".$fildata[$id][14]."[/img]<br><br>";
 echo $link;
- echo cmsg ("D_LNK")." <a href='$scriptpath?c=".$fildata[$id][14]."&d=".$fildata[$id][12]."'>remove link</a> ".cmsg ("Y_LNK_I")."<br>";
- $link="<br>http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."?c=".$fildata[$id][14]."&d=".$fildata[$id][12]."<br><br>";
+ echo cmsg ("D_LNK");
+ dbs_fm_delete_form($fildata[$id][14], $fildata[$id][12], '_ico/errorcritical.png', cmsg("PHYS_DEL"));
+ echo " ".cmsg ("Y_LNK_I")."<br>";
+ $link="<br>http://".dbs_h($_SERVER['SERVER_NAME']).dbs_h($_SERVER['PHP_SELF'])." (POST f,d required for delete)<br><br>";
 echo $link;
 echo "End $id   next,,, <br>";
 if ($initalizeIDcounter) {$id=$id+1;};
@@ -829,7 +837,7 @@ if (($cmd==cmsg("FMG_EXECUTE"))and($prauth[$ADM][8])) {
     echo "Creating folder $unrared<br>";
     $extractionpoint=$path.$unrared;
     echo "Extracting to ".$extractionpoint.";<br>";
-$zip = system("unrar x \"$file\" \"$extractionpoint\"");
+$zip = system('unrar x '.escapeshellarg($file).' '.escapeshellarg($extractionpoint));
 echo "<br>Result=$zip  "; //echo '"unrar e \"'.$file.'\" \"'.$extractionpoint.'\""'; echo " <br>";
  }
 
@@ -840,7 +848,7 @@ if ($OSTYPE=="LINUX") if (($cmd==cmsg("FMG_RAR"))and($prauth[$ADM][12])) {
    // echo "Creating folder $unrared<br>";
     $extractionpoint=$path.$unrared;
     echo "Archiving to  to ".$fileforaction.".rar;<br>";
-$zip = system("rar a \"$fileforaction\".rar \"$file\"");
+$zip = system('rar a '.escapeshellarg($fileforaction.'.rar').' '.escapeshellarg($file));
 echo "<br>Result=$zip  "; //echo '"unrar e \"'.$file.'\" \"'.$extractionpoint.'\""'; echo " <br>";
  }
  
@@ -862,7 +870,9 @@ if (zip_entry_open($zip, $zip_entry, "r")) {
 echo "File Contents:\n";
 $buf = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
 //echo "$buf\n";
-$x=fopen ($path.zip_entry_name($zip_entry),"w");
+$destPath = dbs_zip_entry_dest($path, zip_entry_name($zip_entry));
+if ($destPath === false) { zip_entry_close($zip_entry); continue; }
+$x=fopen ($destPath,"w");
 @fwrite ($x,$buf);
 @fclose ($x);
 

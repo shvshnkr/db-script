@@ -16,7 +16,7 @@
 | **CSRF** | `$_SESSION['dbs_csrf']`, hidden `_csrf`, opt-out `pr[77]=on` |
 | **SQL** | `dbs_escape_*`, prepared audit log, `dbs_editor_insert()` |
 | **Hardening** | cookie `HttpOnly`/`SameSite`, guard `info.php`, security headers в deploy examples |
-| **Тесты** | +9 PHPUnit, `smoke-csrf.sh`, `smoke-servicectl.sh`, GHA `modern-ops-ci.yml` |
+| **Тесты** | +9 PHPUnit, `smoke-csrf.sh`, `smoke-servicectl.sh`, CSRF в `smoke-wx-post.sh`, GHA `modern-ops-ci.yml` |
 
 ## Servicectl
 
@@ -67,3 +67,5 @@ bash tests/servicectl/run-matrix.sh
 - ORM / PSR-4 / UTF-8 исходников
 
 См. [`CHANGELOG-MODERN-OPS.md`](CHANGELOG-MODERN-OPS.md).
+
+**Handoff для dj--alex (полное описание ветки):** [`_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md`](_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md)

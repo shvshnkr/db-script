@@ -39,6 +39,7 @@ $verprogram=($verprogram ?? "").$verchar." LU ".$lastupdate; // версия п�
 $vercore=$verprogram;
 $enterpoint=$verinit;
 $xfgetlimit=4096; //xfgetcsv limit  0 - medlennee   4024 malo dlya trini global $GLOBALS['xfgetlimit'];
+$GLOBALS['xfgetlimit']=$xfgetlimit;
 list($msec,$sec)=explode(chr(32),microtime()); 
  $HeadTime=$sec+$msec; 
 //@set_magic_quotes_runtime(0);  // is deprecated??
@@ -76,10 +77,9 @@ if (!empty($_GET['crc'])) { $_GET['crc']=-1;}  //crcignore ?? not work?
 //http://wow.chg.su/inside/w.php?vID=test&vID2=&tbl=293&z0=test&z1=7&z2=test&origid1=test&origid2=test&write=To+confirm+changes  protected  CRC false from GET
 
 
+unset($_COOKIE['ADM']);
 extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
-//$_POST['ADM']=0;  //ignored? 
-if (!empty($_GET['ADM'])) { header ("Location: r.php"); die ("R Tape loading error 0:1");}; // эта защита работает и ДО и ПОСЛЕ импорта
-if (!empty($_POST['ADM'])) { header ("Location: r.php"); die ("R Tape loading error 0:1");};//  а вообще лучше плашку про защиту показать
+dbs_reject_adm_override();
 //method http://wow.chg.su/inside/w.php?vID=test&vID2=&tbl=293&z0=test&z1=7&z2=test&crcignore=on&crc=1868026345&origid1=test&origid2=test&write=To+confirm+changes&ADM=1  protected ADM change
 // bug confirmed by Kernelbug and fixed Dj--alex
 
@@ -95,49 +95,42 @@ ob_flush ();
 //
 //$a=session_get_cookie_params ($GUID);
 if (($pr[36]??'')!=="on") {
-//session_start ();  // дожна работать без всего лишнего
 $timetoremember=36000; if (!empty($forever)) $timetoremember=360000000;
+$dbs_auth_pending_session = false;
+$dbs_auth_via_session = false;
+$dbs_auth_legacy_migrate = false;
 
 		if (!$coreloadskip) if (isset ($loginstate)) {
-	
-		//$_SESSION["SID"] = session_id(); // SID \ GUID
-		//echo "SESSION SID=".$_SESSION["SID"]."  SID=".$_SESSION[SID]." <br>";
 		if (isset ($dbs_log)) { $_SERVER['PHP_AUTH_USER']=$dbs_log;}
 		if (isset ($dbs_psw)) { $_SERVER['PHP_AUTH_PW']=$dbs_psw; }
-		$dbsa=a ( base64_encode($dbs_log."¦".$dbs_psw));
-		dbs_setcookie_dbsa ($dbsa, time ()+$timetoremember);
-		//session_register ("dbsa");
-		//session_commit ();
+		$dbs_auth_pending_session = true;
 		}
-				
+
 		if ((!empty($_COOKIE['dbsa']))AND(!isset ($_SERVER['PHP_AUTH_USER']))) {
-			$data=a (base64_decode ($_COOKIE['dbsa']));
-			$authmass=explode ("¦",$data);
-			$dbs_log=$authmass[0];$dbs_psw=$authmass[1];
-			 $_SERVER['PHP_AUTH_USER']=$dbs_log;
-		 $_SERVER['PHP_AUTH_PW']=$dbs_psw;
+			if (dbs_auth_cookie_is_legacy($_COOKIE['dbsa'])) {
+				if (dbs_auth_restore_legacy_cookie($_COOKIE['dbsa'])) {
+					$dbs_auth_legacy_migrate = true;
+				}
+			} else {
+				$sessUser = dbs_auth_session_user($_COOKIE['dbsa']);
+				if ($sessUser !== null) {
+					$_SERVER['PHP_AUTH_USER'] = $sessUser;
+					$dbs_auth_via_session = true;
+				}
+			}
 		}
-		
-		//sessiin
+
 		if ((isset($_SESSION['dbsa']))AND(!isset($_COOKIE['dbsa']))AND(!isset ($_SERVER['PHP_AUTH_USER']))) {
-			echo "session receiving...$dbsa...".$_SESSION['dbsa'];
-			$data=a (base64_decode ($_SESSION['dbsa']));
-			$authmass=explode ("¦",$data);
-			$dbs_log=$authmass[0];$dbs_psw=$authmass[1];
-			 $_SERVER['PHP_AUTH_USER']=$dbs_log;
-		 $_SERVER['PHP_AUTH_PW']=$dbs_psw;
+			if (dbs_auth_restore_legacy_cookie((string)$_SESSION['dbsa'])) {
+				$dbs_auth_legacy_migrate = true;
+			}
 		}
-		//
 }
 	//echo "ses=".$_SESSION['dbsa'];//- don't work this trash	
 function a ($a) {	return $a; }  // пустышка
 //end auth zone 2
 
-	if (isset ($resetcookie)OR(($pr[36]??'')=="on"))  { dbs_setcookie_dbsa ("", time () - 3600);
-		//unset ($_SERVER['PHP_AUTH_USER']);unset ($_SERVER['PHP_AUTH_PW']);
-		//@session_unset ($dbsa);
-		//@session_destroy (); 
-		}
+	if (isset ($resetcookie)OR(($pr[36]??'')=="on"))  { dbs_auth_session_clear(); }
 //после этой строчки все работает
 	
 //loading cfgs - tbl
@@ -200,6 +193,7 @@ if (!$coreloadskip) if ($data==-1) errorlog ("E_CFG:Not found $filbas"); //layer
 	
 // RIGHTS MODULE
 $ADM=0;$prauthen=1;$prauthcnt=1;
+$dbs_session_token = (string)($_COOKIE['dbsa'] ?? '');
 if (!is_array($prauth)) { $prauth=array(array()); $prauthcnt=1; }
 while (($prauth[$prauthcnt-1][0]??false)==true)	{
 	if (!is_array($prauth[$prauthcnt] ?? null)) { $prauthcnt++; continue; }
@@ -207,12 +201,22 @@ while (($prauth[$prauthcnt-1][0]??false)==true)	{
 	$dbusername=strtolower($prauth[$prauthcnt][0] ?? '');
 	$enteredname=strtolower($_SERVER['PHP_AUTH_USER'] ?? '');
 	$servpw=$_SERVER['PHP_AUTH_PW'] ?? '';// Entered password
-	$oldencenteredpswd=md5 (md5 ($servpw));
-	$enteredpswd=hashgen ($servpw);
-	if (($dbusername===$enteredname)AND($dbuserpswd===$oldencenteredpswd)) { $ADM=$prauthcnt ;};
-	if (($dbusername===$enteredname)AND($dbuserpswd===$enteredpswd)) { $ADM=$prauthcnt ;};
+	if (!empty($dbs_auth_via_session) && $dbusername===$enteredname && dbs_auth_session_valid($dbs_session_token)) {
+		$ADM=$prauthcnt;
+	} elseif (dbs_password_verify($servpw, $dbuserpswd) && $dbusername===$enteredname) {
+		$ADM=$prauthcnt;
+	}
 	$prauthcnt++;
 	}
+$dbs_adm_verified = $ADM;
+
+if (($pr[36]??'')!=="on") {
+	if (!empty($dbs_auth_pending_session) && $ADM > 0) {
+		dbs_auth_session_create($prauth[$ADM][0] ?? $_SERVER['PHP_AUTH_USER'], time() + ($timetoremember ?? 36000));
+	} elseif (!empty($dbs_auth_legacy_migrate) && $ADM > 0) {
+		dbs_auth_session_create($prauth[$ADM][0] ?? $_SERVER['PHP_AUTH_USER'], time() + ($timetoremember ?? 36000));
+	}
+}
 
  /*       if ($prauthcnt<3) {//  3 - eto 1 user  4 - 2  i  t d
   * $ADM=3;$_SERVER['PHP_AUTH_USER']=stripslashes ($LOGINUSER); $_SERVER['PHP_AUTH_PW']=$PASSWORDUSER;//added
@@ -672,7 +676,7 @@ $tableshrift=$sd[29]??'12px Arial';
 //=======================================
 $silent=0;  //set on messaging on error;  //CHANGED@@
 //version check proprty
-$vercfg=$pr[0]??0;
+$vercfg=dbs_cfg_version_float($pr[0] ?? 0);
 
 if ($vercfg==255) $vercfg=2.30;$file="property";
 $vpropcheck=$vercfg-$vernumb;
@@ -689,6 +693,7 @@ $yourvrs=cmsg ($codekey."DBS_");
 $enrestmenu=1; //CFG OPT FUTURE  TODO:
   if ($nomnu) { $enrestmenu=false;$menuloaded=false;}
   
+if (!$coreloadskip) {
 require ("head.php");  // CSS HERE !!!   tbody добавлен но толку что то не вижу
 //END OF RIGHTS MODULE
 
@@ -697,6 +702,7 @@ if (!($pr[46]??null)) if (($enrestmenu)AND($menuloaded!==1)){  //always on
 ?><div id="menu" style="position:absolute; width:<?php echo $pr[44] ?? 130 ; ?>; z-index:0; left: 0px; top: 0px;"><?
 require_once("indexmenu.php");
 if ($dbstyle3en) echo "</div>";  // эти данные не должны выдаваться никаким образом вперед <head <meta
+}
 }
 
 
@@ -707,7 +713,8 @@ if (!empty($fileed) AND !empty($go) AND ($go==cmsg("SAVE"))) simpleedit($fileed,
 
 function onend ()
 {
-    global $write,$pr,$enterpoint,$prauth,$ADM,$sd,$codekey,$frameoldcore,$msgexitcalled,$menuloaded,$enrestmenu,$finalcodekey,$activation,$finalactivation,$exitpoint,$shriftsize,$name;
+    global $write,$pr,$enterpoint,$prauth,$ADM,$sd,$codekey,$frameoldcore,$msgexitcalled,$menuloaded,$enrestmenu,$finalcodekey,$activation,$finalactivation,$exitpoint,$shriftsize,$name,$installermode,$coreloadskip;
+if (!empty($installermode) || !empty($coreloadskip)) return;
 if (isset($name) && isset($_FILES[$name])) ob_start ();
 
 //надо бы будет сделать createwin i printwin ($id,$msg)
@@ -816,6 +823,99 @@ $realpage=$_GET["pagenow"] ?? null;
  	$newpasw="!".md5 ($a);
  	return $newpasw;
  }
+
+function dbs_cfg_version_float ($raw) {
+    if ($raw === 255 || $raw === '255') return 2.30;
+    if (is_int($raw) || is_float($raw)) return (float)$raw;
+    $s = (string)$raw;
+    if ($s !== '' && is_numeric($s)) return (float)$s;
+    if (preg_match('/^(\d+\.\d+)/', $s, $m)) return (float)$m[1];
+    return 0.0;
+}
+
+function dbs_password_verify ($plain, $stored) {
+    if (!is_string($plain) || !is_string($stored) || $plain === '' || $stored === '') return false;
+    if (str_starts_with($stored, '$2y$') || str_starts_with($stored, '$argon2')) {
+        return password_verify($plain, $stored);
+    }
+    if (hash_equals($stored, md5(md5($plain)))) return true;
+    return hash_equals($stored, hashgen($plain));
+}
+
+function dbs_password_hash ($plain) {
+    return password_hash((string)$plain, PASSWORD_DEFAULT);
+}
+
+function dbs_password_needs_rehash ($stored) {
+    if (!is_string($stored) || $stored === '') return true;
+    if (str_starts_with($stored, '$2y$') || str_starts_with($stored, '$argon2')) {
+        return password_needs_rehash($stored, PASSWORD_DEFAULT);
+    }
+    return true;
+}
+
+function dbs_auth_session_boot () {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        @session_start();
+    }
+}
+
+function dbs_auth_session_create ($username, $expires) {
+    dbs_auth_session_boot();
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        @session_regenerate_id(true);
+    }
+    $token = bin2hex(random_bytes(32));
+    $_SESSION['dbs_auth'] = [
+        'user' => strtolower((string)$username),
+        'token' => $token,
+        'iat' => time(),
+    ];
+    unset($_SESSION['dbsa']);
+    dbs_setcookie_dbsa($token, (int)$expires);
+}
+
+function dbs_auth_session_clear () {
+    dbs_auth_session_boot();
+    unset($_SESSION['dbs_auth'], $_SESSION['dbsa']);
+    dbs_setcookie_dbsa('', time() - 3600);
+}
+
+function dbs_auth_session_valid ($token) {
+    dbs_auth_session_boot();
+    if (!is_string($token) || strlen($token) !== 64 || !ctype_xdigit($token)) return false;
+    if (empty($_SESSION['dbs_auth']['token']) || !is_string($_SESSION['dbs_auth']['token'])) return false;
+    return hash_equals($_SESSION['dbs_auth']['token'], $token);
+}
+
+function dbs_auth_session_user ($token) {
+    if (!dbs_auth_session_valid($token)) return null;
+    return $_SESSION['dbs_auth']['user'] ?? null;
+}
+
+function dbs_auth_cookie_is_legacy ($cookie) {
+    if (!is_string($cookie) || $cookie === '') return false;
+    if (strlen($cookie) === 64 && ctype_xdigit($cookie)) return false;
+    $decoded = base64_decode($cookie, true);
+    if (!is_string($decoded) || $decoded === '') return false;
+    return str_contains($decoded, '¦');
+}
+
+function dbs_require_basic_auth () {
+    $user = $_SERVER['PHP_AUTH_USER'] ?? '';
+    if ($user !== '' && $user !== false) return;
+    authenticate();
+}
+
+function dbs_auth_restore_legacy_cookie ($cookie) {
+    $decoded = base64_decode($cookie, true);
+    if (!is_string($decoded)) return false;
+    $parts = explode('¦', $decoded, 2);
+    if (count($parts) < 2 || $parts[0] === '') return false;
+    $_SERVER['PHP_AUTH_USER'] = $parts[0];
+    $_SERVER['PHP_AUTH_PW'] = $parts[1];
+    return true;
+}
 
 function dispref ()
 {
@@ -1917,17 +2017,19 @@ return ($mznumb);
 // грубо:  удаляем ==1  и заменяем ==0 на ! 
 // full: if ($descr=="on") {включено} else { выключено;};
 function checkbox ($varname,$varforprint)	{
-if ($varname[0]=="#") { $selected=" checked";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
-if ($varname[0]=="!") { $selected=" selected";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
-if ($varname[0]=="%") { $selected=" disabled";$varname[0]=" ";$varname=trim ($varname);}
+$selected='';
+if ($varname!=='' && isset($varname[0]) && $varname[0]=="#") { $selected=" checked";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
+if ($varname!=='' && isset($varname[0]) && $varname[0]=="!") { $selected=" selected";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
+if ($varname!=='' && isset($varname[0]) && $varname[0]=="%") { $selected=" disabled";$varname[0]=" ";$varname=trim ($varname);}
 	if (!$varname) echo "<input type=checkbox name=".$varforprint." $selected>";
 		if ($varname) echo "<input type=checkbox name=".$varforprint." value=1 checked$selected>";
 		}
 		
 function checkboxcorrect ($varforprint,$varname)	{
-if ($varname[0]=="#") { $selected=" checked";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
-if ($varname[0]=="!") { $selected=" selected";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
-if ($varname[0]=="%") { $selected=" disabled";$varname[0]=" ";$varname=trim ($varname);}
+$selected='';
+if ($varname!=='' && isset($varname[0]) && $varname[0]=="#") { $selected=" checked";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
+if ($varname!=='' && isset($varname[0]) && $varname[0]=="!") { $selected=" selected";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
+if ($varname!=='' && isset($varname[0]) && $varname[0]=="%") { $selected=" disabled";$varname[0]=" ";$varname=trim ($varname);}
 if (!$varname) echo "<input type=checkbox name=".$varforprint." $selected>";
 		if ($varname) echo "<input type=checkbox name=".$varforprint." value=1 checked $selected>";
 		}
@@ -1988,15 +2090,19 @@ function hiddenkey ($name,$cmsg)
 {	echo "<input type=hidden name=\"".$name."\" value=\"".cmsg ($cmsg)."\">";
 }
 
+function dbs_h ($value) {
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'ISO-8859-1');
+}
+
 // вариант для кнопок без cmsg  usage=70%
 function hidekey ($name,$value)
-{	echo "<input type=hidden name=\"".$name."\" value=\"".$value."\">";
+{	echo "<input type=hidden name=\"".dbs_h($name)."\" value=\"".dbs_h($value)."\">";
 }
 
 //input, исп. если value надо вручную ставить  usage=0%
 function inputtext ($name,$size,$value)
-{ if (!$trafeconom) $idadd=" id=\"".$name."\" ";
-	echo "<input type=text $idadd name=\"".$name."\" size=\"".$size."\" value=\"".$value."\">";
+{ if (!$trafeconom) $idadd=" id=\"".dbs_h($name)."\" ";
+	echo "<input type=text $idadd name=\"".dbs_h($name)."\" size=\"".dbs_h($size)."\" value=\"".dbs_h($value)."\">";
 }
 
 //поле для ввода принимает значение value автоматически по имени usage=50%
@@ -3137,11 +3243,9 @@ function submitimg ($cmd,$name,$img) {
    }
 
 function xbasename ($file) {
-    global $OSTYPE;
-    $filename=substr ($file,0,strlen ($file)-strlen ($filename));
-    if ($OSTYPE=="LINUX") $filename=strrchr ($file,"\\");
-    if ($OSTYPE=="WINDOWS") $filename=strrchr ($file,"/");
-    return $filename;
+    $pos = max((int)strrpos($file, '/'), (int)strrpos($file, '\\'));
+    if ($pos === false || $pos < 0) return $file;
+    return substr($file, $pos);
 }
 
 
@@ -3442,11 +3546,10 @@ function simpleedit ($file,$limitsze)
 // xfgetcsv for unix - linux
 function xfgetcsv ($filedescripter,$pgsize,$separator)
 {		global $OSTYPE;
-
+ $result=false;
  if ($OSTYPE=="WINDOWS") {
  $result=@fgetcsv ($filedescripter,$pgsize,$separator);
- }
- if ($OSTYPE=="LINUX") {
+ } else {
 		$zn=@fgets ($filedescripter,$pgsize);//LINUX FIX   выдает какую то чепуху.
 		if ($zn==false) return false;
 		$result=explode ($separator,$zn);
@@ -3460,24 +3563,25 @@ function xfgetcsv ($filedescripter,$pgsize,$separator)
 
 function readfullcsv ($filedescripter,$oldnew)
 {	global $silent;		//$b;$b=0;
-	global $filbas,$abort;
+	global $filbas,$abort,$xfgetlimit;
 	if ($filedescripter===false) return -1;
+	$csvLimit = $xfgetlimit ?? ($GLOBALS['xfgetlimit'] ?? 4096);
 	
 	if ($oldnew==="ZZOLD") { $oldnew="old"; $nocachetable=1;};// исп 1 раз для отключения преобразования ;
 	$separator="¦"; if ($oldnew==="old") $separator=";"; 
 					if ($oldnew==="comma") $separator=","; 
-		$header=xfgetcsv ($filedescripter,$GLOBALS['xfgetlimit'],$separator); //OLDCORE
+		$header=xfgetcsv ($filedescripter,$csvLimit,$separator); //OLDCORE
 
 	if ($header==false) { if (($silent==0)AND($abort[0]==1)) {msgexiterror ("filenf",$filbas,"disable");} return -1 ;};
 	$tableimpl=array ();
 //	if (($oldnew==="old")AND(strpos("¦",$header)) {echo "Ваша версия конфигов уже обновлена.";exit;};
 	$tableindexcnt=1;$table=array ();$table[0][0]="UNKNOWN";$table[0][10]="0";  // for compactiblity this start from 1
 	if ($oldnew!=="old") {
-	 $plevels=xfgetcsv ($filedescripter,$GLOBALS['xfgetlimit'],$separator);//oldcore
+	 $plevels=xfgetcsv ($filedescripter,$csvLimit,$separator);//oldcore
 		}
 	$row=$table[$tableindexcnt-1] ?? null;
 	while (is_array($row) && ((($row[1]??false)==true) OR (($row[0]??false)==true) OR (($row[0]??null)==="0")))	{  //decoding proc  from init
-			$table[$tableindexcnt]=xfgetcsv ($filedescripter,$GLOBALS['xfgetlimit'],$separator);//oldcore
+			$table[$tableindexcnt]=xfgetcsv ($filedescripter,$csvLimit,$separator);//oldcore
 			
 	if (($oldnew==="old")AND($nocachetable<1)) {
 		$td=$table[$tableindexcnt];//echo "INDEX-$tableindexcnt-$td<br><br>";
@@ -4030,7 +4134,13 @@ function gensqlupdate ($table,$header,$from,$to) { //no WHERE part
 function errorlog ($action)
 {	$dbs_ip =$_SERVER['REMOTE_ADDR'];	$dbs_ref= $_SERVER['HTTP_REFERER'];
 	global $prauth,$ADM,$pr;
-	$usr=$prauth[$ADM][15]."(".$_SERVER['PHP_AUTH_USER'].")";
+	$admIdx = (int)($ADM ?? 0);
+	$authUser = (string)($_SERVER['PHP_AUTH_USER'] ?? '');
+	if ($admIdx > 0 && is_array($prauth[$admIdx] ?? null)) {
+		$usr = ($prauth[$admIdx][15] ?? '').'('.$authUser.')';
+	} else {
+		$usr = '('.$authUser.')';
+	}
 	//table format  dat;usr;ip;action;script started
 	$str=date("d.m.Y H:i:s")."¦".$usr."¦".$dbs_ip."¦".$action."\n";
 		$w=csvopen ("_logs/errorlog.dat","a+",1);
@@ -4968,10 +5078,12 @@ if ($message[0]!=="_") exit;
 
 function authenticate() 
 	  {	global $pr;
-if (($pr[38]=="on")OR((!$pr[38])AND(isset ($_COOKIE['dbsa'])OR(isset ($_SESSION['dbsa']))))) return 1;
+if (($pr[38]??'')==="on") return;
+$token = $_COOKIE['dbsa'] ?? '';
+if ($token !== '' && dbs_auth_session_valid($token)) return;
    header('WWW-Authenticate: Basic realm="Dbscript zone"');
    header('HTTP/1.0 401 Unauthorized');
-	return ;
+	exit;
   }
   
   
@@ -5473,6 +5585,39 @@ function dbs_setcookie_dbsa ($value, $expires) {
     setcookie('dbsa', $value, $opts);
 }
 
+function dbs_reject_adm_override () {
+    if (!empty($_GET['ADM']) || !empty($_POST['ADM']) || !empty($_COOKIE['ADM'])) {
+        header('Location: r.php');
+        die('R Tape loading error 0:1');
+    }
+}
+
+function dbs_lock_adm () {
+    global $ADM, $dbs_adm_verified;
+    if (isset($dbs_adm_verified)) $ADM = $dbs_adm_verified;
+}
+
+function dbs_zip_entry_dest ($basePath, $entryName) {
+    $name = str_replace('\\', '/', trim((string)$entryName));
+    if ($name === '' || str_contains($name, '..') || $name[0] === '/') return false;
+    foreach (explode('/', $name) as $seg) {
+        if ($seg === '' || $seg === '.' || $seg === '..') return false;
+    }
+    $base = rtrim(str_replace('\\', '/', (string)$basePath), '/');
+    if ($base === '') return false;
+    return $base.'/'.$name;
+}
+
+function dbs_fm_delete_form ($fileToken, $deleteHash, $imgSrc, $title) {
+    echo '<form method="post" action="filemgr.php" style="display:inline" target="b3">';
+    csrfkey();
+    echo '<input type="hidden" name="f" value="'.dbs_h($fileToken).'">';
+    echo '<input type="hidden" name="d" value="'.dbs_h($deleteHash).'">';
+    echo '<button type="submit" style="border:0;background:transparent;padding:0;cursor:pointer" title="'.dbs_h($title).'">';
+    echo '<img src="'.dbs_h($imgSrc).'" border="0" alt="">';
+    echo '</button></form>';
+}
+
 function dbs_csrf_boot () {
     static $booted = false;
     if ($booted) return;
@@ -5528,7 +5673,7 @@ function dbs_servicectl_script () {
 function dbs_servicectl_cfg () {
     static $cfg = null;
     if ($cfg !== null) return $cfg;
-    $cfg = ['enabled' => '1', 'db_unit' => '', 'web_units' => '', 'use_sudo' => 'auto', 'allow_cmdlines' => '1'];
+    $cfg = ['enabled' => '1', 'db_unit' => '', 'web_units' => '', 'use_sudo' => 'auto', 'allow_cmdlines' => '0'];
     $path = '_conf/servicectl.cfg';
     if (!file_exists($path)) return $cfg;
     $desc = @csvopen($path, 'r', 0);
@@ -5637,10 +5782,11 @@ function dbs_servicectl_needs_confirm ($action) {
 
 function dbs_cmdline_validate ($command) {
     $cfg = dbs_servicectl_cfg();
-    if (($cfg['allow_cmdlines'] ?? '1') !== '1') return false;
+    if (($cfg['allow_cmdlines'] ?? '0') !== '1') return false;
     if (!is_string($command) || $command === '' || strlen($command) > 512) return false;
     if (preg_match('/[;|&`$()<>\r\n]/', $command)) return false;
     if (preg_match('/\bsudo\b/i', $command)) return false;
+    if (preg_match('/\$\(/', $command)) return false;
     return true;
 }
 

@@ -22,6 +22,10 @@ final class ServicectlProbeTest extends TestCase
     public function testCmdlineRejectsMetacharacters(): void
     {
         $this->assertFalse(dbs_cmdline_validate('ls; rm -rf /'));
-        $this->assertTrue(dbs_cmdline_validate('/usr/local/bin/backup.sh'));
+    }
+
+    public function testCmdlineDisabledByDefault(): void
+    {
+        $this->assertFalse(dbs_cmdline_validate('/usr/local/bin/backup.sh'));
     }
 }

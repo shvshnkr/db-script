@@ -1,8 +1,5 @@
 <?php
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-error_reporting(-1);
 ob_start (); // ������ ��������� ��������� � ������ DBSCRIPT v2.1 (�) dj--alex
 //header ("Location: main.php");   ��� ���� ������ �� �� ���������� �� ����  ��� <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><html>
 //$nomnu=1;
@@ -44,18 +41,9 @@ if ($frameoldcore==0) {require_once ("main.php");}
 if ($frameoldcore==1) {
 	autoexecsql (0);
   if (($go=="relogin")or($add<0)) {
-   if (!isset($_SERVER['PHP_AUTH_USER']) ||
-     ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
-   authenticate();$add++;}  else {
-   echo "<form action='{$_SERVER['PHP_SELF']}' METHOD='post'>\n";
-   hiddenkey ("SeenBefore",1);$go=="0";
-   hiddenkey ("OldAuth",$_SERVER['PHP_AUTH_USER']);
-   submitkey ("write","AUTHEN");
-   echo "<br><br>If you seen this message, you have a problem with run dbscript 4.<br>";
-   echo "<br>If this is authorization problem, we recommend use standart authentication mechanism.<br><br>";
-   echo "</form></p>\n";$add++;	
+   dbs_require_basic_auth();
+   $add++;
   }
-}
 ?>
 
 

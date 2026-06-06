@@ -361,7 +361,7 @@ for ($a=0;$a<200;$a++) {
         $prauth[$ADMM][$a]="0";//debug
 	if (($a>24)AND($a<37)) $prauth[$ADMM][$a]="1";
 }
-$prauth[$ADMM][0]=stripslashes ($LOGINUSER); 			$prauth[$ADMM][1]=hashgen ($PASSWORDUSER);$prauth[$ADMM][42]=1;
+$prauth[$ADMM][0]=stripslashes ($LOGINUSER); 			$prauth[$ADMM][1]=dbs_password_hash ($PASSWORDUSER);$prauth[$ADMM][42]=1;
 $prauth[$ADMM][2]=1; $prauth[$ADMM][3]=1; // admin + editor (w.php)
 $prauth[$ADMM][15]=$prauth[$ADMM][0];$prauth[$ADMM][22]=$lang;
 $prauth[$ADMM][21]="Default";$prauth[$ADMM][10]=10;

@@ -22,7 +22,8 @@
 
 Порт на PHP 8 **не является официальным релизом** dj--alex. Проверяйте на своём стенде перед prod.
 
-Расширения ветки **`modern-ops`** (servicectl, CSRF, hardening) — [`README-MODERN-OPS.md`](README-MODERN-OPS.md).
+Расширения ветки **`modern-ops`** (servicectl, CSRF, session-auth, hardening) — [`README-MODERN-OPS.md`](README-MODERN-OPS.md).  
+Полный handoff для автора: [`_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md`](_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md).
 
 ## Что даёт ветка `php8-port`
 
@@ -89,11 +90,11 @@ MySQL в compose: host `db`, user `root`, password `dbscript_root`, database `db
 # синтаксис + grep-guards PHP 8
 docker exec dev-web-1 bash scripts/verify.sh
 
-# полный smoke (свежая установка)
-docker exec dev-web-1 bash scripts/smoke-all.sh http://127.0.0.1
-
-# без переустановки
+# без переустановки (рекомендуется для итераций и CI)
 docker exec -e SMOKE_SKIP_INSTALL=1 dev-web-1 bash scripts/smoke-all.sh http://127.0.0.1
+
+# полный gate (smoke-install + все слои) — перед merge/prod
+docker exec dev-web-1 bash scripts/smoke-all.sh http://127.0.0.1
 
 # PHPUnit
 docker exec dev-web-1 composer install --no-interaction

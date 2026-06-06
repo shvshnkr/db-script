@@ -13,19 +13,17 @@ require_once ('initalize.php'); // функция подготовки к раб
  //У рекламы есть и хорошие стороны - теперь все знают, где женщины прячут свои крылышки<br>
 autoexecsql (); 
 if (!$activation) Header("Location: login.php");
-   if (!isset($_SERVER['PHP_AUTH_USER']) ||
-   ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
-  authenticate ();}  
+   dbs_require_basic_auth();
 $pageenter=0;
 if ($frameoldcore==1) $write=getvar ('write');//пока не нашел почему равные переменные не равны  write не сравнивается!!!
-extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);  // универсальное решение проблемы
+dbs_lock_adm();
 dbs_require_csrf ();
      if ($write==cmsg("LST_SHA_FLS")) { header ("Location: r.php?tbl=files&m=4&vID=1&vID2="); };
         if ($write==cmsg("LST_SHA_FLS_DL")) { header ("Location: r.php?tbl=files&m=7.9&vID=!0"); };
         if ($write==cmsg("LST_SHA_FLS_NO")) { header ("Location: r.php?tbl=files&m=7.9&vID=0&fullfield=on"); };
 
 if ($dbsaa) { 
-	dbs_setcookie_dbsa ($dbsaa, time ()+1000);
+	if ($ADM > 0) dbs_auth_session_create($prauth[$ADM][0], time ()+36000);
 	Header("Location: admin.php?cmd=myprof");	exit;			}
 $enterpoint=$veradm;
 if ($encoder=="not installed") errorlog ("Dbscript need an php encoder - iconv or mbstring.");
@@ -1197,10 +1195,9 @@ echo "DEBUG Состояние gmlimitcfg=$gmlimitcfg<br> ";
 // здесь у нас указывается что пользователь хочет изменить пароль.  не даём ему это сделать если стоит запрет на смену пароля.
 		if ($gmlimitcfg==0)	$prauth[$ADMM][0]=stripslashes ($LOGINUSER); 			
 		echo "<form action=\"admin.php\" method=\"POST\">";
-		if ($PASSWORDUSER==true) { $prauth[$ADMM][1]=hashgen ($PASSWORDUSER);
+		if ($PASSWORDUSER==true) { $prauth[$ADMM][1]=dbs_password_hash ($PASSWORDUSER);
 	//здесь у нас надо отправить новый кук чтобы пользователь мог не перезаходить после смены пароля.
-		$dbsa=a ( base64_encode($prauth[$ADMM][0]."¦".$PASSWORDUSER));
-			if ($ADM==$ADMM) hidekey ("dbsaa",$dbsa); 
+			if ($ADM==$ADMM) hidekey ("dbsaa","1");
 			if ($ADM!==$ADMM) echo "...<br>";
 		} else { $prauth[$ADMM][1]=stripslashes ($HASHUSER);};
 		submitkey ("dalee","CONT");
