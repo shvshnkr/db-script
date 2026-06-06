@@ -1,4 +1,16 @@
-# Expected _conf/*.cfg after install wizard step 4+ (smoke-install.sh checks these).
+# Expected _conf/* after install wizard step 4+ (smoke-install.sh checks these).
+# arch-modern: TOML; modern-ops/php8-port: csv .cfg (legacy)
+property.toml
+sitedata.toml
+pages.toml
+styles.toml
+langset.toml
+users.toml
+secrets.toml
+dbdata.toml
+denywords.toml
+files.toml
+# legacy fallback (pre-arch-modern smoke):
 property.cfg
 sitedata.cfg
 pages.cfg

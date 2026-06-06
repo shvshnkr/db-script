@@ -1,0 +1,25 @@
+# Site property — arch-modern example
+# Maps selected legacy $pr indices under [legacy_index] during transition.
+
+[site]
+version = "4.5"
+charset = "utf-8"
+debug = false
+
+[security]
+csrf_enabled = true
+basic_auth_gate = false
+
+[paths]
+filemgr = "/media/D/"
+upload_extensions = ["html", "gif", "bmp", "png"]
+
+[mysql]
+default_host = "127.0.0.1"
+default_port = 3306
+
+[legacy_index]
+8 = 1
+36 = "off"
+41 = "/media/D/"
+43 = "127.0.0.1"

@@ -1,10 +1,29 @@
 {
     "name": "dj-alex/dbscript4",
-    "description": "Dbscript 4 — dev test dependencies only",
+    "description": "Dbscript 4 — arch-modern branch (PSR-4, JWT, TOML, Twig)",
     "license": "proprietary",
-    "require": {},
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "doctrine/dbal": "^4.2",
+        "doctrine/orm": "^3.3",
+        "lcobucci/jwt": "^5.4",
+        "php-collective/toml": "^1.0",
+        "symfony/http-foundation": "^7.2",
+        "twig/twig": "^3.20"
+    },
     "require-dev": {
         "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dbscript\\": "src/Dbscript/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dbscript\\Tests\\": "tests/"
+        }
     },
     "config": {
         "sort-packages": true,

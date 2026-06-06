@@ -15,6 +15,7 @@
     <source>
         <include>
             <file>dbscore.lib</file>
+            <directory>src</directory>
         </include>
     </source>
 </phpunit>

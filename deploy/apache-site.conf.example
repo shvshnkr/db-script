@@ -5,6 +5,8 @@
     ServerName example.com
     DocumentRoot /var/www/dbscript
 
+    AddDefaultCharset UTF-8
+
     <Directory /var/www/dbscript>
         Options -Indexes +FollowSymLinks
         AllowOverride None

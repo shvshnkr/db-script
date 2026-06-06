@@ -1,0 +1,14 @@
+/** arch-modern base styles — theme vars from styles.toml at runtime */
+
+:root {
+    --dbs-bg: #f4f4f8;
+    --dbs-fg: #1a1a2e;
+    --dbs-accent: #0000af;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--dbs-bg);
+    color: var(--dbs-fg);
+}

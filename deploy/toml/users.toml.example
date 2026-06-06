@@ -1,0 +1,7 @@
+# Users — password_hash only (generated at install)
+
+[[users]]
+login = "admin"
+password_hash = "$2y$12$REPLACE_AT_INSTALL"
+role = "admin"
+active = true

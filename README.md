@@ -25,6 +25,8 @@
 Расширения ветки **`modern-ops`** (servicectl, CSRF, session-auth, hardening) — [`README-MODERN-OPS.md`](README-MODERN-OPS.md).  
 Полный handoff для автора: [`_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md`](_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md).
 
+Ветка **`arch-modern`** — предложение новой архитектуры (PSR-4, JWT, TOML, Twig): [`README-ARCH-MODERN.md`](README-ARCH-MODERN.md), [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ## Что даёт ветка `php8-port`
 
 - PHP **8.0+** (проверено: **8.2 LTS**, **8.3**), драйвер **mysqli** вместо устаревшего `mysql_*`.

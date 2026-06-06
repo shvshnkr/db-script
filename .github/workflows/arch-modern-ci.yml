@@ -1,0 +1,39 @@
+name: arch-modern CI
+
+on:
+  push:
+    branches: [arch-modern]
+  pull_request:
+    branches: [arch-modern, modern-ops]
+
+jobs:
+  verify-l0:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - run: bash scripts/verify.sh
+
+  php-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - run: composer install --no-interaction
+      - run: vendor/bin/phpunit --testsuite unit
+
+  smoke-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose -f dev/docker-compose.yml up -d --build
+      - run: docker compose -f dev/docker-compose.yml exec -T web bash -c 'composer install --no-interaction && bash scripts/smoke-all.sh http://127.0.0.1 /var/www/html'
+        env:
+          SMOKE_SKIP_INSTALL: "1"
