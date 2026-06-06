@@ -28,7 +28,6 @@ if ( (!extension_loaded('mbstring')) AND (!extension_loaded('iconv'))) echo "$ei
 
 };
 //echo "<br>";
-}
 if (($_POST["step"] ?? 0)<1) {;};
 echo "Loading core...";
 //echo "step $step G ".$_GET["step"]." P".$_POST["step"]."<br>";;
