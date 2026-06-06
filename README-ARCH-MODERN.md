@@ -29,8 +29,9 @@ Dbscript **нигде не используется** в prod на этом фо
 ```bash
 git checkout arch-modern
 composer install
+# fresh install:
+# open /install-arch.php  OR  php scripts/arch-modern-install-dev.php
 docker compose -f dev/docker-compose.yml up -d --build
-# после реализации install: открыть /install.php
 docker compose exec web bash scripts/smoke-all.sh http://127.0.0.1
 ```
 
@@ -43,8 +44,8 @@ docker compose exec web bash scripts/smoke-all.sh http://127.0.0.1
 ## Фазы
 
 1. ✅ Skeleton: composer, `bootstrap.php`, `Application`, docs
-2. TOML + install
-3. JWT + login
+2. 🔄 TOML + install (`install-arch.php`, `InstallWriter`)
+3. 🔄 JWT + login (`login-arch.php`, `AuthMiddleware`)
 4. EditorService + GlobalBridge
 5. Twig + lang UTF-8
 6. Thin entry, удаление legacy

@@ -6,13 +6,15 @@
 - Branch `arch-modern` from `modern-ops`
 - PSR-4 autoload `Dbscript\` → `src/Dbscript/`
 - `bootstrap.php`, `Application`, `TomlLoader`, `ConfigRepository`, `UserRepository`
-- `JwtAuthService`, `CsrfService` (skeleton)
+- `JwtAuthService`, `CsrfService`, `AuthMiddleware`
+- `install-arch.php`, `login-arch.php` (TOML + JWT path)
 - `EditorService`, `ReaderService` API-ready stubs
 - `GlobalBridge` (temporary legacy globals bridge)
 - `TwigRenderer`
 - [`ARCHITECTURE.md`](ARCHITECTURE.md), [`README-ARCH-MODERN.md`](README-ARCH-MODERN.md)
 - TOML config examples in `deploy/toml/`
 - GHA workflow `arch-modern-ci.yml`
+- Dev helper `scripts/arch-modern-install-dev.php`
 
 ### Removed (planned)
 - `dbscore.lib`, csv configs, `dbsa`, `hashgen` — final phases
