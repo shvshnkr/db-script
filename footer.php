@@ -45,11 +45,11 @@ screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
 
 
 if (($prauth[$ADM][16]==false)AND($write==true) ) { //<?php echo cmsg ("F1_") ;
-?><a target=help href="main.php?hlp=<?php echo$write;?>"><img src=_ico/wopros.png border=1 title="<?php echo cmsg (F1);?>"></a><?php
+?><a target=help href="main.php?hlp=<?php echo$write;?>"><img src=_ico/wopros.png border=1 title="<?php echo cmsg ("F1");?>"></a><?php
 }
 if ($pr[49]) {
-?><font color=red><a target=help href="main.php?rmsg=<?=rmsg ($write); ?>"><img src=_ico/bug1.png border=1 title="<?php echo cmsg (BUG)." ".$write?>"></a>
-<font color=red><a target=help href="http://code.google.com/p/db-script/issues"><img src=_ico/bug1.png border=1 title="<?php echo cmsg (BUGDET)." ".$write?>"></a>
+?><font color=red><a target=help href="main.php?rmsg=<?=rmsg ($write); ?>"><img src=_ico/bug1.png border=1 title="<?php echo cmsg ("BUG")." ".$write?>"></a>
+<font color=red><a target=help href="http://code.google.com/p/db-script/issues"><img src=_ico/bug1.png border=1 title="<?php echo cmsg ("BUGDET")." ".$write?>"></a>
 <?php  }
 
 

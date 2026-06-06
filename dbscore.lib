@@ -18,8 +18,8 @@ $OSTYPE="LINUX";//$a.=$_SERVER["PATH"];// /usr/  /local - linux    // C:\ WINDOW
 //setlocale (LC_ALL, 'ru_RU.CP1251');  // CFG OPT FUTURE  TODO:    локаль выключена.
 if ((strpos ($OS,"indows"))!==false) $OSTYPE="WINDOWS";
 if ($winchk==true) $OSTYPE="WINDOWS";
-if ((strpos ($_SERVER["SERVER_SOFTWARE"],"Win32"))==true) $OSTYPE="WINDOWS";//;// содержит Win32 для windows 
-$USERDAT=$_SERVER["HTTP_USER_AGENT"]; // OPT FUTURE    //print_R($_SERVER); hpinfo ();echo $OS ;exit;
+if ((strpos (($_SERVER["SERVER_SOFTWARE"] ?? ''),"Win32"))==true) $OSTYPE="WINDOWS";//;// содержит Win32 для windows 
+$USERDAT=$_SERVER["HTTP_USER_AGENT"] ?? ''; // OPT FUTURE    //print_R($_SERVER); hpinfo ();echo $OS ;exit;
 //SHOW USER IP IN INFO
 $testenable="beta";// "alpha"; "beta"; is reserved wordss
 //CFG OPT FUTURE  TODO:- отметка о необходимости внесении изм в конфигурации при обновлении
@@ -292,7 +292,7 @@ if ($OSTYPE=="WINDOWS") $addOSenter="\r\n";
 $sqlencodingdefault=$pr[76]??'';
 
 
-if ($configpresent) {
+if ($configpresent && !$fresh_install) {
         //creation files.cfg and starting it
   $filescfg=csvopen ("_conf/files.cfg","rw",1);
     if ($filescfg==false) {
@@ -530,7 +530,7 @@ $filbas=$userfolder."/macros.cfg";
 $data=readfullcsv ($macros,"new");
 //SUKA if ($macros==false) {$data[0][0]="CMD";$data[0][1]="EXECUTING"; $data[1][0]="0";$data[1][1]="0";}
 $macrosheader=$data[0];$macrosplevel=$data[1];$macroscontent=$data[2];$macroscnt=$data[3];
-@fclose ($macros);	
+if ($macros) @fclose ($macros);	
 
 
 
@@ -539,7 +539,7 @@ $filbas=$userfolder."/best.cfg";  // возможно будет дб в initse 
 // SUKA if ($best==false) {$data[0][0]="Table";$data[0][1]="List"; $data[1][0]="0";$data[1][1]="0";}
 $data=readfullcsv ($best,"new");
 $bestheader=$data[0];$bestplevel=$data[1];$bestcontent=$data[2];$bestcnt=$data[3];
-@fclose ($best);  //  поточнее проверить
+if ($best) @fclose ($best);  //  поточнее проверить
 
 /*
 $filbas=$userfolder."/files.cfg";  // возможно будет дб в initse  с созданием шапки если файла вообще нет  ufiles   CFG OPT FUTURE  TODO: - fast path
@@ -561,7 +561,7 @@ $enablewin32enctooldmenu=$sd[39]??null;
 #############################################################33
 
 
-if ($errcrtdir==true){
+if ($errcrtdir==true && !$coreloadskip){
 // checking core starts counter
 $file_counter = "_logs/counter.log";
 
@@ -792,8 +792,10 @@ $realpage=$_GET["pagenow"] ?? null;
  function hashgen ($pasw)
  {
  	$a=md5 ($pasw);$b=$a;
- 	for ($c=0;$c<strlen ($pasw);$c=$c+2) {
- 	$a[c]=$b[strlen ($pasw)-c];//mix
+ 	for ($c=0;$c<strlen ($pasw);$c+=2) {
+ 	$pos=strlen ($pasw);
+ 	if ($pos>=strlen($b)) $pos=$pos % strlen($b);
+ 	$a[0]=$b[$pos]; // legacy: $a['c'] on string used offset 0 in PHP 7
  	}
  	$newpasw="!".md5 ($a);
  	return $newpasw;
@@ -885,7 +887,14 @@ function cmsg ($msg)
                             return $returnedmessage;}
  	}
 	$errmsg="CMSG:KEY_`".$msg."`_NOT_DEF_IN_".$languageprofile.".<br>";
-	if (!$silent) errorlog ($errmsg);
+	if (!$silent) {
+		static $cmsg_logging = false;
+		if (!$cmsg_logging) {
+			$cmsg_logging = true;
+			errorlog ($errmsg);
+			$cmsg_logging = false;
+		}
+	}
 	
 	return "<red>?$msg</red>";
 }
@@ -3508,7 +3517,8 @@ global $fldup,$silent,$pr,$debug;
 
 function csvopen ($configordbname,$mode,$abort)
 {
-	global $fldup,$silent,$pr,$debug,$debugmode;
+	global $fldup,$silent,$pr,$debug,$debugmode,$installermode;
+	$use_flock = !($installermode ?? null);
 	if (!is_array($abort)) $abort=array((string)$abort,"");
 	//Создание заголовков по умолчанию глобальными (мультиинст) - никак не обрабатывается !!!!  $pr[34]
 	$locale="local";
@@ -3516,17 +3526,20 @@ function csvopen ($configordbname,$mode,$abort)
 	if (($pr[34]??null)==true) $locale="general";
 	@$filedescripter=fopen ($configordbname,"rb") ;// get data from sitedata (site)  //errormsg- disabled!!
         if ($filedescripter) $locale=""; //выключить переключение папки вверх если файл _УЖЕ _найден  4.1.77 новое изменение EXPErIMENTAL если будет глючить убратть
-	if ($filedescripter) flock ($filedescripter, 3);
+	if ($filedescripter && $use_flock) flock ($filedescripter, 3);
 	$fileforaction=$configordbname;				$fileforcopy=$abort;//autoconfig for actions
 if ($filedescripter==false) { 
 		$configordbnamefldup=1;// будет потерян но это неважно т.к. подготовка записи тутже.
 		 $fileforaction=$fldup."/".$configordbname;		 $fileforcopy=$fldup."/".$abort;//autoconfig for actions
 	@$filedescripter=fopen ($fileforaction,"rb");// папка повыше   // b added  - может ли это вызвать баг?
-       if ($filedescripter) flock ($filedescripter, 3);;// LOCK FIX
+       if ($filedescripter && $use_flock) flock ($filedescripter, 3);;// LOCK FIX
 		 if (($filedescripter==false)AND($locale!=="general")) {  // по умолчанию параметры локальные  
 				$configordbnamefldup=0;
 				$fileforaction=$configordbname;				$fileforcopy=$abort;//autoconfig for actions
- if (($abort[0]??'')==="1") msgexiterror ("init",$configordbname,"disable");}}
+ if (($abort[0]??'')==="1" && $mode==="r") {
+  if ($installermode ?? null) return false;
+  msgexiterror ("init",$configordbname,"disable");
+}}}
 if ($mode!=="r") {
 	$err=0;
 	if (strlen ($mode)>3) @fclose ($filedescripter);
@@ -3551,8 +3564,11 @@ if ($mode!=="r") {
   		return $err;
 	}
 	@$filedescripter=fopen ($fileforaction,$mode);// если файла нигде нет создаст его локально.
-        if ($filedescripter) flock ($filedescripter, 3); // LOCK FIX
-		 if ($filedescripter==false) if (($abort[0]??'')==="1") msgexiterror ("init",$configordbname,"disable");
+        if ($filedescripter && $use_flock) flock ($filedescripter, 3); // LOCK FIX
+		 if ($filedescripter==false) if (($abort[0]??'')==="1") {
+  if ($installermode ?? null) return false;
+  msgexiterror ("init",$configordbname,"disable");
+}
 			}	
 	if ($debug==1) {
 			echo "[DEBUG]fldup=$fldup locale=$locale configordbname=$configordbname fileforaction=$fileforaction abort=$abort fileforcopy=$fileforcopy ";
@@ -3993,8 +4009,7 @@ function errorlog ($action)
                 // добавить данные для dbs_error_log
 	if ($w==false) {@mkdir ("_logs");
 	$w=csvopen ("_logs/errorlog.dat","a+",1);}
-		  { 		  @$a=fwrite ($w,$str);		  @fclose ($w);
-		  }
+	if ($w) { @$a=fwrite ($w,$str); @fclose ($w); }
 		  $cmsgerr=strpos ($action, "_NOT_DEF_IN");
   if (!$cmsgerr) if (!$pr[8]) {echo "DEBUGERRORLOG::".$action."<br>";}
 		  return $a;
@@ -4017,8 +4032,7 @@ function undolog ($action,$restoreaction,$baseID,$hostIP)
 		$w=csvopen ("_logs/undolog.dat","a+",1);
 	if ($w==false) {mkdir ("_logs");
 	$w=csvopen ("_logs/undolog.dat","a+",1);}
-		  {		  @$a=fwrite ($w,$str);		  @fclose ($w);  
-		  }
+		  if ($w) { @$a=fwrite ($w,$str); @fclose ($w); }
                   if ($pr[82]) {
       logwritesql ("_dbs_".$prefix."_undo_logs",$datecurrent,$usr,$dbs_ip,$action,$restoreaction,"",$baseID,$hostIP,"");
                   }
@@ -4547,7 +4561,7 @@ if (($type=="notrights")or($type=="notuser")or($type=="nomodule")or($type=="expi
 if (($type=="outdatedfunc")or($type=="update")) $class="headeryellow";
 if ($type=="demo") $class="headergreen";
 
-	if ($data!=="noexit")  if   (($type!=="notfound")AND($type!=="nobest")AND($type!=="nocategory")AND($type!=="needcode") AND($type!=="limit")AND($type!=="lostvar"))//no window 
+	if (!$coreloadskip) if ($data!=="noexit")  if   (($type!=="notfound")AND($type!=="nobest")AND($type!=="nocategory")AND($type!=="needcode") AND($type!=="limit")AND($type!=="lostvar"))//no window 
 		 {
 $script=array ( //  Для special режима иконка задаетс как параметр data
 		'message' => "",				// сообщение
@@ -4581,14 +4595,16 @@ if ($type=="Special")
 	}
 
   if ($type=="init") 
-	{ echo "$criterror";	lprint ("CR_ERR_CFG");echo "$data!";lprint ("REQ_A");
+	{ echo "$criterror"; echo "Config error: $data<br>";
 	$errmsg="CR_ERR_CFG - $data $script";
+	if (!($installermode ?? null)) { lprint ("CR_ERR_CFG"); lprint ("REQ_A"); }
 	errorlog ($errmsg);
 	}
 	
   if ($type=="filenf") 
-	{echo "$criterror";    lprint ("CR_ERR_RW");echo "$data!";lprint ("REQ_A");
+	{echo "$criterror"; echo "File error: $data<br>";
 	$errmsg="CR_ERR_RW - $data $script";
+	if (!($installermode ?? null)) { lprint ("CR_ERR_RW"); lprint ("REQ_A"); }
 	errorlog ($errmsg);
 	}
 
@@ -4816,10 +4832,10 @@ $msgexitcalled=1;$openedwindows++;
 	 $color=$script['color'];
          if (!$script['color']) $color="header";
          $class=$color;
-         $bgcolor=$script['bgcolor'];// некорректно отрабатывается
+         $bgcolor=$script['bgcolor']??'unnamed1';// некорректно отрабатывается
          if (!$script['bgcolor'])$bgcolor="unnamed1";
-         $txtcolor=$script['txtcolor'];// некорректно отрабатывается
-	 $noclose=$script['noclose'];
+         $txtcolor=$script['txtcolor']??'';// некорректно отрабатывается
+	 $noclose=$script['noclose']??null;
          if ($script['width']) $width=$script['width'];
          if (!$script['width'])$width="506";
          if ($script['top']) $top=$script['top'];
@@ -4830,6 +4846,7 @@ $msgexitcalled=1;$openedwindows++;
 	 if ($color=="red") $class="headerred"; //blue
 	 if ($color=="green") $class="headergreen"; //blue
 	 if ($color=="yellow") $class="headeryellow"; //blue
+	 $changesize = $changesize ?? 0;
 
 require ("window.php") ;
 if ($icon) echo $$icon;	

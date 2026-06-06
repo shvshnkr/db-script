@@ -17,7 +17,7 @@
 | `mysql_*` → `mysqli_*` в `dbscore.lib` | ✅ в работе |
 | Dev Docker (`dev/docker-compose.yml`) | ✅ добавлен, не запушен |
 | `scripts/verify.sh` | ✅ синтаксис + grep-guards |
-| Smoke install/login/editor | ✅ install step 0 (Docker Desktop dev-web-1) |
+| Smoke install/login/editor | ✅ full wizard (MySQL `db`/`dbscript_root`) → login → `w.php` |
 | Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/` |
 
 ## Entry points (HTTP)
@@ -78,8 +78,8 @@ bash scripts/setup-wsl.sh
 Verify:
 
 ```bash
-bash scripts/verify.sh
-docker compose -f dev/docker-compose.yml exec web bash scripts/verify.sh
+bash scripts/smoke-curl.sh http://127.0.0.1:8080          # step 0 only
+docker exec dev-web-1 bash scripts/smoke-install.sh http://127.0.0.1  # full wizard
 ```
 
 Rollback: `bash scripts/teardown-wsl.sh`

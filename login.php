@@ -59,8 +59,8 @@ exit;}
 If (($dbsa)AND($ADM===0)) { echo "Your login as anonymous." ;
 ?><form action="login.php" method="post"> <?php if ($anprinted==false) submitkey ("resetcookie","LOGOUT");
  echo "</form>";
-echo "<table border=0 ><tr><td>";pictogramm("search.png","getfile.php",cmsg (MNU_3));
-echo "<td>";echo "<td>";pictogramm("key1.png","filemgr.php",cmsg (MNU_7));
+echo "<table border=0 ><tr><td>";pictogramm("search.png","getfile.php",cmsg ("MNU_3"));
+echo "<td>";echo "<td>";pictogramm("key1.png","filemgr.php",cmsg ("MNU_7"));
 echo "</tr></table>";
 exit;}  
 

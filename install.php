@@ -64,7 +64,7 @@ if (!$lang) {$languageprofile="english";
 $filbas="_conf/sitedata.cfg";
 @$site=csvopen ($filbas,"r","0");$data=readfullcsv ($site,"new");
 if ((!$step)AND($data!==-1)) { echo "Dbscript already installed. You must remove install.php<br>";window ("","") ;echo " <img src=\""."_ico/info.png"."\" border=0><br>   ";
-  lprint (INST_CONF_PRES);closewindow();exit;}
+  lprint ("INST_CONF_PRES");closewindow();exit;}
 
 
 
@@ -101,7 +101,7 @@ if ($lang) { $languageprofile=$lang; }
 
 //echo "languageprofile=$languageprofile lang=$lang<br>";
 if ($step) {
-	window (array ( 'message'=>"",'color'=> "",width=>'540',top=>'',left=>'' , height=>'', 'icon'=>"",'mainheader'=>"$step::".cmsg ("I_$step") ),"");
+	window (array ( 'message'=>"",'color'=> "",'width'=>'540','top'=>'','left'=>'' , 'height'=>'', 'icon'=>"",'mainheader'=>"$step::".cmsg ("I_$step") ),"");
 	echo "<form action=install.php method=post>";
         $st=$step+1;
         hidekey ("write",cmsg ("INST_DBS")." - $st");
@@ -124,7 +124,7 @@ if ($step>1) {
 	hidekey ("LOGINSQL",$LOGINSQL); 
 	hidekey ("PASSSQL",$PASSSQL); 
 	hidekey ("IPDEFSERVSQL",$IPDEFSERVSQL);
-        hidekey ("NOMYSQL",$NOMYSQL);
+        hidekey ("NOMYSQL",$NOMYSQL ?? '');
 	}
 
 //============================================//
@@ -133,7 +133,7 @@ if ($step==2)
 	if (!$NOMYSQL) {@$connect=mysqli_connect ($IPDEFSERVSQL, $LOGINSQL , $PASSSQL);
 	if ($connect===false) {sqlerr ();} else {echo "";}//lprint (SQLDOWN);
         }
-	echo "".cmsg (INST_SU)."<br>"; 
+	echo "".cmsg ("INST_SU")."<br>"; 
 	
 	lprint ("LOGIN_SUSER");inputtext ("LOGINUSER",15,"TEST");echo "<br>";
 	lprint ("PASS_SUSER"); inputtext ("PASSWORDUSER",15,"TEST");echo "<br>";
@@ -159,7 +159,7 @@ if ($step==3)
 }
 if ($step>3) {
 	hidekey ("fmgfldr",$fmgfldr); 
-	hidekey ("sharedconf",$sharedconf); 
+	hidekey ("sharedconf",$sharedconf ?? ''); 
 	//if ($step==4)AND($sharedconf==false) $step=5;
 	}
 
@@ -167,6 +167,7 @@ if ($step>3) {
 //============================================//
 if ($step==4)
 {
+	$err='';
 	echo "<br>".cmsg ("INST_CNF_CRT")."<br>";
         $encodingforce="utf-8";
         if ( (!extension_loaded('mbstring')) AND (!extension_loaded('iconv'))) {
@@ -210,9 +211,10 @@ closewindow();
 	$lscontent[]="default¦".$lang."¦¦¦";
 	$path=getcwd ()."/_langdb/"; //наполняем базу langset
 		$mask="*.cfg";	$protect[]=".";$nameselect="files";
+		$x=array();
 		$files=filesselect ($path,$mask,$protect,$nameselect,0);
-		for ($b=0;$b<count ($files);$b++) {//echo "b=$b, ".$files[$b][0]."==file<br>";
-			if (strpos ($files[$b][0],".cfg")==true) {$x[]=str_replace(".cfg","",$files[$b][0]);}
+		if (is_array($files)) for ($b=0;$b<count ($files);$b++) {//echo "b=$b, ".$files[$b][0]."==file<br>";
+			if (strpos ($files[$b][0],".cfg")!==false) {$x[]=str_replace(".cfg","",$files[$b][0]);}
 		}
 		for ($a=0;$a<count ($x);$a++) {
 	$lscontent[]=$x[$a]."¦".$x[$a]."¦¦¦¦";
@@ -232,7 +234,8 @@ if ($data==-1) {
 //$pgheader="1¦012345¦0-pageent1¦str1¦str2¦rus¦exchpage¦rus¦redirect0-no1-y2-sp¦reditime¦";
 $pgheader="0-pageent1¦1page¦2¦russian¦4exchpage¦english¦6redirect0-no1-y2-sp¦7reditime¦8menulevel-1op-2cl¦9skipmenudmstyle¦10openmenu3";
 $pgplevel="¦¦¦¦¦d¦d¦d¦d¦d¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦";
-if ($languageprofile=="russian") 
+$p=array();
+if ($languageprofile=="russian")
 {$p[]="0¦admin.php¦0¦Конфигурация¦0¦Admin¦0¦0¦0¦0¦0¦0¦0¦0";
 $p[]="0¦admin.php¦0¦Конфигурация¦0¦Admin¦0¦0¦0¦0¦0¦0¦0¦0";// writefullcsv почему то глотает первую строку иноогда
 $p[]="1¦login.php¦0¦Вход¦0¦Enter¦Вход¦¦0¦1¦0¦0¦0¦0¦0¦0¦0¦0";
@@ -273,7 +276,7 @@ $p[]="15¦http://code.google.com/p/db-script/issues¦qweqwe¦Сообщить о
 
 
 }
-$pgcontent=$p;$p="";
+$pgcontent=$p;$p=array();
 	 @$tempdescr=csvopen ("_conf/pages.cfg","w",1);
  $pgheader=splitcfgline ($pgheader);
  $pgplevel=splitcfgline ($pgplevel);
@@ -287,6 +290,7 @@ $filbas="_conf/styles.cfg";
 if ($data==-1) {
 $stheader="style¦properties¦rgbfon¦rgbtext¦¦";
 $stplevel="0¦0¦0¦0¦0¦";
+$p=array();
 $p[]="Default¦dbew_b¦ffffff¦000000¦¦";
 $p[]="Default¦dbew_b¦ffffff¦000000¦¦"; // если везде эта ошибка с глотанием нулевой строки то убрать ее
 $p[]="Black_r¦dbr_b¦333333¦ffffff¦¦";
@@ -313,7 +317,7 @@ $p[]="desktoptree, English¦dbew_b¦ccaa44¦441111¦¦";
 $p[]="desktoptree_en¦ae¦ccaa44¦441111¦¦";
 $p[]="desktoptree_ru¦ar¦ccaa44¦441111¦¦";
 
-$stcontent=$p;$p="";
+$stcontent=$p;$p=array();
 
 	 @$tempdescr=csvopen ("_conf/styles.cfg","w",1);
 $stheader=splitcfgline ($stheader);
@@ -330,10 +334,11 @@ $filbas="_conf/filescript.cfg";
 if ($data==-1) {
 $filescriptheader="ID¦NAME¦Script¦Plevel¦keynames-icon¦russian¦english¦f1_russian¦f1_english¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦";
 $filescriptplevel="0¦d¦0¦0¦0¦0¦0¦d¦0¦0¦0¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d0¦0¦0¦0¦0¦";
+$p=array();
 $p[]="0¦¦mencoder %path%%file% -oac mp3lame -ovc x264 -o %path%%file%.avi¦0¦0¦перекодить в h264¦encode h264¦0¦0¦0¦0¦0¦";
 $p[]="1¦¦mencoder %path%%file% -oac mp3lame -ovc x264 -o %path%%file%.avi¦0¦0¦перекодить в h264¦encode h264¦0¦0¦0¦0¦0¦";
 $p[]="2¦¦mencoder %path%%file% -oac mp3lame -ovc mpg -o %path%%file%.avi¦0¦0¦перекодить в mpeg¦encode mpeg¦0¦0¦0¦0¦0¦0¦"; // если везде эта ошибка с глотанием нулевой строки то убрать ее
-$filescriptcontent=$p;$p="";
+$filescriptcontent=$p;$p=array();
 //почему то данные не сохраняются в скрипте - только шапка - все остальное теряется.
 
 	 @$tempdescr=csvopen ("_conf/filescripts.cfg","w",1);
@@ -358,6 +363,7 @@ for ($a=0;$a<200;$a++) {
 	if (($a>24)AND($a<37)) $prauth[$ADMM][$a]="1";
 }
 $prauth[$ADMM][0]=stripslashes ($LOGINUSER); 			$prauth[$ADMM][1]=hashgen ($PASSWORDUSER);$prauth[$ADMM][42]=1;
+$prauth[$ADMM][2]=1; $prauth[$ADMM][3]=1; // admin + editor (w.php)
 $prauth[$ADMM][15]=$prauth[$ADMM][0];$prauth[$ADMM][22]=$lang;
 $prauth[$ADMM][21]="Default";$prauth[$ADMM][10]=10;
 
@@ -383,6 +389,7 @@ if ($data==-1) {
 //reading denyword
 $dnheader="word¦plevel¦special";
 $dnplevel="4#1#1¦4¦";
+$dncontent=array();
 	 @$tempdescr=csvopen ("_conf/denywords.cfg","w",1);
 	 $dnheader=splitcfgline ($dnheader);
  $dnplevel=splitcfgline ($dnplevel);
@@ -397,7 +404,7 @@ if ($data==-1) {
 //reading dbdata
 $dbheader="File base¦Base visual name¦Поддержка картинок¦Tип scr¦Режим 3 (Категория)¦Таблица Mysql¦Хост Mysql ¦Тип категории¦Колонка картин¦Выбирать базу¦Режим 1 (Имя)¦Режим 2 (Код)¦Use Mysql¦Права на запись¦Права требуемые базой¦Треб. виртуальный ID¦Отбор колонок¦reserved17¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd¦hd";
 $dbplevel="d¦5¦d¦d¦d¦d¦d¦d¦d¦d¦a¦d¦a¦d¦5¦5¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦d¦dr";
-$prdbdata="";//
+$prdbdata=array(array());
 	 @$tempdescr=csvopen ("_conf/dbdata.cfg","w",1);
 $dbheader=splitcfgline ($dbheader);
  $dbplevel=splitcfgline ($dbplevel);
@@ -419,7 +426,7 @@ $pr=explode ("¦",$property);
 	$sd[17]=$PASSSQL; 
 	$pr[43]=$IPDEFSERVSQL; 
 	$pr[41]=$fmgfldr; 
-	$pr[34]=$sharedconf;
+	$pr[34]=$sharedconf ?? '';
 	$pr[8]=1; //debug off
 $sitedata=implode ("¦",$sd);
 $property=implode ("¦",$pr);
@@ -431,7 +438,7 @@ fclose ($site);
 $filbas="_conf/property.cfg";
 $desc=csvopen ($filbas,"w",1);
 $err.=fwrite ($desc,$property);
-fclose ($site);
+fclose ($desc);
 //echo "Error:$err<br>";
 //if ($err>3) die ("Fatal error, configs skipped ,write protect>?");
 	//если нет pages,styles создаются с содержимым заранее сохраненным тут
@@ -525,6 +532,7 @@ if ($step>8) {
 	}
 
 	if ($step==9) {
+		if (ob_get_level()) ob_end_clean();
 		Header("Location: login.php");exit;
 		if ($loginstate=="FINISH") {Header("Location: login.php");exit;}
 		//if ($loginstate=="DBLINKER") Header("Location: w.php");

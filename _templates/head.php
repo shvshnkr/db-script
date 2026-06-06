@@ -12,9 +12,9 @@
 			<a href="login.php"><img src="_templates/images/logo.gif" border=0 alt="" id="logo" /></a>
 			
 			<ul id="top-navigation">
-			   <?php $link="login.php"; if ($ADM>0) { $link="login.php?resetcookie=".cmsg(LOGOUT).""; } ?>
-				<li><a href=<?=$link?> id="tn_login"><?php 				if ($ADM==0) lprint (ENTER);
-				if ($ADM>0) lprint (LOGOUT); 
+			   <?php $link="login.php"; if ($ADM>0) { $link="login.php?resetcookie=".cmsg("LOGOUT").""; } ?>
+				<li><a href=<?=$link?> id="tn_login"><?php 				if ($ADM==0) lprint ("ENTER");
+				if ($ADM>0) lprint ("LOGOUT"); 
 			/* ��� ����� ��� ������. ��������� ������ �!
 			<form action="#" class="search">
 				<input type="text" class="text" >
