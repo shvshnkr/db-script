@@ -68,6 +68,20 @@ else
     echo "WARN: no redirect header; checking login manually"
 fi
 
+echo -n "install manifest _conf/*.cfg ... "
+for cfg in property.cfg sitedata.cfg pages.cfg styles.cfg langset.cfg gmdata.cfg dbdata.cfg denywords.cfg files.cfg; do
+    if [[ ! -f "$ROOT/_conf/$cfg" ]]; then
+        echo "missing $cfg"
+        fail "install manifest"
+    fi
+done
+echo "OK"
+
+LOG_BEFORE=0
+if [[ -f "$ROOT/_logs/log.dat" ]]; then
+    LOG_BEFORE="$(stat -c %Y "$ROOT/_logs/log.dat" 2>/dev/null || echo 0)"
+fi
+
 echo -n "login TEST/TEST ... "
 if ! curl -fsS -c "$COOKIE" -b "$COOKIE" -L --max-time 60 \
     -X POST "$BASE_URL/login.php" \
@@ -78,11 +92,23 @@ fi
 if grep -qE 'Fatal error|Uncaught Error|notuser|incorrect' "$OUT"; then
     fail "login response"
 fi
+if ! grep -q 'dbsa' "$COOKIE" 2>/dev/null; then
+    echo "WARN: dbsa cookie missing"
+fi
 if ! grep -q 'editor\.png\|w\.php\|WELCOME\|MNU_2' "$OUT"; then
     echo "WARN: login page may not show main menu"
     grep -E 'dbs_log|A_USR|Fatal|notuser' "$OUT" | head -5
 else
     echo "OK"
+fi
+
+if [[ -f "$ROOT/_logs/log.dat" ]]; then
+    LOG_AFTER="$(stat -c %Y "$ROOT/_logs/log.dat" 2>/dev/null || echo 0)"
+    if [[ "$LOG_AFTER" -gt "$LOG_BEFORE" ]] || [[ "$LOG_BEFORE" -eq 0 && "$LOG_AFTER" -gt 0 ]]; then
+        echo "OK: _logs/log.dat touched after login"
+    else
+        echo "WARN: _logs/log.dat mtime unchanged (logging may be off)"
+    fi
 fi
 
 echo -n "w.php editor ... "

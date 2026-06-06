@@ -1,7 +1,10 @@
 FROM php:8.2-apache
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libonig-dev \
+    git unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) mysqli mbstring gd zip \
     && a2enmod rewrite \

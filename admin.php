@@ -1158,7 +1158,7 @@ echo "</form>";
 	<?php //submitkey ("write","A_USR_CFG");
 echo "<br>  </form> ";
  }
-	@fclose ($site); 
+	if (is_resource($site ?? null)) { @fclose($site); }
 exit;
 }
 

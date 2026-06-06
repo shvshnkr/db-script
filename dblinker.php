@@ -27,7 +27,7 @@ if (($write==cmsg("KEY_EXECUTE"))or($write==cmsg("DUMP"))) {  // передат�
 }
 
  echo "server:".$mainhostmysql." type=$dbtype<br>";// CFG OPT FUT SELECTOR UNIQUE SERVERS FROM DB
- echo "debug:connect=$connect<br>";
+ echo "debug:connect=".($connect ? "ok" : "fail")."<br>";
 if ((!isset($start))AND(!isset($end))AND(!isset($write))) { ?>  
    <form action=dblinker.php method=post>
   <?php  lprint ("GEN_DB_TBL");

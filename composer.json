@@ -1,0 +1,13 @@
+{
+    "name": "dj-alex/dbscript4",
+    "description": "Dbscript 4 — dev test dependencies only",
+    "license": "proprietary",
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {}
+    }
+}

@@ -3422,8 +3422,10 @@ function simpleedit ($file,$limitsze)
 	echo "File:$file";
 	if (!$prauth[$ADM][10]) { lprint ("ACCDEN"); exit;};
 	@ $wr = fopen ($file,"r");
-	if ($wr==true) { echo "";} else { 	lprint ("FS_NEWFILE") ;};
-	if ($go!==cmsg ("SAVE")) { @$vd=fread ($wr,$limitsze); @fseek ($wr,0);
+	if ($wr==true) { echo "";} else { 	lprint ("FS_NEWFILE") ; $vd = $vd ?? '';}
+	if ($go!==cmsg ("SAVE")) {
+		if (is_resource($wr)) { @$vd=fread ($wr,$limitsze); @fseek ($wr,0); @fclose($wr); }
+		else { $vd = $vd ?? ''; }
 	 //echo "<br>".cmsg ("-");
 	echo "<form target=fileedit method=post>";
 	hidekey("fileed",$file);
@@ -4803,7 +4805,11 @@ if ($type=="lostvar") // no window
 
 
 //$script["script"]="getfile.php";
-$msgscript=$script["script"];
+if (is_array($script)) {
+	$msgscript = $script["script"] ?? "";
+} else {
+	$msgscript = (string)$script;
+}
 
 //echo "ms=|".$msgscript;
  if ($msgscript!=="disable") {

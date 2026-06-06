@@ -7,8 +7,10 @@ _data/
 # Agent local map + worklog (committed stubs: AGENTS.md, MAP.md, .cursor/rules/)
 AI/
 
-# Docker local state
-dev/install-manifest.txt
+# Composer / PHPUnit (dev only)
+/vendor/
+/.phpunit.cache/
+composer.lock
 
 # OS / editor
 .DS_Store

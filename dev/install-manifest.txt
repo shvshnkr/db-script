@@ -1,0 +1,10 @@
+# Expected _conf/*.cfg after install wizard step 4+ (smoke-install.sh checks these).
+property.cfg
+sitedata.cfg
+pages.cfg
+styles.cfg
+langset.cfg
+gmdata.cfg
+dbdata.cfg
+denywords.cfg
+files.cfg

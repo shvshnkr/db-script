@@ -1,4 +1,4 @@
-<?php// ������ ����� � ��������������� �� �������
+<?php // reader search menu ������ ����� � ��������������� �� �������
  ?>  
  <form action="r.php" method="post">
 <input type=text name="vID" size=80 value="<?=$vID; ?>" ></input>

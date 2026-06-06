@@ -6,7 +6,7 @@
 
 ## Цель (текущая фаза)
 
-**Runtime hardening** после механического порта: PHP **8.2** + **mysqli**, полный HTTP-smoke в **Docker Compose** (Apache + MySQL 8) на **Windows (Docker Desktop)**. WSL не нужен.
+**Prod-testing** — многослойное тестирование перед prod: L0 verify → L1–L2 smoke HTTP → L3–L4 PHPUnit → L5 security/links. PHP **8.2** + **mysqli**, Docker Compose на **Windows (Docker Desktop)**. WSL не нужен.
 
 ## Статус (2026-06-06)
 
@@ -26,7 +26,10 @@
 | `settype()` bareword types | ✅ quoted in dbscore.lib, w/wx, readfilemenu, classAudioFile |
 | Smoke cold paths (wx/dblinker/filemgr/getfile/main) | ✅ `scripts/smoke-cold-paths.sh` |
 | `filemgr.php` + `$dbdataskip` | ✅ prdbdata init, fileforaction array guard |
-| **Следующее** | news/nedit/window *(если нужно)* |
+| **Многослойное тестирование** | ✅ `scripts/smoke-all.sh` + `docs/TEST-MATRIX.md` |
+| smoke-lib + L2/L5 scripts | ✅ security, index-router, editor-crud, reader, filemgr, dblinker, admin-save, links, news |
+| PHPUnit L3 unit | ✅ `composer.json`, `tests/Unit/*` |
+| **Следующее** | L4 integration HTTP tests; L6 manual checklist sign-off; prod deploy |
 | Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/`, `AI/*` локально |
 
 ## Entry points (HTTP)
@@ -91,18 +94,22 @@ cd C:\Users\user\projects\dbscript4_djalex
 Verify / smoke:
 
 ```powershell
-& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/verify.sh
-& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/smoke-curl.sh http://127.0.0.1
-& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/smoke-install.sh http://127.0.0.1
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/smoke-all.sh http://127.0.0.1
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec -e SMOKE_SKIP_INSTALL=1 dev-web-1 bash scripts/smoke-all.sh http://127.0.0.1
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 vendor/bin/phpunit --testsuite unit
 ```
 
 | Скрипт | Когда |
 |--------|-------|
-| `verify.sh` | После каждого PHP-диффа |
+| `smoke-all.sh` | **Prod gate** — все слои L0–L5 |
+| `verify.sh` | После каждого PHP-диффа (L0) |
 | `smoke-curl.sh` | Быстрая проверка уже установленного сайта |
-| `smoke-install.sh` | Полный цикл (пересоздаёт install или нужен чистый `_conf`) |
-| `smoke-admin-test.sh` | `admin.php?cmd=test` после login |
-| `smoke-cold-paths.sh` | wx → dblinker → filemgr → getfile → main (cookie после login) |
+| `smoke-install.sh` | Полный цикл (пересоздаёт `_conf`) |
+| `smoke-admin-test.sh` | `admin.php?cmd=test`, **A_T_CRIT=0** |
+| `smoke-cold-paths.sh` | wx → dblinker → filemgr → getfile → main |
+| `smoke-security.sh` | 403 на `_conf`/`_logs`, install guard |
+| `smoke-editor-crud.sh` | POST add/del denywords.cfg |
+| `docs/TEST-MATRIX.md` | Матрица функция → слой → статус |
 | `fix-barewords.php` | Механика кавычек для `cmsg`/`lprint`/`rmsg`/`submitkey` |
 
 Rollback (только Docker):

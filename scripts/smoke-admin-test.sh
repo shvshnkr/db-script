@@ -1,30 +1,24 @@
 #!/bin/bash
-# Smoke admin.php?cmd=test (requires installed site + TEST/TEST user)
+# Smoke admin.php?cmd=test — requires A_T_CRIT = 0.
 set -euo pipefail
 
-BASE_URL="${1:-http://127.0.0.1:8080}"
-COOKIE="$(mktemp)"
-OUT="$(mktemp)"
-trap 'rm -f "$COOKIE" "$OUT"' EXIT
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=scripts/smoke-lib.sh
+source "$ROOT/scripts/smoke-lib.sh"
 
-curl -fsS -c "$COOKIE" -b "$COOKIE" -L -X POST "$BASE_URL/login.php" \
-  -d 'dbs_log=TEST&dbs_psw=TEST&loginstate=To+enter' -o /dev/null
+smoke_init "${1:-http://127.0.0.1:8080}" "${2:-/var/www/html}"
+smoke_login
 
-curl -fsS -b "$COOKIE" -L --max-time 120 "$BASE_URL/admin.php?cmd=test" -o "$OUT"
+smoke_get "admin.php?cmd=test" "$SMOKE_BASE_URL/admin.php?cmd=test" 120
 
-if grep -qE 'Fatal error|Uncaught Error|Uncaught TypeError' "$OUT"; then
-  echo "FAIL: admin.php?cmd=test"
-  grep -E 'Fatal error|Uncaught' "$OUT" | head -10
-  exit 1
-fi
-
-if grep -q 'A_T_ALLERR\|=============================' "$OUT"; then
-  echo "OK: admin.php?cmd=test completed"
-  grep -E 'A_T_ALLERR|A_T_CRIT|A_T_NOCRIT|A_T_FIXED' "$OUT" | head -5 || true
-  exit 0
+if grep -q '=============================\|A_T_ALLERR\|Critical:' "$SMOKE_OUT"; then
+    smoke_admin_test_crit_zero
+    echo "OK: admin.php?cmd=test completed (A_T_CRIT = 0)"
+    grep -E 'Critical:|No critical|Fixed' "$SMOKE_OUT" | head -5 || true
+    exit 0
 fi
 
 echo "WARN: unexpected test output"
-head -c 600 "$OUT"
+head -c 600 "$SMOKE_OUT"
 echo ""
 exit 1

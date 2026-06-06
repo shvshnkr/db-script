@@ -7,7 +7,8 @@ autoexecsql ();
 1325  деньги --- SEARCH по субстроке   неподдерживается */
 //import_request_variables ("PG","");
 
-if (($vID[0]=="!")AND(strtolower ($vID[1])=="m")) {$vID[0]="#";$vID[1]="";}
+if (!isset($vID) && isset($viewid)) { $vID = $viewid; }
+if (($vID[0]??'')=="!" && strtolower($vID[1]??'')=="m") { $vID[0]="#"; $vID[1]=""; }
 if ($tbl==-2) if ($vID=="Relogin") $vID=".relogin";
 
 
