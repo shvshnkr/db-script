@@ -27,8 +27,8 @@ if ($rmsg!==false) {
 	echo " Report by $authorreport  (pressed last key ".$keyword."<br>";
 	lprint ("REP_MSG");
 	//if ($str) $go==cmsg ("SENDMSG");
-	if ($inet==false) { lprint (NO_INET) ; echo "<form action=main.php method=post>";}
-	if ($inet==true) { lprint (INETD) ; echo "<form action=\"http://dj.chg.su/dbscript/old/main.php\" method=post>";}
+	if ($inet==false) { lprint("NO_INET") ; echo "<form action=main.php method=post>";}
+	if ($inet==true) { lprint("INETD") ; echo "<form action=\"http://dj.chg.su/dbscript/old/main.php\" method=post>";}
 $str="Date:".date("m.d.y H:i:s")."�User:".$authorreport."�IP:".$dbs_ip."�ACTCODE:".$actcode."�CORE:".$verinit."�REGTO:".$registeredto."�ADMINMAIL:".$adminmail."�REPORT:".$report." ";
 	
 	submitkey ("go","SENDMSG1");
@@ -44,8 +44,8 @@ $go=getvar ('go');
 if ($goID=="SENDMSG1") {
  $inet=fopen ("http://dj.chg.su/dbscript/update.txt","r");
 echo "getting data $report <br>this ok?...<br>";
-if ($inet==true) { lprint (INETD) ; echo "<form action=\"http://dj.chg.su/dbscript/old/main.php\" method=post>";}
-	if ($inet==false) { lprint (NO_INET) ; echo "<form action=main.php method=post>";}
+if ($inet==true) { lprint("INETD") ; echo "<form action=\"http://dj.chg.su/dbscript/old/main.php\" method=post>";}
+	if ($inet==false) { lprint("NO_INET") ; echo "<form action=main.php method=post>";}
 	submitkey ("go","SENDMSG");
 	hidekey ("goID","SENDMSG");
 	hidekey ("inet",$inet);
@@ -64,7 +64,7 @@ echo "sorry if encoding fail... it will fix later<br>";
 	if ($w==false) {mkdir ("_logs");
 	$w=csvopen ("_logs/reportlog.dat","a+",1);}
 	 $a=fwrite ($w,$str);		   fclose ($w);
-	if ($w==false) {echo "FAILED!!!";} else { lprint (BUGREPORT_OK);echo "Sending ... OK";}
+	if ($w==false) {echo "FAILED!!!";} else { lprint("BUGREPORT_OK");echo "Sending ... OK";}
 	exit;
   }
 

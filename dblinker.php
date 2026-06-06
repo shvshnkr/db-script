@@ -16,11 +16,11 @@ if ($dbtype!=="fdb") if ($connect===false) echo "Server not connected";
  if ($ADM==0) { msgexiterror ("notuser",0,"dblinker.php");}// -inc pass or login
 If ($prauth[$ADM][3]==false) { msgexiterror ("notright","","disable");exit;}// msgexiterror НЕ ВЫПОЛНЯЕТ выход самостоятельно функцию целиком перевести на window ()
 // ИБАНЕ ключ ОПЯТЬ не загружается  мдя
-if (($write==cmsg(KEY_EXECUTE))or($write==cmsg("DUMP"))) {  // передать базу данных для исполнения коман  $serv2 $dbselected $dbtype $tableselected
+if (($write==cmsg("KEY_EXECUTE"))or($write==cmsg("DUMP"))) {  // передать базу данных для исполнения коман  $serv2 $dbselected $dbtype $tableselected
 	for ($a=0;$a<count($prdbdata);$a++) {
 		if ($prdbdata[$a][9]===$dbselected) { if ($prdbdata[$a][5]===$tableselected[0]) $tbl=$a; }
 	}
-	if ($write==cmsg(DUMP)) $fdmp=1;  // DUMP - выполнить дамп,  передает и параметр дампа - название его например - влияет на форсирование выбора.
+	if ($write==cmsg("DUMP")) $fdmp=1;  // DUMP - выполнить дамп,  передает и параметр дампа - название его например - влияет на форсирование выбора.
 	//$directexecute=1;
   Header("Location: w.php?cmd=sql&tbl=$tbl&tab=".$prdbdata[$tbl][5]."".$tableselected[0]."&dblk=".$prdbdata[$tbl][9]."$dbselected"."&fdmp=$fdmp");exit;
 	exit;
@@ -45,7 +45,7 @@ if ((!isset($start))AND(!isset($end))AND(!isset($write))) { ?>
  	submitkey ("start","DALEE");
   	}
   	echo "<br>";echo "<br>";
- echo cmsg (DBS_CMD)." ";inputtxt ("dbscmd",15);echo "<br>";
+ echo cmsg("DBS_CMD")." ";inputtxt ("dbscmd",15);echo "<br>";
  submitkey ("start","DALEE");
 echo "</form>";
 }
@@ -87,7 +87,7 @@ echo "</form>";
 }
 
 
-if (($write==cmsg(CRT_DB))AND($dbtype!="fdb"))	{
+if (($write==cmsg("CRT_DB"))AND($dbtype!="fdb"))	{
 	if ($write)echo "<form action=dblinker.php method=post>";
 	hidekey ("cmd","CRT_DB");
 	echo"Name new database, (use ; if not one) : ";inputtxt ("newdbname",10);
@@ -104,13 +104,13 @@ if (($dbselected)AND(!$tableselected)AND($dbtype!="fdb")) {
 	//define db commands
 
 	
-	if (($write==cmsg(DEL_DB)))	{
+	if (($write==cmsg("DEL_DB")))	{
 	echo"Your sure to delete this db ".$dbselected."<Br>";
 	hidekey ("cmd","DEL_DB");
 	submitkey ("write","YES");submitkey ("write","NO");
 	}
 	
-	if (($write==cmsg(COPY_DB))) {
+	if (($write==cmsg("COPY_DB"))) {
 				hidekey ("cmd","COPY_DB");
 			directselectsqldb ($connect,"source","source");
 			directselectsqldb ($connect,"dest","target");
@@ -142,7 +142,7 @@ IF ($cmd=="CRT_DB") {
 	$endoper=1;
 }
 IF ($cmd=="DEL_DB") {
-	if ($write==cmsg (NO)) exit;
+	if ($write==cmsg("NO")) exit;
 	$cmd="DROP DATABASE $dbselected";
 			$a=dbs_query ($cmd,$connect,$dbtype);
 		dbserr ();
@@ -260,7 +260,7 @@ echo "</form>";
 
 
 
-//if (($tableselected)AND(!$end)AND($start!==cmsg(USE_TAB))AND($start!==cmsg(DALEE))) {
+//if (($tableselected)AND(!$end)AND($start!==cmsg("USE_TAB"))AND($start!==cmsg("DALEE"))) {
 	if (($tableselected)AND(!$end)AND($write)AND(!$cmd)) {
 		echo "<form action=dblinker.php method=post>";
 		echo $write."<br>";
@@ -276,29 +276,29 @@ echo "</form>";
  			echo "<input type=hidden name=\"tableselected[$a]\" value=".$tableselected[$a].">";
  	 }
 	//menu commands for tables
- 	 if ($write==cmsg (COPY_TAB)) {
+ 	 if ($write==cmsg("COPY_TAB")) {
 			echo "Select target database:<br>";
 						directselectsqldb ($connect,"dest","target");
 			hidekey ("cmd","COPY_TAB");
 			submitkey ("start","DALEE");
 		}
-		if ($write==cmsg (DEL_TAB)) {
+		if ($write==cmsg("DEL_TAB")) {
 			echo"Your sure to delete this tables? <Br>";
 			hidekey ("cmd","DEL_TAB");
 			submitkey ("write","YES");submitkey ("write","NO");
 			echo "";
 		}
-		if ($write==cmsg (MOVE_TAB)) {
+		if ($write==cmsg("MOVE_TAB")) {
 			echo "Select target database:<br>";
 						directselectsqldb ($connect,"dest","target");
 			hidekey ("cmd","MOVE_TAB");
 			submitkey ("start","DALEE");
 		}
-		if ($write==cmsg (MOD_TAB)) {
+		if ($write==cmsg("MOD_TAB")) {
 			hidekey ("cmd","MOD_TAB");
 			submitkey ("start","DALEE");
 			}
-		if ($write==cmsg (ADD_TAB)) {
+		if ($write==cmsg("ADD_TAB")) {
 			hidekey ("cmd","ADD_TAB");
 			submitkey ("start","DALEE");
 
@@ -317,7 +317,7 @@ if (($tableselected)AND($cmd)) {
 	//command executing for tables
 	if (!$prauth[$ADM][2]) msgexiterror ("notrights"," administrator","admin.php"); 
 	echo "<form action=dblinker.php method=post>";
-	if (($cmd=="DEL_TAB")AND($write==cmsg (YES))) {
+	if (($cmd=="DEL_TAB")AND($write==cmsg("YES"))) {
 		 $totaltables=count ($tableselected);
 	 	 dbs_selectdb($dbselected,$connect,$dbtype);
 	 	 for ($a=0;$a<$totaltables;$a++) {
@@ -379,7 +379,7 @@ if (($tableselected)AND($cmd)) {
 	hidekey ("write","WF_NEW_TAB");
 	echo "</form>";exit;
 	}
-	echo cmsg (TAB_AFF)."$cnt<Br>";
+	echo cmsg("TAB_AFF")."$cnt<Br>";
 	echo "OK";
 	hidekey ("dbtype",$dbtype);
 		hidekey ("dbselected",$dbselected);

@@ -383,7 +383,7 @@ if (($write==cmsg("KEY_AN"))AND($prdbdata[$tbl][12]=="fdb")) {
 // $z to mycol  other $z is dupl and changed to myrow  
 			$data=readdescripters ();  if ($data==-1) exit; 
 	while ($myrow=xfgetcsv ($f,$xfgetlimit,"¦")) {	$countquery=$myrow[$md2column];
-					settype ($countquery, integer);
+					settype ($countquery, "integer");
 						if ($countquery>$maximalcntmd2) $maximalcntmd2=$countquery;
 									$maxquery++;}
 //	распечатка данных из дескрипторов
@@ -588,7 +588,7 @@ if (($write==cmsg ("KEY_ADD"))AND($prdbdata[$tbl][12]=="fdb")) {
             ////подсчета пустой ячейки
 
 		while ($myrow=xfgetcsv ($f,$xfgetlimit,"¦")) {	$countquery=$myrow[$md2column];
-					settype ($countquery, integer);
+					settype ($countquery, "integer");
 						if ($countquery>$maximalcntmd2) $maximalcntmd2=$countquery;
 									$maxquery++;}
 		echo cmsg ("WF_1NOTUSED").":".($maximalcntmd2+1)."<br>"; // это в автомат добавлять.    CFG OPT откл.
@@ -1856,10 +1856,10 @@ lprint ("LINK_CHK");echo "<br>";
  	//tabbydb,columnname,columnnomer,0"////tabbydb,columnname,columnnomer,0
 //.echo "0=уровень".$pl[0].";#1=назв или но таблицы".$pl[1].";#2=метод п ".$pl[2].";#3=Кол".$pl[3].";#4=ConnectName".$pl[4].";#5=Вспом таблица-основное имя(отображаемое)".$pl[5].";#6=Режим п".$pl[6].";#7=Кол".$pl[7].";)";// $pl 0-plevel не трогаем, 2 name or ID 3 mode 4 col  5 name ?  ;6 helptable name typa kak 1 ;7 mode typa kak 2 ;8 kolonka (kak 3)
 $intpl=$pl[1];
-settype ($intpl,integer);
+settype ($intpl,"integer");
 if ($pl[1]) if (is_integer($intpl)===true) $id1=getidbyid ($prdbdata,0,"realid",$pl[1]);//получаем ID таблицы соответствующей имени  b
 $intpl=$pl[5];
-settype ($intpl,integer);
+settype ($intpl,"integer");
 if ($pl[5]) if (is_integer($intpl)===true) $id5=getidbyid ($prdbdata,0,"realid",$pl[5]);//получаем ID таблицы соответствующей имени
 
 if ($pl[1]) echo "<BR><BR>tbl connected as link=".$pl[1]." (reg conf realid #$id1) [".$prdbdata[$pl[1]][9].".".$prdbdata[$pl[1]][5]."] with method ".$pl[2]." (No ".$pl[3].") displays as  ".$pl[4]."<br>";  //tabbydb,columnname,columnnomer,0"////tabbydb,columnname,columnnomer,0

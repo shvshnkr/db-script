@@ -18,8 +18,13 @@
 | Dev Docker (`dev/docker-compose.yml`) | ✅ в репо, контейнеры `dev-web-1` / `dev-db-1` |
 | `scripts/verify.sh` | ✅ синтаксис + grep-guards |
 | Smoke full cycle | ✅ install → login → `w.php` → `r.php` → `admin.php` |
-| Barewords `admin.php` / `w.php` | ✅ `scripts/fix-barewords.php` + ручные правки |
-| **Следующее** | `filemgr.php` barewords; dev flock на bind-mount |
+| Barewords `admin.php` / `w.php` / `filemgr.php` | ✅ `scripts/fix-barewords.php` + ручные правки |
+| `admin.php?cmd=test` (`testcfgs`) | ✅ implode/null guards, init vars, typo fixes |
+| Dev flock bind-mount | ✅ `DBSCRIPT_DEV_NO_FLOCK=1` + `dbs_flock()` |
+| Barewords `wx.php` / `dblinker.php` / `readfilemenu.php` | ✅ `fix-barewords.php` |
+| Barewords `dbscore.lib` / `main.php` / `str0.php` | ✅ `fix-barewords.php` |
+| `settype()` bareword types | ✅ quoted in dbscore.lib, w/wx, readfilemenu, classAudioFile |
+| **Следующее** | smoke wx/dblinker *(если нужно)*; cold paths news/nedit/window |
 | Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/`, `AI/*` локально |
 
 ## Entry points (HTTP)
@@ -78,6 +83,7 @@ cd C:\Users\user\projects\dbscript4_djalex
 | MySQL root pass | `dbscript_root` |
 | Database | `dbscript_test` |
 | MySQL host port | `3307` |
+| Dev no-flock | `DBSCRIPT_DEV_NO_FLOCK=1` in compose (bind-mount stalls) |
 | Docker CLI (Win) | `C:\Program Files\Docker\Docker\resources\bin\docker.exe` |
 
 Verify / smoke:
@@ -93,6 +99,7 @@ Verify / smoke:
 | `verify.sh` | После каждого PHP-диффа |
 | `smoke-curl.sh` | Быстрая проверка уже установленного сайта |
 | `smoke-install.sh` | Полный цикл (пересоздаёт install или нужен чистый `_conf`) |
+| `smoke-admin-test.sh` | `admin.php?cmd=test` после login |
 | `fix-barewords.php` | Механика кавычек для `cmsg`/`lprint`/`rmsg`/`submitkey` |
 
 Rollback (только Docker):
@@ -117,3 +124,18 @@ Rollback (только Docker):
 4. `AI/cursorworklog.md` — последняя запись при handoff
 
 Не сканировать репо целиком, если ответ в карте.
+
+## Если (будущим агентам)
+
+Условные задачи — **не блокируют** текущий smoke-цикл; брать только при симптоме или явном запросе.
+
+| Если… | Действие |
+|--------|----------|
+| `admin.php` / curl **>60 с, 0 bytes** в dev | Зависший Apache worker после `flock` на bind-mount → `docker restart dev-web-1` или `compose up -d` |
+| Деплой **без** bind-mount (prod/VPS) | **Если** нужна блокировка cfg — убрать `DBSCRIPT_DEV_NO_FLOCK` и проверить `dbs_flock()` / `LOCK_SH` vs `LOCK_EX` в `csvopen` (раньше было `flock(..., 3)` = `LOCK_UN`) |
+| Smoke падает на **wx.php** / **dblinker.php** | Barewords уже quoted; добавить `scripts/smoke-wx.sh` / curl GET с cookie после login |
+| Fatal на **main.php**, **str0.php**, help | `fix-barewords.php` на файл; там остались `lprint(OVERLOAD)` и т.п. |
+| Fatal в редких ветках **dbscore.lib** | ~7 bareword `cmsg`/`lprint` (OVERLOAD, NOUSRS, ER_CFG, LOG_L_5, …) — `fix-barewords.php dbscore.lib` + ручной diff |
+| Предупреждения **Undefined** в login/footer при прямом curl без cookie | Ожидаемо для unauthenticated hit; не путать с smoke-install (cookie flow) |
+| Push **403** на `origin` (dj--alex) | Push на `github` (shvshnkr fork); см. worklog blockers |
+| Нужен bareword-sweep по всему репо | `php scripts/fix-barewords.php file1.php …`; затем `verify.sh` + smoke-install |

@@ -12,6 +12,7 @@ services:
         condition: service_healthy
     environment:
       APACHE_DOCUMENT_ROOT: /var/www/html
+      DBSCRIPT_DEV_NO_FLOCK: "1"
 
   db:
     image: mysql:8.0

@@ -123,7 +123,7 @@ if ($wopros) { //parsing ? data
 if ($redir) $loadpage=$redir;
 /*if ($pr[51]) {  
 	$a1=(strrpos ($loadpage,"admin"))+(strrpos ($loadpage,"edit"))+(strrpos ($loadpage,"login")) ;
-	if ($a1) { lprint (OVERLOAD);exit ;}
+	if ($a1) { lprint("OVERLOAD");exit ;}
 }
 */
 

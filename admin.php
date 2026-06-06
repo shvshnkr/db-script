@@ -559,6 +559,9 @@ function testcfgs ()
 	global $stheader,$stplevel,$stcontent,$stcnt;	global $lsheader,$lsplevel,$lscontent,$lscnt;
         global $filheader,$filplevel,$fildata,$filcount;
 	$error=0;$war=0; $fixed=0;//счетчик ошибок
+	$errortables=[]; $su=0; $downloadedfiles=0;
+	$prdbdatacnt=(int)($prdbdatacnt ?? count($prdbdata ?? []));
+	if (!is_array($prdbdata ?? null)) $prdbdata=[];
 #inside func
 $mserror="<red>==></red>";
 $mswar="<yel>==></yel>";
@@ -573,10 +576,12 @@ while ($tbl<$prdbdatacnt-1) {
 				$exist=1;
 				 if ($prdbdata[$tbl][12]!="fdb") {
 					$code=readdescripters ();
-					 $fixmsg=$code[7];$warnmsg=$code[8];
+					if ($code!=-1) {
+					 $fixmsg=$code[7]??'';$warnmsg=$code[8]??'';
 					 if (strlen ($fixmsg)>15) { echo "$msfixed ".$fixmsg;$fixed++; };
 				 	 if (strlen ($warnmsg)>15) { echo "$mswarn ".$warnmsg;$warn++; };
-					if ($code==-1) { echo "$mserror SQL ".cmsg("A_T_DB")." ".$prdbdata[$tbl][0]," ".cmsg("NOREP")."<br>";$exist=0; $error++;
+					}
+					if ($code==-1) { echo "$mserror SQL ".cmsg("A_T_DB")." ".$prdbdata[$tbl][0]." ".cmsg("NOREP")."<br>";$exist=0; $error++;
 					$errortables[]=$prdbdata[$tbl];  //continue;//added cont  for test
 									}
 						}
@@ -584,13 +589,15 @@ while ($tbl<$prdbdatacnt-1) {
 				 if ($prdbdata[$tbl][12]=="fdb") {
 			global $mzcnt;//		$filbas=$prdbdata[$tbl][0];
 				$mycols=0;$code=readdescripters (); 
-					 $fixmsg=$code[7];$warnmsg=$code[8];
+					if ($code!=-1) {
+					 $fixmsg=$code[7]??'';$warnmsg=$code[8]??'';
 					 if (strlen ($fixmsg)>15) { echo "$msfixed ".$fixmsg;$fixed++; };
 					 if (strlen ($warnmsg)>15) { echo "$mswarn ".$warnmsg;$warn++; };
+					}
 					 if ($code==-1) { echo "$mserror DAT  ".cmsg("A_T_DB")." ".$prdbdata[$tbl][0]." ".cmsg("NOREP")."<br>";$error++;//$tbl++; именно эта параша всё сбивала.
                                              $errortables[]=$prdbdata[$tbl];	//continue; remove as tes
 								};
-				$mycols=$mzcnt;   $mycolsreal=$code[6]; 
+				$mycols=$mzcnt;   $mycolsreal=($code!=-1) ? ($code[6]??0) : 0;
 				}
 // К этому моменту  уже должны быть базы обновлены
 		
@@ -637,10 +644,9 @@ if (($prdbdata[$tbl][15]==$prdbdata[$tbl][11])AND($prdbdata[$tbl][15]!=="")) {
 	  if (($prdbdata[$tbl][8])>$mycols) { echo "$mswar  ".cmsg("A_T_SCROW1").$prdbdata[$tbl][8].")  ".cmsg("ITB")." ".$prdbdata[$tbl][1].cmsg("A_MCOLS")."$mycols <br>"; $warn++;}
  	  if (($prdbdata[$tbl][8]!==false)AND($prdbdata[$tbl][3]===false)) { echo "$mswar ".cmsg("A_T_SCRPRS").$prdbdata[$tbl][8].") ".cmsg("ITB")." ".$prdbdata[$tbl][1]." ".cmsg("A_F_EMP")."<br>"; $war++;}
 
- 	  $fields=count($prdbdata[$tbl]);
-if ($fields<199) { 
+ 	 	if (is_array($prdbdata[$tbl] ?? null) && count($prdbdata[$tbl])<199) {
 	//echo 
-	echo "$mswar Registered table ".$prdbdata[$tbl][1]." have ".$fields." header fields but must have 202 , requires run update350.php or manual fix <br>";
+ echo "$mswar Registered table ".$prdbdata[$tbl][1]." have ".count($prdbdata[$tbl])." header fields but must have 202 , requires run update350.php or manual fix <br>";
 	$warn++;	/*
 	$fixadd="";
 for ($a1=$fields-2;$a1++;$a1<202) {//$fixadd.="¦";// echo $a1." ";
@@ -664,7 +670,7 @@ if ($a1==202) { if ($OSTYPE=="LINUX") $prdbdata[$tbl][$a1].="\n"; //  испра
  	  //ho "prb ".$prdbdata[$tbl][17]." M<br>";
  	 			
  	 			//Временно отключено после расширения глючть не будет   writefullcsv вызывает ошибку если нет \n
- 	 	if (count($prdbdata[$tbl])>40) {
+ 	 	if (is_array($prdbdata[$tbl] ?? null) && count($prdbdata[$tbl])>40) {
  	 $a=$prdbdata[$tbl][17];//echo "ept 17=$a<br>";
  if ((strlen (trim ($a))<2)or($a===" ")) {$ungroup=1;}; if ((strlen (trim ($a))>1)) { $ungroup=0;};
   	  if (($ungroup==1)AND($prdbdata[$tbl][12]=="mysql")AND($prdbdata[$tbl][9]==true)) { 
@@ -690,8 +696,8 @@ if ($a1==202) { if ($OSTYPE=="LINUX") $prdbdata[$tbl][$a1].="\n"; //  испра
 ##проверка на факт редактирования должна быть обязательно везде - незачем постоянно делать сохранения.
  if ($edit==1) {
 	 @$tempdescr=csvopen ("_conf/dbdata.cfg","w",1);
-   writefullcsv ($tempdescr,$dbheader,$dbplevel,$prdbdata);$edit=0;
-   fclose ($tempdescr);
+   if ($tempdescr) { writefullcsv ($tempdescr,$dbheader,$dbplevel,$prdbdata); fclose ($tempdescr); }
+   $edit=0;
  }
 
  unset ($tempdescr,$dbheader,$dbplevel,$prdbdata);
@@ -722,8 +728,8 @@ $su=$su+$prauth[$cnt][42];
    ###rewrite cfg### :)))
  if ($edit==1) {
 	 @$tempdescr=csvopen ("_conf/gmdata.cfg","w",1);
-   writefullcsv ($tempdescr,$gmheader,$gmplevel,$prauth);$edit=0;
- fclose ($tempdescr);
+   if ($tempdescr) { writefullcsv ($tempdescr,$gmheader,$gmplevel,$prauth); fclose ($tempdescr); }
+   $edit=0;
   }
   unset ($tempdescr,$gmheader,$gmplevel,$prauth);
 
@@ -878,18 +884,18 @@ echo "<br>".cmsg("A_FIL_DWN").": $downloadedfiles<br>";
  }
 
 global $vpropcheck;
-if ($vpropcheck>1.0) { $error+1; msgexiterror ("cfgnewcrit","property","disable");}
-if ($vpropcheck<-1.0){ $error+1;  msgexiterror ("cfgoldcrit","property","disable");}
-if ($vpropcheck>0.8){ $error+1;  msgexiterror ("cfgnewwarn","noexit","disable");}
-if ($vpropcheck<-0.8) { $error+1; msgexiterror ("cfgoldwarn","noexit","disable");}
+if ($vpropcheck>1.0) { $error++; msgexiterror ("cfgnewcrit","property","disable");}
+if ($vpropcheck<-1.0){ $error++;  msgexiterror ("cfgoldcrit","property","disable");}
+if ($vpropcheck>0.8){ $error++;  msgexiterror ("cfgnewwarn","noexit","disable");}
+if ($vpropcheck<-0.8) { $error++; msgexiterror ("cfgoldwarn","noexit","disable");}
 
 echo "=============================<br>=============================<br>";
 echo "".cmsg("A_T_ALLERR")." : ".($error+$war+$fixed)."<br>";
 echo "".cmsg("A_T_FROM")." :<br>".cmsg("A_T_CRIT")." $error <br>".cmsg("A_T_NOCRIT")." $war <br> ".cmsg("A_T_FIXED")." $fixed <br>";
-if ($error+$warn>0) echo "".cmsg("A_T_REC")." ";
+if ($error+$war>0) echo "".cmsg("A_T_REC")." ";
 $data="";
 if ($debug) print_r ($errortables);
-if ($errortables) { echo "<form action=\"admin.php\"><br>";checkbox (0,"yes");echo count ($errortables);
+if (!empty($errortables)) { echo "<form action=\"admin.php\"><br>";checkbox (0,"yes");echo count ($errortables);
 for ($a=0;$a<count ($errortables);$a++) {
 $data.=$errortables[$a][0].";".$errortables[$a][1]."?";
  };
@@ -920,6 +926,7 @@ function deleteemptytables () {
 global $errt,$yes,$errortables,$write;
 global $sd,$pr,$mycol,$mycols,$ADM,$tbl;	global $gmheader,$gmplevel,$prauth,$prauthcnt;
 global $dbheader,$dbplevel,$prdbdata,$prdbdatacnt,$sd;
+$prdbdatanew=[]; $total=0; $edit=0;
 //linux specsimbols -  чтоб вставить символ жмём Ctrl+Shift+U (появится символ u) отпускаем клавиши - вводим код символа... коды можно подсматривать в том же ООо.
 // - "¦" этот символ конвертируется мля - его нельзя юзать.
  //2200
@@ -955,8 +962,12 @@ echo "total: $total<br>";
  if ($edit==1) {
      echo "Trying to rewrite...<br>";
      	$tempdescr=csvopen ("_conf/dbdata.cfg","w",1);
-   $x=writefullcsv ($tempdescr,$dbheader,$dbplevel,$prdbdatanew);$edit=0;
+   if ($tempdescr) {
+   $x=writefullcsv ($tempdescr,$dbheader,$dbplevel,$prdbdatanew);
+   fclose ($tempdescr);
    echo "result=$x";
+   }
+   $edit=0;
  }
  unset ($tempdescr,$dbheader,$dbplevel,$prdbdata);
 

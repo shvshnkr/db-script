@@ -11,7 +11,7 @@
 // ************************************************************************
 
 //	echo "Class    AudioFile  0.5.1 edited for mp3 parser v0.02 beta module version<br>";
-//  Данный файл требуется для моей программы mp3pereimenovatel и используется AS IS.
+//        mp3pereimenovatel   AS IS.
 class AudioFile
 {
 	var $wave_id;
@@ -102,7 +102,7 @@ class AudioFile
 		$footer = 0;
 		$header = 0;
 		$v1tag	= 0;
-		global $dir;// всегда NULL сцуко передает
+		global $dir;//  NULL  
 //		$dir=$_POST["dir"];
 		$wr = fopen ("mp3path.txt","r"); $dir=fread ($wr,1170);
 		echo "directory for operations -- ".$dir."<br>";
@@ -281,10 +281,10 @@ class AudioFile
 		$p3 = $info["mpeg_channel_mode"];
 		$this->wave_framerate = $info["mpeg_sampling_rate"];
 		$p2 = $info["mpeg_sampling_rate"];
-	    settype ($p2, string);
+	    settype ($p2, "string");
 		$p2 = $p2."KHz";
 		$this->wave_byterate = $info["mpeg_bitrate"];
-		settype ($this->wave_byterate, string);
+		settype ($this->wave_byterate, "string");
 		$p1 = $this->wave_byterate ;
 		$this->wave_bits = "n/a";
 		$this->wave_size = filesize($dir.$this->wave_filename);
@@ -690,7 +690,7 @@ class AudioFile
 			print "<tr><td align=right>id3v1-tags</td><td>Not found</td></tr>";		
 		}
 			print "<tr><td align=right>filename</td>		<td>&nbsp;$this->wave_filename</td></tr>";
-			print "<tr><td align=right>№</td>		<td>&nbsp;0</td></tr>";
+			print "<tr><td align=right></td>		<td>&nbsp;0</td></tr>";
 	 	print "<tr><td align=right>properties</td>		<td>&nbsp;$this->wave_id</td></tr>"; //Wave-id become PROPERTIES
 	//	print "<tr><td align=right>type</td>	<td>&nbsp;$this->wave_type</td></tr>";
 		//print "<tr><td align=right>byterate</td>	<td>&nbsp;$this->wave_byterate</td></tr>"; 
@@ -702,20 +702,20 @@ class AudioFile
 		print "<tr><td align=right>size</td>	<td>&nbsp;$this->wave_size</td></tr>";
 	//	print "<tr><td align=right>bits</td>	<td>&nbsp;$this->wave_bits</td></tr>";
 		print "</table>";//number_format ($this->wave_length,"0")." sec.<br>&nbsp;".
-		// исправление изначальной ошибки с id_artist и подготовка к заливке в базу строки
+		//     id_artist       
 		// DETECT ARTIST
 		$this->id3_artist = substr(strtoupper($this->id3_artist),0,strpos ($this->wave_filename," - "));
-		// РАСПОЗНАНИЕ ИМЕНИ
-                global $runonce;// ему в принципе похрен, переменную оттуда видимо не достать, токо через файл, тупо но надежно
+		//  
+                global $runonce;//    ,     ,   ,   
 		$this->id3_title = substr($this->wave_filename,strpos ($this->wave_filename," - ")+3,strlen ($this->wave_filename)-4-3-strpos ($this->wave_filename," - ")); 
 		if (!$runonce) $dbstring= $this->id3_artist.";".$this->id3_title.";".$this->id3_album.";0;".$this->wave_id.";"."0:".date("i:s", mktime(0,0,round($this->wave_length))).";".$this->wave_size."\n";
                 if ($runonce) $dbstring= $this->id3_artist.";".$this->id3_title.";".$this->id3_album.";0;".$this->wave_id.";"."0;0;\n";
 		 echo $dbstring;
                  
-		//  процедура создания CSV-массива по правилам cat al - добавление только одной строки в файл.
+		//    CSV-   cat al -      .
 		$wr = fopen ("info.csv","a+");
 		if (!$disablewriting) $err=fwrite ($wr,$dbstring);
-                if ($runonce) $disablewriting=1;// при этом параметре будет только 1 сокращенная запись.
+                if ($runonce) $disablewriting=1;//      1  .
                 echo "Status:$err<br>";
 		
 	
@@ -723,7 +723,7 @@ class AudioFile
 
 
 
-		// запуск по очереди всех имеемых файлов будет производится из основной процедуры
+		//           
 
 
 	}

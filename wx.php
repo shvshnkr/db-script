@@ -276,9 +276,9 @@ if ($menudisable==1) { if ($prdbdata[$tbl][0]=="") exit; };
 
 
 if (($errorredirectdb)) { //dblinker enter
-	echo "<br><red>".cmsg (REQ_LINK)." $tab ".cmsg (AND_DB)." $dblk".cmsg (M_SEL_DB)." $dblk<br></red>";
-	if ($modeselectsimilartable) echo cmsg (WORK_MODE).":".cmsg (MOD_SEL_TAB)."<br>";
-    if (!$modeselectsimilartable) echo cmsg (WORK_MODE).":".cmsg (MOD_SIM_TAB)."<br>";
+	echo "<br><red>".cmsg("REQ_LINK")." $tab ".cmsg("AND_DB")." $dblk".cmsg("M_SEL_DB")." $dblk<br></red>";
+	if ($modeselectsimilartable) echo cmsg("WORK_MODE").":".cmsg("MOD_SEL_TAB")."<br>";
+    if (!$modeselectsimilartable) echo cmsg("WORK_MODE").":".cmsg("MOD_SIM_TAB")."<br>";
  //echo "write=$write;";
 }
 
@@ -396,7 +396,7 @@ if (($write==cmsg("KEY_AN"))AND($prdbdata[$tbl][12]=="fdb")) {
 // $z to mycol  other $z is dupl and changed to myrow
 			$data=readdescripters ();  if ($data==-1) exit;
 	while ($myrow=xfgetcsv ($f,$xfgetlimit,"¦")) {	$countquery=$myrow[$md2column];
-					settype ($countquery, integer);
+					settype ($countquery, "integer");
 						if ($countquery>$maximalcntmd2) $maximalcntmd2=$countquery;
 									$maxquery++;}
 //	ðàñïå÷àòêà äàííûõ èç äåñêðèïòîðîâ
@@ -458,7 +458,7 @@ if ($write==cmsg ("KEY_S_UNDO")) {
 	dbs_selectdb ($prdbdata[$tbl][9], $connect,$dbtype);
 	executesql ($query,$connect,1);
 	$a=dbserr ();
-	if ($a) { lprint (NO_DB_QUE) ;}
+	if ($a) { lprint("NO_DB_QUE") ;}
 	$action="KEY_S_UNDO db:".$prdbdata[$tbl][9]." table=".$prdbdata[$tbl][6]." cannot request data ";logwrite ($action);
 }
 
@@ -608,7 +608,7 @@ if (($write==cmsg ("KEY_ADD"))AND($prdbdata[$tbl][12]=="fdb")) {
                 ////ïîäñ÷åòà ïóñòîé ÿ÷åéêè
 
 		while ($myrow=xfgetcsv ($f,$xfgetlimit,"¦")) {	$countquery=$myrow[$md2column];
-					settype ($countquery, integer);
+					settype ($countquery, "integer");
 						if ($countquery>$maximalcntmd2) $maximalcntmd2=$countquery;
 									$maxquery++;}
 		echo cmsg ("WF_1NOTUSED").":".($maximalcntmd2+1)."<br>";  // ýòî â àâòîìàò äîáàâëÿòü.    CFG OPT îòêë.
@@ -1008,10 +1008,10 @@ if (($write==cmsg("BACKUPS"))AND ($prdbdata[$tbl][12]!="fdb")) {
 
 	$data=readdescripters ();// ïîëó÷åíèå äàííûõ çàãîëîâêà ìàññèâ mycol êîë-âî mycols
  if ($data==-1) exit;
- lprint(WF_AR_TAB);echo "<br>";
+ lprint("WF_AR_TAB");echo "<br>";
 	  submitkey ("write","WF_ARCH");
 	 submitkey ("write","WF_UNARCH");echo "<br>";
-	 echo "<br>"	 	  ;lprint (WF_AR_OTH);echo "<br>";
+	 echo "<br>"	 	  ;lprint("WF_AR_OTH");echo "<br>";
 	 checkbox (1,"addname");lprint ("ADD_NAME");
 	 checkbox (1,"adddata");lprint ("ADD_DATA");
 	 checkbox ($addtxt,"addtxt");lprint ("WRIT_NM");inputtxt("txtfordb",10);
@@ -1039,7 +1039,7 @@ if (($write==cmsg("BACKUPS"))AND ($prdbdata[$tbl][12]!="fdb")) {
 if (($write==cmsg("WF_BCK_UNARCH"))AND ($prdbdata[$tbl][12]!="fdb")) {
 @$connect=dbs_connect ($prdbdata[$tbl][6],$sd[14],$sd[17],$dbtype);
 if (!$prauth[$ADM][6]) { lprint ("ACCDEN");exit;};
-lprint (W_BCK_UNARCH_TIP);
+lprint("W_BCK_UNARCH_TIP");
 $separator="¦";lprint ("GEN_DB_SEL");
 $cmd="SHOW DATABASES";
 $a=dbs_query ($cmd,$connect,$dbtype);;
@@ -1091,7 +1091,7 @@ if (($write==cmsg("WF_BCK_ARCH"))AND ($prdbdata[$tbl][12]!="fdb")) {
 	hidekey ("backupdbname",$backupdbname);
 	hidekey ("dbname",$prdbdata[$tbl][9]);
 
-echo cmsg (BCK_CRT_ALL)." ".$prdbdata[$tbl][9]." ".cmsg (W_NM)." :".$backupdbname."<br>";
+echo cmsg("BCK_CRT_ALL")." ".$prdbdata[$tbl][9]." ".cmsg("W_NM")." :".$backupdbname."<br>";
 lprint ("REQ_TIME");
 submitkey ("start","START");
 }
@@ -1142,7 +1142,7 @@ if (($start==cmsg ("SQL_REM_START"))AND($dumpdbname)AND ($prdbdata[$tbl][12]!="f
 	@$connect2 = dbs_connect ($mysqlserver2,$sd[14],$sd[17],$dbtype);
          //echo "bldjad";die ();
 	set_time_limit(0);
-        echo cmsg (W_CRT_DMP)." $backupdbname...<br>";
+        echo cmsg("W_CRT_DMP")." $backupdbname...<br>";
 	echo "Ðåæèì: Dbscript side, data";
 	if ($structure) echo "+structure";
 	echo "<br>";
@@ -1287,7 +1287,7 @@ submitkey ("start","SQL_BCK");
 //CREATING DUMP AT SQL SIDE AS FILETABLES
 if (($start==cmsg ("SQL_BCK"))AND($dumpdbname)AND ($prdbdata[$tbl][12]!="fdb")) {
 	set_time_limit(0);// CFG OPT FUTURE  TODO:?
-	echo cmsg (W_CRT_DMP)." $dumpdbname...<br>";
+	echo cmsg("W_CRT_DMP")." $dumpdbname...<br>";
 	echo "Ðåæèì: SQL side<br>";
 @$connect=dbs_connect ($prdbdata[$tbl][6],$sd[14],$sd[17],$dbtype);
 	//generate table list
@@ -1324,7 +1324,7 @@ for ($a=0;$a<count ($tablelist);$a++) {
 
 //CREATING DUMP AT DBSCRIPT SIDE AS ONE SQL FILE
 if (($start==cmsg ("SELF_BCK"))AND($dumpdbname)AND ($prdbdata[$tbl][12]!="fdb")AND(!$pr[20])) {
-	echo cmsg (W_CRT_DMP)." $backupdbname...<br>";
+	echo cmsg("W_CRT_DMP")." $backupdbname...<br>";
 	echo "Ðåæèì: Dbscript side, data";
 	if ($structure) echo "+structure";// ïðîâåðèòü ïðàâèëüíî ëè ìû ïîëó÷àåì ñîåäèíåíèå åñëè óêàçàí ñåðâåð èç servlst.cfg
 	echo "<br>";
@@ -1515,8 +1515,8 @@ echo "</select><br>";
         if (($pr[39])AND(is_dir($pr[39]))) $path=$pr[39];
 
 
-	echo cmsg (PATH_DUMP_DBS)."$path<br>";
-	echo cmsg (SEL_FILE)."<br>";  //oldcore copy filemgr mod  ..
+	echo cmsg("PATH_DUMP_DBS")."$path<br>";
+	echo cmsg("SEL_FILE")."<br>";  //oldcore copy filemgr mod  ..
 	//echo "Path=$path<br>";
 		$path2=$fldup."/_local/dump";
 			$mask="*.*";//wse ok
@@ -1544,12 +1544,12 @@ echo "<select name=\"dump[]\" multiple size=10>";
 			}
 			unset ($files);
 echo "</select><br>";
-checkbox ($views,"views") ; echo cmsg (WF_LOG).cmsg (NORECOMM)."<br>";
-checkbox ($dumpmode1,"dumpmode1") ; echo cmsg (OLDCOREDUMPEX)."<br>";
-checkbox ($dumpmode2,"dumpmode2") ; echo cmsg (OLDCOREDUMPEX2)."<br>";
-checkbox (0,"mysqldump") ; echo cmsg (M_DMP_UPL)."<br>";
+checkbox ($views,"views") ; echo cmsg("WF_LOG").cmsg("NORECOMM")."<br>";
+checkbox ($dumpmode1,"dumpmode1") ; echo cmsg("OLDCOREDUMPEX")."<br>";
+checkbox ($dumpmode2,"dumpmode2") ; echo cmsg("OLDCOREDUMPEX2")."<br>";
+checkbox (0,"mysqldump") ; echo cmsg("M_DMP_UPL")."<br>";
 // hidekey ("dbtype",$dbtype);íèõåðà íå ïåðåäàåòñÿ.
-//checkbox ($disviews,"disviews") ; echo cmsg (WF_LOG).cmsg (NORECOMM)."<br>";
+//checkbox ($disviews,"disviews") ; echo cmsg("WF_LOG").cmsg("NORECOMM")."<br>";
         echo "Encoding can be set in table (alias) properties.<br>";
         echo "manual set encoding:";inputtxt ("encodeset",15);echo " (utf-8 , not utf8)<br>";
 
@@ -1562,7 +1562,7 @@ echo "<form method=\"post\" action=\"filemgr.php\" target=_blank>";
 }
 // äëÿ îäèíàêîâûõ íàäïèñåé ìîæ äîá ïîò. ïåðåì. step  1.1 1.2 1.3 :)))
 // ïðîöåäóðà âîññòàíîâëåíèÿ áàçû äàííûõ èç äàìïà.
-if (($dump)AND($start==cmsg(DALEE))) {
+if (($dump)AND($start==cmsg("DALEE"))) {
 if (($dblk)AND(!$forcedb)) {$forcedb=1;$dbselected=$dblk;	}
 	$path=getcwd ()."/_local/dump/";
         $dbtype="mysql"; // default dbtype in CFG OPT FUTURE  TODO:!
@@ -1615,11 +1615,11 @@ if (($dblk)AND(!$forcedb)) {$forcedb=1;$dbselected=$dblk;	}
 						$b=str_replace ("SELECT DATABASE ","CREATE DATABASE ",$a);//3.5.25 ver only
 						$a=str_replace ("SELECT DATABASE ","USE ",$a);
 						dbs_query ($b,$connect,$dbtype);;
-						echo "<br>".cmsg (W_NDB_FORC2)."($a)<br>";
+						echo "<br>".cmsg("W_NDB_FORC2")."($a)<br>";
 						}
 	if ($najti3!==false) {dbs_query ($a,$connect,$dbtype);;
 						$a=str_replace ("create database if not exists","USE ",$a);
-						echo "<br>".cmsg (W_NDB_FORC)."($a)<br>";
+						echo "<br>".cmsg("W_NDB_FORC")."($a)<br>";
 							}
 	if ($forcedb) {
 			$cmd="USE $dbselected;";
@@ -1643,17 +1643,17 @@ if (($dblk)AND(!$forcedb)) {$forcedb=1;$dbselected=$dblk;	}
 
 	}
 	if (!$pr[8]) echo "DEBUG $query.<br>";
-$x=cmsg (WF_EXQUES)."$queries";	echo "$x<br>";
+$x=cmsg("WF_EXQUES")."$queries";	echo "$x<br>";
 //$x=cmsg ("BCK_TBL+")."".$tables;	echo "$x<br>";
-$x=cmsg (BCK_SKIP).$skipped; 	echo "$x<br>";
-$x=cmsg (BCK_ERR).$err;	echo "$x<br>";
+$x=cmsg("BCK_SKIP").$skipped; 	echo "$x<br>";
+$x=cmsg("BCK_ERR").$err;	echo "$x<br>";
 $query="";
 	mysqli_close($connect);
 	fclose ($f);
 	ob_clean();
 	$action="WF_BCK_FILEDUMP_UNARCH $path.$dumpfile -q $queries -e $err -s $skipped force $dbselected";logwrite ($action);
 	//apache_child_terminate();
-lprint (COMPLETED);exit; //òåïåðü íå äîëæíî áûòü íèêàêèõ First select id please
+lprint("COMPLETED");exit; //òåïåðü íå äîëæíî áûòü íèêàêèõ First select id please
 }
 //êîíåö âûïîëíåíèÿ âîññòàíîâëåíèÿ èç äàìïà
 
@@ -1912,16 +1912,16 @@ lprint ("LINK_CHK");echo "<br>";
  	echo "tbl=$tbl [".$prdbdata[$tbl][9].".".$prdbdata[$tbl][5]."] column $columnname (No $columnnomer)   join to <br>";  //tabbydb,columnname,columnnomer,0"////tabbydb,columnname,columnnomer,0
 //.echo "0=óðîâåíü".$pl[0].";#1=íàçâ èëè íî òàáëèöû".$pl[1].";#2=ìåòîä ï ".$pl[2].";#3=Êîë".$pl[3].";#4=ConnectName".$pl[4].";#5=Âñïîì òàáëèöà-îñíîâíîå èìÿ(îòîáðàæàåìîå)".$pl[5].";#6=Ðåæèì ï".$pl[6].";#7=Êîë".$pl[7].";)";// $pl 0-plevel íå òðîãàåì, 2 name or ID 3 mode 4 col  5 name ?  ;6 helptable name typa kak 1 ;7 mode typa kak 2 ;8 kolonka (kak 3)
 $intpl=$pl[1];
-settype ($intpl,integer);
+settype ($intpl,"integer");
 if ($pl[1]) if (is_integer($intpl)===true) $id1=getidbyid ($prdbdata,0,"realid",$pl[1]);//ïîëó÷àåì ID òàáëèöû ñîîòâåòñòâóþùåé èìåíè  b
 $intpl=$pl[5];
-settype ($intpl,integer);
+settype ($intpl,"integer");
 if ($pl[5]) if (is_integer($intpl)===true) $id5=getidbyid ($prdbdata,0,"realid",$pl[5]);//ïîëó÷àåì ID òàáëèöû ñîîòâåòñòâóþùåé èìåíè
 
 if ($pl[1]) echo "<BR><BR>tbl connected as link=".$pl[1]." (reg conf realid #$id1) [".$prdbdata[$pl[1]][9].".".$prdbdata[$pl[1]][5]."] with method ".$pl[2]." (No ".$pl[3].") displays as  ".$pl[4]."<br>";  //tabbydb,columnname,columnnomer,0"////tabbydb,columnname,columnnomer,0
 if ($pl[5]) echo "tbl connected as help=".$pl[5]." (reg conf realid #$id5) [".$prdbdata[$pl[5]][9].".".$prdbdata[$pl[5]][5]."] with method ".$pl[6]." (No ".$pl[7].") displays as  ".$pl[8]."<br>";  //tabbydb,columnname,columnnomer,0"////tabbydb,columnname,columnnomer,0
-if (!$pl[1]) echo cmsg (TLNK_NOT)."<br>";
-if (!$pl[5]) echo cmsg (HLNK_NOT)."<br>";
+if (!$pl[1]) echo cmsg("TLNK_NOT")."<br>";
+if (!$pl[5]) echo cmsg("HLNK_NOT")."<br>";
 //åñëè äàííûå óæå áóäóò ïðèñóòñòâîâàòü - èõ íóæíî áóäåò áðàòü îòñþäà. ^_^ â èäåàëå ìîæåò ïðèíèìàòüñÿ íå òîëüêî 2 ïóíòà :)
 //.getidbyid($db,$idsrchcolumn,$idrescolumn,$stringêîò èùóò) 	 âûáîð òàáëèöû, äëÿ 2 ïóíêòîâ, ïîòîì âûáîð ìåòîäà è êîëîíêè è èìåíè ñîåäèíåíèÿ.
 	//exit;
@@ -1953,7 +1953,7 @@ if (($write==cmsg("TARGET"))) {
 if (($write==cmsg("TARGET2"))) {
 //	echo "!!!!!!!!!!!!!";
         $tlb=$activetableid;
-     //   echo "PRINTLINK 1809 $prauth,$prdbdata,$ADM,$tbl,$grouplist,tbllink,cmsg(ELLINK),$groupdb,$ipfilter,6)<br>;";
+     //   echo "PRINTLINK 1809 $prauth,$prdbdata,$ADM,$tbl,$grouplist,tbllink,cmsg("ELLINK"),$groupdb,$ipfilter,6)<br>;";
      //   echo "id1=$id1  id5=$id5  columnname=$columnname columnnomer=$columnnomer <br>";
      //  print_r ($grouplist) ;echo "<br>";
        $tablelist=array (1=>"tbllink", 2=>"tblhelp");
@@ -4376,7 +4376,7 @@ $bestedit=1;};
 //=========================================
 //ìîäóëü çàïóñêà     AND($prdbdata[$tbl][12]!="fdb")
 if (($write==cmsg ("KEY_MASS_OPER"))AND($prauth[$ADM][45])) { //  CFG OPT FUTURE  TODO:
-lprint (M_OP_INF);echo "<bR>";
+lprint("M_OP_INF");echo "<bR>";
 
 $data=readdescripters ();
 echo "";
@@ -4389,7 +4389,7 @@ radio ("massoper",1,"M_OP_1") ;//printfield ($data,"addif1");
 if ($prdbdata[$tbl][12]!="fdb") radio ("massoper",2,"M_OP_2") ;echo "<bR>";
 if (!$prauth[$ADM][5]) echo "<gray>".cmsg ("M_OP_3").cmsg ("BLOCK")."</gray>";
 if ($prauth[$ADM][5]) radio ("massoper",3,"M_OP_3") ;echo "<bR>";
-radio ("massoper",4,"TO_BEST") ;checkbox ($rewr,"rewr"); lprint (REW_IF_PRES);echo "<br>";
+radio ("massoper",4,"TO_BEST") ;checkbox ($rewr,"rewr"); lprint("REW_IF_PRES");echo "<br>";
 radio ("massoper",5,"NOP") ;echo "<bR>";
 
 
@@ -4448,7 +4448,7 @@ echo "</select><br>";
 }
    decodecols ($res16);
    if ($data>-1) {
-   	checkbox ($selectenable,"selectenable");	echo cmsg (SORT_BY).":";printfield ($data,"field");
+   	checkbox ($selectenable,"selectenable");	echo cmsg("SORT_BY").":";printfield ($data,"field");
 	checkbox ($limitenable,"limitenable") ; lprint ("WF_EX_LIM");
 	inputtxt ("printlimit",3);echo "<Br>";
         checkbox ($disabledbselect,"disabledbselect") ;  lprint ("WF_EX_AUDB");
@@ -4613,7 +4613,7 @@ $sourcetable="`".$prdbdata[$tbl][5]."`";// öåëåâàÿ áàçà äàííûõ 
 	}
 
 	};  // ëîãèðóåìñÿ
-	if (($countqueries-1)>1) {echo "<br>".cmsg (WF_SEND_SQL_E_T)." ".($cntque-1-$error)."/".($countqueries-1)."<br>";
+	if (($countqueries-1)>1) {echo "<br>".cmsg("WF_SEND_SQL_E_T")." ".($cntque-1-$error)."/".($countqueries-1)."<br>";
 	if ($skipped) echo cmsg ("BCK_SKIP").$skipped."<br>";
 	if ($error) echo cmsg ("BCK_ERR").$error."<br>";
 	}
@@ -4638,7 +4638,7 @@ function importexporttbl ()
 	if ($prauth[$ADM][2]==false) { lprint ("ACCDEN"); exit;};
 	//íå ðàçðåøàåò àäìèíèñòðèðîâàòü íå èìåÿ ýòîãî ïðàâà - çàùèòà îò àëüòåðíàòèâíîãî âõîäà ($prauth[$ADM][10]<2)
 	 if ($prauth[$ADM][16]==0) {
-	 echo cmsg (CONV_NOTE)."<br>";
+	 echo cmsg("CONV_NOTE")."<br>";
 	 }
 
 	?> <form action=w.php method=post><?php hidekey ("vID",$vID);

@@ -68,7 +68,9 @@
 | Ядро / auth / SQL / csv | `AI/subsystems/core-runtime.toml` → `dbscore.lib` (grep + диапазон) |
 | Install wizard | `install.php` + `_conf/property.cfg` schema via `csvopen` |
 | Editor / reader / admin | `w.php`, `r.php`, `admin.php` (entry only) |
+| Editor variant / DB linker | `wx.php`, `dblinker.php` — barewords ✅; smoke *(если)* |
 | История сессий | `AI/cursorworklog.md` (последняя запись) |
+| Условные задачи («если…») | [`MAP.md`](./MAP.md) → секция **«Если (будущим агентам)»** |
 
 ## AI (локальная карта, gitignored)
 

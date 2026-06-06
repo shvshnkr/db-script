@@ -33,7 +33,7 @@ if ($pr[19]) $mode15=7;
 // ����� ��������� ��� �����������    1 ����������
 $sel=array();$sel[$mode]=" selected ";
 if ($mode==9) $sel[3]=" selected "; //�������� ��� � �������������
-print cmsg (SRCH_TP).":<select name = mode size = ".$mode15.">";
+print cmsg("SRCH_TP").":<select name = mode size = ".$mode15.">";
 if ($adm==1) { 
 	};
 if ((($pr[3])and($ADM==0))or($prauth[$ADM][26])) echo "<option value=1".$sel[1].">".$sd[4]."</option>";
@@ -85,7 +85,7 @@ if (($readfile)AND($prauth[$ADM][25])) {
 }
 
 //echo "kol=$kol  data0=";print_r ($data[0]);
-if (($kol!="")AND($mode==7)) if (settype ($kol, integer)==false) {echo "READ:Select column with name wrong, need number<br>";$kol="";}
+if (($kol!="")AND($mode==7)) if (settype ($kol, "integer")==false) {echo "READ:Select column with name wrong, need number<br>";$kol="";}
 ///if (($kol!="")AND($mode==7)) if (array_search ($kol,$data[0])==false) {echo "READ:Select link wrong<br>";$kol="";}  // for name reserved
 
 	echo "<br>";hidekey ("commode",0); 

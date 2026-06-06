@@ -93,8 +93,8 @@ if (($c)OR ($f)) if ($pr[74]) { lprint ("DWN_LNK_DIS");msgexiterror ("notright",
 
 if ($c) {  //��� ������ ������ �� ����!  �����������!
     for ($a=0;$a<$filcount;$a++) {    //echo $table[$a][4]."<br>";
-    if ($fildata[$a][4]==$c) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$commfile=$fildata[$a][7];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint (FSH_EXST_AN_USR); //��������� ������ :))
-    if ($fildata[$a][14]==$c) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$commfile=$fildata[$a][7];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint (FSH_EXST_AN_USR); //��������� ������ :))
+    if ($fildata[$a][4]==$c) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$commfile=$fildata[$a][7];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint("FSH_EXST_AN_USR"); //��������� ������ :))
+    if ($fildata[$a][14]==$c) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$commfile=$fildata[$a][7];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint("FSH_EXST_AN_USR"); //��������� ������ :))
 }
 
 if (file_exists ($pathwithfile)==false) die ("<br><br><font size=40><CENTER>File not found.</CENTER></font><br><br><br>");
@@ -116,8 +116,8 @@ $filmsv=explode(".",$pathwithfile);
 }
 if ($f) {  //��� ������ ������ �� ����!  �����������!
     for ($a=0;$a<$filcount;$a++) {    //echo $table[$a][4]."<br>";
-    if ($fildata[$a][4]==$f) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint (FSH_EXST_AN_USR); //��������� ������ :))
-    if ($fildata[$a][14]==$f) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint (FSH_EXST_AN_USR); //��������� ������ :))
+    if ($fildata[$a][4]==$f) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint("FSH_EXST_AN_USR"); //��������� ������ :))
+    if ($fildata[$a][14]==$f) { $filerealid=$a;$pathwithfile=$fildata[$a][5];$hashdel=$fildata[$a][12];};    //if (==$pathandfile) lprint("FSH_EXST_AN_USR"); //��������� ������ :))
 }
 
 
@@ -157,11 +157,11 @@ if (file_exists ($pathwithfile)==false) die ("File not found.");
 if ($enabledownload) { logwrite ("FMG_LNK_DL ".$prauth[$ADM][0]." download file $pathwithfile)" ); if (!$sharedir)ob_clean ();
     fclose ($filescfg) ;//fclose ($file);
 $filescfg=csvopen ("_conf/files.cfg","w",1);
-$xxx=flock ($filescfg, LOCK_EX);
+$xxx=dbs_flock ($filescfg, LOCK_EX);
 $fildata[$filerealid][9]=$fildata[$filerealid][9]+1; // set downloads +1
 $fildata[$filerealid][10]=date("d.m.Y H:i:s"); // set downloads +1
 $x=writefullcsv ($filescfg,$filheader,$filplevels,$fildata); // ���� ���� ��������� ���� �� ������� ������������� ���� � w
-$xxx=flock ($filescfg, LOCK_UN);
+$xxx=dbs_flock ($filescfg, LOCK_UN);
    //writing         new stroke to _conf\files.cfg
     //logwrite ("FMG_SHARE $share (usr=$userlist) (plvl=$groupplevels) $pathandfile");
 
@@ -316,7 +316,7 @@ if ($prauth[$ADM][37]) $maxmgrs=$prauth[$ADM][37]; else $maxmgrs=2;
 //moved TO Up -- SHARE APPLYING STEP 2 --
 //global $username,$share,$write,$file;
 
-if ($go==cmsg (FMG_SHARE)) if (!$multiactionsign)
+if ($go==cmsg("FMG_SHARE")) if (!$multiactionsign)
 {
 
         if ((!$prauth[$ADM][54])AND($coreredir!="step2")) { lprint ("DIS") ; exit;};
@@ -336,7 +336,7 @@ if ($go==cmsg (FMG_SHARE)) if (!$multiactionsign)
 $hashdel=crc32 ($filesize);
   //check alreasy exist and receive ID
 $count=$filcount;//echo "Counts found files.cfg: ".$count."<br>";
-if ($share=="") { lprint (FSH_NO); exit; };
+if ($share=="") { lprint("FSH_NO"); exit; };
 for ($a=0;$a<$count;$a++) {
     if ($share!=="FMG_UNSHARE") if (($fildata[$a][14]==$hashmini)) {
                 if (($fildata[$a][4]!==$hash)) {$hashmini="";} else { lprint ("FSH_EXST"); exit  ; }
@@ -393,7 +393,7 @@ if ($debugmode) readfile ("_conf/files.cfg");  //debug//
 exit;
 }
 
-if ($go==cmsg (FMG_SHARE)) if ($multiactionsign)
+if ($go==cmsg("FMG_SHARE")) if ($multiactionsign)
 { 
 
         if ((!$prauth[$ADM][54])AND($coreredir!="step2")) { lprint ("DIS") ; exit;};
@@ -408,7 +408,7 @@ if ($go==cmsg (FMG_SHARE)) if ($multiactionsign)
       echo "filelistmassive==$filelistmassive<br>";
 $countfilelist=count ($filelist)+1; //
 $filelist[$countfilelist]=$filelist[0];///array_unshift � ��������� ���� ��� ��������� ��������� � ������
-if ($share=="") { lprint (FSH_NO); exit; };
+if ($share=="") { lprint("FSH_NO"); exit; };
 $count=$filcount;
 echo "Counts found files.cfg: ".$count."<br>";
 //  
@@ -718,7 +718,7 @@ if ((($cmd==cmsg("FMG_SHARE"))and($prauth[$ADM][36])) OR ($coreredir=="SH_UPDD_F
                                 };
     	?><form enctype="multipart/form-data" action="filemgr.php" method="post"><?php        if (!$multiaction) {   echo "File: $file<br>";}
        //Sif (!$multiaction) {   echo "File: $file<br>";}
-    lprint (GEN_OPT);echo "<br>";
+    lprint("GEN_OPT");echo "<br>";
 radio ("share","#GENLNK_UNREG","GENLNK_UNREG");echo "<br>";
 radio ("share","FMG_UNSHARE","FMG_UNSHARE"); echo "<br>";
 
@@ -740,9 +740,9 @@ radio ("share","GENLNK_USR","GENLNK_USR");echo "<br>";
 }
 echo "</select>"; }
 echo "<br>";}
-lprint (COMM);inputtext ("commfile",15,$commfile);echo "<br>";
-if ($prauth[$ADM][2]) {checkbox (1,"yes"); lprint (GEN_FL_EPX);} else { hidekey ("yes",1);};
-checkbox (1,"srchen"); lprint (GEN_FILENSRCH);
+lprint("COMM");inputtext ("commfile",15,$commfile);echo "<br>";
+if ($prauth[$ADM][2]) {checkbox (1,"yes"); lprint("GEN_FL_EPX");} else { hidekey ("yes",1);};
+checkbox (1,"srchen"); lprint("GEN_FILENSRCH");
 echo "<br>";
 if ($coreredir=="SH_UPDD_FL") { hidekey ("coreredir","step2");};
    if (!$multiaction) hidekey ("file",$file);
