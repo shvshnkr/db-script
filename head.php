@@ -9,18 +9,20 @@
 $verhead="Header v4.3.12 (c) dj--alex"; //hide
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><html>
-<head><meta http-equiv="Content-Type" content="text/html; charset=<?php echo$sd[19];?>">
-<META NAME="KEYWORDS" CONTENT="<?php echo$sd[24]?>">
+<head><meta http-equiv="Content-Type" content="text/html; charset=<?php echo $sd[19] ?? 'windows-1251';?>">
+<META NAME="KEYWORDS" CONTENT="<?php echo $sd[24] ?? '';?>">
 <title><?php
-if ($p!=0) $pagename=$pgcontent[$p+1][3];
-$element=$vID; settype ($element, integer); if ($element=="0") unset ($element);
-if ($sd[19]=="utf-8") $pagename=iconvx("windows-1251","utf-8",$pagename);
-$titleout= $sd[16]." - ".$pagename." - ".$write." $element ";
+$p = $p ?? 0;
+$pagename = $pagename ?? '';
+if ($p!=0) $pagename=$pgcontent[$p+1][3] ?? $pagename;
+$element=$vID ?? ''; settype ($element, "integer"); if ($element=="0") unset ($element);
+if (($sd[19] ?? '')=="utf-8") $pagename=iconvx("windows-1251","utf-8",$pagename);
+$titleout= ($sd[16] ?? 'Dbscript')." - ".$pagename." - ".($write ?? '')." $element ";
 echo $titleout ;
 ?></title>
- <?php if ((!$pr[97])and (!$pr[98])) { echo "<script src=\"jquery142.js\"></script>" ; };
-  if (($pr[98])AND(!$pr[97])) { echo "<script src=\"http://yandex.st/jquery/1.4.2/jquery.min.js\"></script>" ; };
-if ($pr[83]) { echo "";;
+ <?php if ((!($pr[97]??null))and (!($pr[98]??null))) { echo "<script src=\"jquery142.js\"></script>" ; };
+  if (($pr[98]??null)AND(!($pr[97]??null))) { echo "<script src=\"http://yandex.st/jquery/1.4.2/jquery.min.js\"></script>" ; };
+if ($pr[83]??null) { echo "";;
      ?><!--head-->
 <script type="text/javascript" src="http://vkontakte.ru/js/api/share.js?3"></script><?php
 // ��� ��� ���������� � ������������ ���� ����� ��� ����� ��� �����???
@@ -28,43 +30,44 @@ if ($pr[83]) { echo "";;
 
 //���� ������ ���������� ������ � ����� DM (4)
 if ($dbstyle3en) if (($enrestmenu)AND($menuloaded!==1)){?>
-<div id="module4" style="position:absolute; z-index:0; left: <?php echo$pr[44]+2 ; ?>px; top: 0px; background-color:<?php echo$rgbfon ; ?>; color:#<?php echo$rgbtext ; ?>;background:#<?php echo$rgbfon ; ?>; "><?php
+<div id="module4" style="position:absolute; z-index:0; left: <?php echo ($pr[44] ?? 0)+2 ; ?>px; top: 0px; background-color:<?php echo$rgbfon ; ?>; color:#<?php echo$rgbtext ; ?>;background:#<?php echo$rgbfon ; ?>; "><?php
 } 
 ?>
 <style type="text/css"><?php
-if ($prauth[$ADM][47]) {       $colorfonbackgroundselect=$prauth[$ADM][47];
+if ($prauth[$ADM][47] ?? null) {       $colorfonbackgroundselect=$prauth[$ADM][47];
 
 	echo ".hoverRow { background-color:#".$prauth[$ADM][47].";}"; } else
 		{echo ".hoverRow { background-color: yellow;}";
                   $colorfonbackgroundselect="yellow";
 
                 }
-if ($prauth[$ADM][57]) {
+if ($prauth[$ADM][57] ?? null) {
 
                         $colortextmouseselect=$prauth[$ADM][57];
 	 } else
 		{  $colortextmouseselect="green";
 
                 }
-if ($prauth[$ADM][58]) {
+if ($prauth[$ADM][58] ?? null) {
                         $coloradselect=$prauth[$ADM][58];
 	 } else
 		{
                         $coloradselect="blue";
                 }
+$colorerrselect = $colorerrselect ?? 'red';
 ?>
 .clickedRow { background-color: green; }
 td.hovered {
   background-color: yellow;
   color: #666;
 }
-?> #myTable { font:<?php echo$tableshrift ; ?> ; }  #Adminpanel { font:<?php echo$tableshrift ; ?> ; }
-body { font:<?php echo$systemshrift ; ?>; <?php
-if (($pr[54])OR(!$dbstyle3en)) { // ����������� ���� ����� DeusModus ���������
+?> #myTable { font:<?php echo$tableshrift ?? '12px Arial' ; ?> ; }  #Adminpanel { font:<?php echo$tableshrift ?? '12px Arial' ; ?> ; }
+body { font:<?php echo$systemshrift ?? '12px Arial' ; ?>; <?php
+if (($pr[54]??null)OR(!$dbstyle3en)) { // ����������� ���� ����� DeusModus ���������
 	?> color:#<?php echo$rgbtext ; ?>;background:#<?php echo$rgbfon ; ?>; }<?php;
 }?>
 .buttonS
-  { text-align:center; font:<?php echo$buttonshrift ; ?>;
+  { text-align:center; font:<?php echo$buttonshrift ?? '12px Arial' ; ?>;
    background-color:<?php echo$rgbfon ; ?>; color:<?php echo$rgbtext ?> ; }
 ?></style>
 <?php  if (!$trafeconom) { // ��� � �� ������ �������!
@@ -190,7 +193,7 @@ return true;
 
 
 //unset ($dbstyle3en);// �������� ���� 3 ���������, �.�. ������� ������� � ��������� ���� 1 � ���� 2
-if (($enrestmenu)AND($menuloaded!==1)) if ((!$pr[54])AND($dbstyle3en)) {
+if (($enrestmenu)AND($menuloaded!==1)) if ((!($pr[54]??null))AND($dbstyle3en)) {
 	require_once("_templates/head.php");
 } else { echo "</head>";	echo ""; }// tut smena shrifta  echo "<style type=text/css> font:$systemshrift ;</style>"; kak obychno ne rabotaet
 

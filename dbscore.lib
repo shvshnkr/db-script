@@ -10,25 +10,25 @@ $coreSE=1;
 $svn1="http://db-script.googlecode.com/svn/trunk/";
 $svn2="http://db-script.googlecode.com/svn/trunk/";
 
-$OS=$_ENV["OS"];//print_r ($_GET); echo $OS;exit;
+$OS=$_ENV["OS"] ?? "";//print_r ($_GET); echo $OS;exit;
 $OSTYPE="LINUX";//$a.=$_SERVER["PATH"];// /usr/  /local - linux    // C:\ WINDOWS System32 винда.
-	$winchk=$_SERVER["SystemRoot"] ; //есть только на винде
-        $winchk.=$_SERVER["WINDIR"];//есть только на винде
-        $winchk.=$_SERVER["COMSPEC"];//есть только на винде
+	$winchk=($_SERVER["SystemRoot"] ?? "") ; //есть только на винде
+        $winchk.=($_SERVER["WINDIR"] ?? "");//есть только на винде
+        $winchk.=($_SERVER["COMSPEC"] ?? "");//есть только на винде
 //setlocale (LC_ALL, 'ru_RU.CP1251');  // CFG OPT FUTURE  TODO:    локаль выключена.
-if ((strpos ($OS,"indows"))==true) $OSTYPE="WINDOWS";
+if ((strpos ($OS,"indows"))!==false) $OSTYPE="WINDOWS";
 if ($winchk==true) $OSTYPE="WINDOWS";
 if ((strpos ($_SERVER["SERVER_SOFTWARE"],"Win32"))==true) $OSTYPE="WINDOWS";//;// содержит Win32 для windows 
 $USERDAT=$_SERVER["HTTP_USER_AGENT"]; // OPT FUTURE    //print_R($_SERVER); hpinfo ();echo $OS ;exit;
 //SHOW USER IP IN INFO
 $testenable="beta";// "alpha"; "beta"; is reserved wordss
 //CFG OPT FUTURE  TODO:- отметка о необходимости внесении изм в конфигурации при обновлении
-global $verinit;$dbs_ip =$_SERVER['REMOTE_ADDR'];$dbs_ref= $_SERVER['HTTP_REFERER'];global $pgconn; // added for compactibility with postgresql
+global $verinit;$dbs_ip =$_SERVER['REMOTE_ADDR'] ?? '';$dbs_ref= $_SERVER['HTTP_REFERER'] ?? '';global $pgconn; // added for compactibility with postgresql
 $msgexitcalled=0;
- $verchar="4.3.42";
+ $verchar="4.5.0";
 $verinit="Core $verchar beta (c) dj--alex";// service hide
-$programname="Dbscript "; $lastupdate="25.05.2011";$vernumb=4.342;
-$verprogram=$verprogram.$verchar." LU ".$lastupdate; // версия программы   ядро!
+$programname="Dbscript "; $lastupdate="25.05.2011";$vernumb=4.5;
+$verprogram=($verprogram ?? "").$verchar." LU ".$lastupdate; // версия программы   ядро!
 $vercore=$verprogram;
 $enterpoint=$verinit;
 $xfgetlimit=4096; //xfgetcsv limit  0 - medlennee   4024 malo dlya trini global $GLOBALS['xfgetlimit'];
@@ -50,9 +50,9 @@ $fldup=$folderscript ; //FOR DEMO  отключение поддержки multi
 $filbas="_conf/property.cfg";
 @$desc=csvopen ($filbas,"r","0");$data=readfullcsv ($desc,"new");
 $configpresent=file_exists ("_conf");
-$pr=$data[0];
-if (($pr[93])OR($pr[94])) ob_start ();// test added!!! may be not need
-if (!$pr[40]) @set_time_limit(60); else @set_time_limit ($pr[40]);
+$pr=($data===-1) ? array() : $data[0];
+if (($pr[93]??null)OR($pr[94]??null)) ob_start ();// test added!!! may be not need
+if (!($pr[40]??null)) @set_time_limit(60); else @set_time_limit ($pr[40]);
 
 if (!$coreloadskip) if ($data==-1) {bluescreen ("_Main configuration damaged ($filbas)");
 @$f=csvopen ("_conf/property.cfg","restore",1); if ($f==1) { echo cmsg ("A_BCK_PR").cmsg ("A_BCK_REST")."<br>";}
@@ -63,15 +63,15 @@ if (!$coreloadskip) if ($data==-1) {bluescreen ("_Main configuration damaged ($f
 // authorization zone 2// обработка авторизации-2
 
 
-if ($_GET['crcignore']) { $_GET['crcignore']="";}   //unsafe vars must be resetted HERE !!! небезопасные здесь
-if ($_GET['crc']) { $_GET['crc']=-1;}  //crcignore ?? not work?
+if (!empty($_GET['crcignore'])) { $_GET['crcignore']="";}   //unsafe vars must be resetted HERE !!! небезопасные здесь
+if (!empty($_GET['crc'])) { $_GET['crc']=-1;}  //crcignore ?? not work?
 //http://wow.chg.su/inside/w.php?vID=test&vID2=&tbl=293&z0=test&z1=7&z2=test&origid1=test&origid2=test&write=To+confirm+changes  protected  CRC false from GET
 
 
 extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
 //$_POST['ADM']=0;  //ignored? 
-if ($_GET['ADM']) { header ("Location: r.php"); die ("R Tape loading error 0:1");}; // эта защита работает и ДО и ПОСЛЕ импорта
-if ($_POST['ADM']) { header ("Location: r.php"); die ("R Tape loading error 0:1");};//  а вообще лучше плашку про защиту показать
+if (!empty($_GET['ADM'])) { header ("Location: r.php"); die ("R Tape loading error 0:1");}; // эта защита работает и ДО и ПОСЛЕ импорта
+if (!empty($_POST['ADM'])) { header ("Location: r.php"); die ("R Tape loading error 0:1");};//  а вообще лучше плашку про защиту показать
 //method http://wow.chg.su/inside/w.php?vID=test&vID2=&tbl=293&z0=test&z1=7&z2=test&crcignore=on&crc=1868026345&origid1=test&origid2=test&write=To+confirm+changes&ADM=1  protected ADM change
 // bug confirmed by Kernelbug and fixed Dj--alex
 
@@ -86,9 +86,9 @@ ob_flush ();
  */
 //
 //$a=session_get_cookie_params ($GUID);
-if ($pr[36]!=="on") {
+if (($pr[36]??'')!=="on") {
 //session_start ();  // дожна работать без всего лишнего
-$timetoremember=36000; if ($forever) $timetoremember=360000000;
+$timetoremember=36000; if (!empty($forever)) $timetoremember=360000000;
 
 		if (!$coreloadskip) if (isset ($loginstate)) {
 	
@@ -102,7 +102,7 @@ $timetoremember=36000; if ($forever) $timetoremember=360000000;
 		//session_commit ();
 		}
 				
-		if (($_COOKIE['dbsa'])AND(!isset ($_SERVER['PHP_AUTH_USER']))) {
+		if ((!empty($_COOKIE['dbsa']))AND(!isset ($_SERVER['PHP_AUTH_USER']))) {
 			$data=a (base64_decode ($_COOKIE['dbsa']));
 			$authmass=explode ("¦",$data);
 			$dbs_log=$authmass[0];$dbs_psw=$authmass[1];
@@ -111,7 +111,7 @@ $timetoremember=36000; if ($forever) $timetoremember=360000000;
 		}
 		
 		//sessiin
-		if (($_SESSION['dbsa'])AND(!isset($_COOKIE['dbsa']))AND(!isset ($_SERVER['PHP_AUTH_USER']))) {
+		if ((isset($_SESSION['dbsa']))AND(!isset($_COOKIE['dbsa']))AND(!isset ($_SERVER['PHP_AUTH_USER']))) {
 			echo "session receiving...$dbsa...".$_SESSION['dbsa'];
 			$data=a (base64_decode ($_SESSION['dbsa']));
 			$authmass=explode ("¦",$data);
@@ -125,7 +125,7 @@ $timetoremember=36000; if ($forever) $timetoremember=360000000;
 function a ($a) {	return $a; }  // пустышка
 //end auth zone 2
 
-	if (isset ($resetcookie)OR($pr[36]=="on"))  {setcookie ("dbsa");
+	if (isset ($resetcookie)OR(($pr[36]??'')=="on"))  {setcookie ("dbsa");
 		//unset ($_SERVER['PHP_AUTH_USER']);unset ($_SERVER['PHP_AUTH_PW']);
 		//@session_unset ($dbsa);
 		//@session_destroy (); 
@@ -133,11 +133,23 @@ function a ($a) {	return $a; }  // пустышка
 //после этой строчки все работает
 	
 //loading cfgs - tbl
+$fresh_install=($coreloadskip && $data===-1);
+if ($fresh_install) {
+	$gmheader=$gmplevel=array(); $prauth=array(array()); $prauthcnt=1;
+	$pgheader=$pgplevel=array(); $pgcontent=array(); $pgcnt=0;
+	$dbheader=$dbplevel=array(); $prdbdata=array(array()); $prdbdatacnt=0;
+	$sd=array();
+	$dnheader=$dnplevel=array(); $dncontent=array(); $dncnt=0;
+	$stheader=$stplevel=array(); $stcontent=array(); $stcnt=0;
+	$lsheader=$lsplevel=array(); $lscontent=array(); $lscnt=0;
+	$ADM=0; $mainhostmysql="localhost";
+} else {
 
 $filbas="_conf/gmdata.cfg";
 @$gmdata=csvopen ($filbas,"r","0");$data=readfullcsv ($gmdata,"new");
-$gmheader=$data[0];$gmplevel=$data[1];$prauth=$data[2];$prauthcnt=$data[3];
-@fclose ($gmdata);
+if ($data===-1) { $gmheader=$gmplevel=array(); $prauth=array(array()); $prauthcnt=1; }
+else { $gmheader=$data[0];$gmplevel=$data[1];$prauth=$data[2];$prauthcnt=$data[3]; }
+if ($gmdata) @fclose ($gmdata);
 if (!$coreloadskip) if ($data==-1) {
 		@$f=csvopen ("_conf/gmdata.cfg","restore",1); if ($f==1) { echo cmsg ("A_BCK_GM").cmsg ("A_BCK_REST")."<br>";
                      //msgexiterror   cfglost  window ("","");echo cmsg ("F_REST");closewindow();
@@ -149,8 +161,9 @@ if (!$coreloadskip) if ($data==-1) {
 		
 $filbas="_conf/pages.cfg";
 @$pages=csvopen ($filbas,"r",0);$data=readfullcsv ($pages,"new");
-$pgheader=$data[0];$pgplevel=$data[1];$pgcontent=$data[2];$pgcnt=$data[3];
-@fclose ($pages);
+if ($data===-1) { $pgheader=$pgplevel=array(); $pgcontent=array(); $pgcnt=0; }
+else { $pgheader=$data[0];$pgplevel=$data[1];$pgcontent=$data[2];$pgcnt=$data[3]; }
+if ($pages) @fclose ($pages);
 
 if (!$coreloadskip) if ($data==-1) { 
 $f=csvopen ("_conf/pages.cfg","restore",1); if ($f==1) { echo cmsg ("A_BCK_PG").cmsg ("A_BCK_REST")."<br>";
@@ -162,12 +175,13 @@ if ($f<1)bluescreen ("_No pages config db in $filbas");
 if (!$dbdataskip) {
 $filbas="_conf/dbdata.cfg";
 @$dbdata=csvopen ($filbas,"r","0");$data=readfullcsv ($dbdata,"new");
-$dbheader=$data[0];$dbplevel=$data[1];$prdbdata=$data[2];$prdbdatacnt=$data[3];
-@fclose ($dbdata);
+if ($data===-1) { $dbheader=$dbplevel=array(); $prdbdata=array(array()); $prdbdatacnt=0; }
+else { $dbheader=$data[0];$dbplevel=$data[1];$prdbdata=$data[2];$prdbdatacnt=$data[3]; }
+if ($dbdata) @fclose ($dbdata);
 }
 
-if (!$pr[43]) $mainhostmysql=$prdbdata[1][6];// потом надо будет вывести в админку переменную 
-if ($pr[43]) $mainhostmysql=$pr[43];
+if (!($pr[43]??null)) $mainhostmysql=$prdbdata[1][6] ?? "localhost";// потом надо будет вывести в админку переменную 
+if ($pr[43]??null) $mainhostmysql=$pr[43];
 
 //if ($data==-1) bluescreen ("No DATABASE data in $filbas");
 if (!$coreloadskip) if ($data==-1) errorlog ("E_CFG:Not found $filbas"); //layermsgprint
@@ -175,9 +189,8 @@ if (!$coreloadskip) if ($data==-1) errorlog ("E_CFG:Not found $filbas"); //layer
 
 	
 // RIGHTS MODULE
-
 $ADM=0;$prauthen=1;$prauthcnt=1;
-while ($prauth[$prauthcnt-1][0]==true)	{
+while (($prauth[$prauthcnt-1][0]??false)==true)	{
 	$dbuserpswd=($prauth[$prauthcnt][1]); // dbpsw
 	$dbusername=strtolower($prauth[$prauthcnt][0]);
 	$enteredname=strtolower($_SERVER['PHP_AUTH_USER']);
@@ -204,7 +217,7 @@ $prauth[$ADM][21]="Default";$prauth[$ADM][10]=10;
 */
 
 //LOADRIGHTS
-if ($prauth[$ADM][42]) {
+if ($prauth[$ADM][42]??null) {
 	echo"";// суперюзер обладает всеми правами	
 	
 	for ($x=2;$x<14;$x++) { 
@@ -224,9 +237,10 @@ if ($prauth[$ADM][42]) {
 
 $filbas="_conf/sitedata.cfg";
 @$site=csvopen ($filbas,"r","0");$data=readfullcsv ($site,"new");
-$sd=$data[0];
-@fclose ($site);
-if ($prauth[$ADM][46]) { $shriftsize=$prauth[$ADM][46]; } else  { $shriftsize=$sd[3];}  //  sd29 - adjust?  outdated shit
+if ($data===-1) { $sd=array(); }
+else { $sd=$data[0]; }
+if ($site) @fclose ($site);
+if ($prauth[$ADM][46]??null) { $shriftsize=$prauth[$ADM][46]; } else  { $shriftsize=$sd[3]??null;}  //  sd29 - adjust?  outdated shit
 
 if (!$coreloadskip) if ($data==-1) {
 @$f=csvopen ("_conf/sitedata.cfg","restore",1); if ($f==1) echo cmsg ("A_BCK_SD").cmsg ("A_BCK_REST")."<br>";
@@ -240,9 +254,10 @@ $silent=0;// yes messaging about  lost next data;
  
 $filbas="_conf/denywords.cfg";
 @$deny=csvopen ($filbas,"r",0);$data=readfullcsv ($deny,"new");
-$dnheader=$data[0];$dnplevel=$data[1];$dncontent=$data[2];$dncnt=$data[3];
+if ($data===-1) { $dnheader=$dnplevel=array(); $dncontent=array(); $dncnt=0; }
+else { $dnheader=$data[0];$dnplevel=$data[1];$dncontent=$data[2];$dncnt=$data[3]; }
 $denywords=$dnheader;  // prdeny  prdenycnt
-@fclose ($deny);
+if ($deny) @fclose ($deny);
 
 if (!$coreloadskip) if ($data==-1) errorlog ("E_CFG:Not found $filbas"); //layermsgprint
 
@@ -256,22 +271,25 @@ $edheader=$data[0];$edplevel=$data[1];$edcontent=$data[2];$edcnt=$data[3];
 
 $filbas="_conf/styles.cfg";
 @$styles=csvopen ($filbas,"r",0);$data=readfullcsv ($styles,"new");
-$stheader=$data[0];$stplevel=$data[1];$stcontent=$data[2];$stcnt=$data[3];
-@fclose ($styles);
+if ($data===-1) { $stheader=$stplevel=array(); $stcontent=array(); $stcnt=0; }
+else { $stheader=$data[0];$stplevel=$data[1];$stcontent=$data[2];$stcnt=$data[3]; }
+if ($styles) @fclose ($styles);
 
 if (!$coreloadskip) if ($data==-1) errorlog ("E_CFG:Not found $filbas");// layermsgprint (
 
 $filbas="_conf/langset.cfg";
 @$langset=csvopen ($filbas,"r",0);$data=readfullcsv ($langset,"new");
-$lsheader=$data[0];$lsplevel=$data[1];$lscontent=$data[2];$lscnt=$data[3];
-@fclose ($langset);
+if ($data===-1) { $lsheader=$lsplevel=array(); $lscontent=array(); $lscnt=0; }
+else { $lsheader=$data[0];$lsplevel=$data[1];$lscontent=$data[2];$lscnt=$data[3]; }
+if ($langset) @fclose ($langset);
 
 if (!$coreloadskip) if ($data==-1) errorlog ("E_CFG:Not found $filbas");// layermsgprint (
+} // end else (installed configs)
 
    if ($OSTYPE=="LINUX") $addOSenter="\n"; //  исправление соединения строк  исп. для bans.cfg i chat.cfg i macros.cfg
 if ($OSTYPE=="WINDOWS") $addOSenter="\r\n";
 
-$sqlencodingdefault=$pr[76];
+$sqlencodingdefault=$pr[76]??'';
 
 
 if ($configpresent) {
@@ -352,22 +370,22 @@ $srvheader=$srvdatax[0];$srvlevels=$srvdatax[1];$srvdata=$srvdatax[2]; $srvcount
 }
 //checking and restore dir structure
 
-@$onloadlocal=opendir ("_local"); if ($onloadlocal==false) @$errcrtdir=mkdir ("_local");@closedir ($a);
+@$onloadlocal=opendir ("_local"); $errcrtdir=false; if ($onloadlocal==false) @$errcrtdir=mkdir ("_local"); if ($onloadlocal) @closedir ($onloadlocal);
 
 if (($onloadlocal==true)OR($errcrtdir==true)){
-@$a=opendir ("_local/scrcomm"); if ($a==false) mkdir ("_local/scrcomm");@closedir ($a);
+@$a=opendir ("_local/scrcomm"); if ($a==false) mkdir ("_local/scrcomm"); if ($a) @closedir ($a);
 
-$userfolder="_local/usr/".$prauth[$ADM][0];// bug with no exist fdb fixed //for best (izbrannoe) using this must be enabled!!
+$userfolder="_local/usr/".($prauth[$ADM][0]??'guest');// bug with no exist fdb fixed //for best (izbrannoe) using this must be enabled!!
 //if ($pr[47]) {
-@$a=opendir ("_local/usr"); if ($a==false) mkdir ("_local/usr");@closedir ($a);
-@$a=opendir ($userfolder); if ($a==false) mkdir ($userfolder);@closedir ($a);
+@$a=opendir ("_local/usr"); if ($a==false) mkdir ("_local/usr"); if ($a) @closedir ($a);
+@$a=opendir ($userfolder); if ($a==false) mkdir ($userfolder); if ($a) @closedir ($a);
 $userfilesfolder=$userfolder."/files";
-@$a=opendir ($userfilesfolder); if ($a==false) mkdir ($userfilesfolder);@closedir ($a);
+@$a=opendir ($userfilesfolder); if ($a==false) mkdir ($userfilesfolder); if ($a) @closedir ($a);
 
 //}
 
 //@$a=opendir ("_conf/usr"); if ($a==false) mkdir ("_conf/usr");@closedir ($a);
-@$a=opendir ("_logs");if ($a==false) { mkdir ("_logs");
+@$logdir=opendir ("_logs");if ($logdir==false) { mkdir ("_logs");
 //log checking available  and create header module
         $a=fopen ("_logs/log.dat","w");
         fwrite ($a,"id¦datecurrent¦usr¦dbs_ip¦shost¦act¦referal¦baseID¦hostIP¦error¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦".$addOSenter);
@@ -389,59 +407,60 @@ $userfilesfolder=$userfolder."/files";
         fwrite ($a,"id¦datecurrent¦usr¦dbs_ip¦action¦restoreaction¦referal¦baseID¦hostIP¦error¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦".$addOSenter);
         fwrite ($a,"¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦".$addOSenter);
         fclose ($a);
-}
-@closedir ($a);
+} else { @closedir ($logdir); }
 // end log checking header module
 
-@$a=opendir ("_data");if ($a==false) mkdir ("_data"); @closedir ($a);
-$username=trim ($prauth[$ADM][0]);
+@$a=opendir ("_data");if ($a==false) mkdir ("_data"); if ($a) @closedir ($a);
+$username=trim ($prauth[$ADM][0] ?? '');
 //@$a=opendir ("_conf/usr/$username"); if ($a==false) mkdir ("_conf/usr/$username");@closedir ($a);
 }
 //if ($data==-1) msgexiterror ("errorcfg","noexit",$filbas);
 
-if (!$pr[54]) {
-	@$a=opendir ("_templates"); if ($a==false) mkdir ("_templates");@closedir ($a);
+if (!($pr[54]??null)) {
+	@$a=opendir ("_templates"); if ($a==false) mkdir ("_templates"); if ($a) @closedir ($a);
   	$a=csvopen ("_templates/head.php","r",0);
-  	$dbstyle3en=$a;  if (($a)AND(!$pr[46])) { $pr[46]=1; $pr[44]=20; //автоматическое выключение меню если работает DeusModus menu $pr[45]=1;
+  	$dbstyle3en=$a;  if (($a)AND(!($pr[46]??null))) { $pr[46]=1; $pr[44]=20; //автоматическое выключение меню если работает DeusModus menu $pr[45]=1;
   	} 
   	@fclose ($a);	
   }
-if (($pr[54])) {$pr[46]=0; $pr[44]=130; //автоматическое выключение меню если работает DeusModus menu  $pr[45]=0;
+if ($pr[54]??null) {$pr[46]=0; $pr[44]=130; //автоматическое выключение меню если работает DeusModus menu  $pr[45]=0;
 }
 
 $totalbas = $prdbdatacnt;
 ##загрузка определений стиля и языка
 
-$styletemplateuser=$prauth[$ADM][21];
+$styletemplateuser=$prauth[$ADM][21]??'';
 $laststyle=count ($stcontent);
-if (($ADM==false)OR($prauth[$ADM][21]=="")) $laststyle=2;// если без логина будет стиль по умолчанию
+if (($ADM==false)OR(($prauth[$ADM][21]??'')=="")) $laststyle=2;// если без логина будет стиль по умолчанию
 //$stcontent  $stcnt    $prauth $$prauthcnt
 for ($a=0;$a<$laststyle;$a++) { //$stcontent[выбранный юзером стиль][колонка соотв параметру]
-$stylename=$stcontent[$a][0];
-$grafictemp=$stcontent[$a][1];
-$rgbfon=$stcontent[$a][2];
-$rgbtext=$stcontent[$a][3];
+$stylename=$stcontent[$a][0] ?? '';
+$grafictemp=$stcontent[$a][1] ?? '';
+$rgbfon=$stcontent[$a][2] ?? 'FFFFFF';
+$rgbtext=$stcontent[$a][3] ?? '000000';
 if  ($stylename==$styletemplateuser) break;
 }
 //ssecho "adm21=".$prauth[$ADM][21]." ADM=$ADM svif  ($stylename==$styletemplateuser) break;";
 
-$languagetemplateuser=$prauth[$ADM][22];
+$languagetemplateuser=$prauth[$ADM][22]??'';
 $lastlanguage=count ($lscontent);
-if (($ADM==false)OR($prauth[$ADM][22]=="")) 
+if (($ADM==false)OR(($prauth[$ADM][22]??'')=="")) 
 	{// if ($pr[28]=="default") $pr[28]="russian"; // A_LP_DEF pr28- не используется - так зачем он нужен ?
 		$lastlanguage=2; //sysdefault $pr[28]
 	}
 
         //print_r ($lscontent);
+$languageprofile=''; $defaultlanguage=''; $systemlanguage='';
 for ($a=0;$a<count ($lscontent);$a++) {// lastlanguage
-$languagename=$lscontent[$a][0];
-$languageprofile=$lscontent[$a][1];  // !!!
+$languagename=$lscontent[$a][0] ?? '';
+$languageprofile=$lscontent[$a][1] ?? '';  // !!!
 if ($languagename=="default") $defaultlanguage=$languageprofile; // для незарегистрированных пользователей и умолчание если есть у рег
 if ($languagename=="system") $systemlanguage=$languageprofile; // 1
 if  ($languagename==$languagetemplateuser) break;
 }
 
-if (!$installermode) if (!$languageprofile) $languageprofile=$defaultlanguage; // язык по умолчанию если не выбран при установке.
+if (!$installermode) if (!$languageprofile) $languageprofile=$defaultlanguage ?? "english"; // язык по умолчанию если не выбран при установке.
+if (!$languageprofile) $languageprofile=($installermode || $coreloadskip) ? "english" : ($defaultlanguage ?? "english");
 ////loading language db languageprofile
 
 $langdb=csvopen ("_langdb/".$languageprofile.".cfg","r",1); //is selected language!!s
@@ -459,9 +478,10 @@ if ($langdb===false) {
 //echo "zagrujaetsya $languageprofile<br>";
 
 $data=readfullcsv ($langdb,"ZZOLD");// old type encoding, no new format cache 
-if ($data===false) echo "E_CORE:CMSG ".$languageprofile."_IS_WRONG!<br>";
-$langdbcontent=$data[1];$langdbcount=$data[3];
-$verlang=$data[0][0];
+if ($data===false || $data===-1) echo "E_CORE:CMSG ".$languageprofile."_IS_WRONG!<br>";
+$langdbcontent=($data===false || $data===-1) ? array() : $data[1];
+$langdbcount=($data===false || $data===-1) ? 0 : $data[3];
+$verlang=($data===false || $data===-1) ? "" : $data[0][0];
 unset ($data);
 
 $verlang=iconvx("windows-1251","utf-8",$verlang);
@@ -471,9 +491,9 @@ function iconvx ($from,$to,$var) {
     global $sd,$encoder;
 //$verlang=$data[0][0];
   if (extension_loaded('iconv')) {
-       if ($sd[19]=="utf-8") { $verlang=iconv($from,$to,$var); $encoder="iconv"; }
+       if (($sd[19]??'')=="utf-8") { $verlang=iconv($from,$to,$var); $encoder="iconv"; }
   } elseif (extension_loaded('mbstring')) {
-      if ($sd[19]=="utf-8") {$verlang=mb_convert_encoding($var,$from,$to); $encoder="mbstring";}
+      if (($sd[19]??'')=="utf-8") {$verlang=mb_convert_encoding($var,$from,$to); $encoder="mbstring";}
       } else
       { $encoder="php iconv not installed";
 //$verlang=win_utf8($verlang);
@@ -485,14 +505,14 @@ function iconvx ($from,$to,$var) {
 
 //on some versions PHP - this function is NOT EXIST !!!!!
 
-if (!$pr[8]) $debugmode=1;
+if (!($pr[8]??null)) $debugmode=1;
  if ($coreloadskip) { $debugmode=0;}
 //окончание загрузки стилей и языков
 //   DEFAULT VARIABLES FOR ALL FILES  ****************
 $limits = array(32,64,128,256,512,1024,2048,3000,4000,5000,6000,7000,8000);
-if(in_array($sd[18], $limits)) { ini_set( "memory_limit",$sd[18].'M' ); $memlim="lsd=". $limits[$sd[18]]."sd=".$sd[18].",[8000max]<br>";}
+if(in_array($sd[18] ?? null, $limits)) { ini_set( "memory_limit",$sd[18].'M' ); $memlim="lsd=". $limits[$sd[18]]."sd=".$sd[18].",[8000max]<br>";}
 //..echo "$memlim";
-$trafeconom=$prauth[$ADM][24];
+$trafeconom=$prauth[$ADM][24]??null;
 //   END DEF VAR FOR ALL             *****************
 //end loading   module to print in mainlib - lprint , cmsg
 #####################################################
@@ -504,7 +524,7 @@ $trafeconom=$prauth[$ADM][24];
   
  
 
-if ($pr[47]) {
+if ($pr[47]??null) {
 $filbas=$userfolder."/macros.cfg";
 @$macros=csvopen ($filbas,"r",0); 
 $data=readfullcsv ($macros,"new");
@@ -531,9 +551,9 @@ $ufheader=$data[0];$ufplevel=$data[1];$ufcontent=$data[2];$ufcnt=$data[3];
 */
 
 }
-if (!$pr[47]) { $macrosdisabled=1; $usermarkedfilesdisabled=1; };
+if (!($pr[47]??null)) { $macrosdisabled=1; $usermarkedfilesdisabled=1; };
 
-$enablewin32enctooldmenu=$sd[39];
+$enablewin32enctooldmenu=$sd[39]??null;
 //WIN32MNUINUTF8
 //Enable recode csv and configs data temporary from utf-8 to win32 for view and edit
 ############################################################## #
@@ -587,17 +607,17 @@ unset ($activelist);
 
 // Проверка реферера на вшивость
 //if(!$_FILES) {
-$referer=($_SERVER['HTTP_REFERER']);
-$srvdname=($_SERVER['SERVER_NAME']); // откуда юзер пришёл.
+$referer=$dbs_ref;
+$srvdname=($_SERVER['SERVER_NAME'] ?? ''); // откуда юзер пришёл.
 
-  if (($sd[33])AND($sd[35])) { $reflist=explode (",",$sd[33]);$xx=array_search ($referer,$reflist);}//  $xx=strpos ($referer,"u-mangos.ru");
-  if (($sd[34])AND($sd[36])) { $srvdlist=explode (",",$sd[34]);$yy=array_search ($srvdname,$srvdlist);}//$yy=strpos ($srvname,"owcasual.ru");
+  if (($sd[33]??null)AND($sd[35]??null)) { $reflist=explode (",",$sd[33]);$xx=array_search ($referer,$reflist);}//  $xx=strpos ($referer,"u-mangos.ru");
+  if (($sd[34]??null)AND($sd[36]??null)) { $srvdlist=explode (",",$sd[34]);$yy=array_search ($srvdname,$srvdlist);}//$yy=strpos ($srvname,"owcasual.ru");
 
 //echo "ref = $referer srvd=$srvdname <br>sd33=".$sd[33].".sd34=".$sd[34]." <br>";
 //echo "xx=$xx $reflist="; print_r ($reflist); echo " y <br>y=$yy  $srvdlist="; print_r ($srvdlist);echo "<br>";
 
-if ($pr[93]) if (($sd[33])AND($sd[35])) if ($xx!==false) {; ob_clean ();header ("Location: ".$sd[35].""); } // die ("1 $sd[35]")
-if ($pr[94]) if (($sd[34])AND($sd[36])) if ($yy!==false) { ;ob_clean (); header ("Location: ".$sd[36]."");} //die ("2 $sd[36]")
+if ($pr[93]??null) if (($sd[33]??null)AND($sd[35]??null)) if ($xx!==false) {; ob_clean ();header ("Location: ".$sd[35].""); } // die ("1 $sd[35]")
+if ($pr[94]??null) if (($sd[34]??null)AND($sd[36]??null)) if ($yy!==false) { ;ob_clean (); header ("Location: ".$sd[36]."");} //die ("2 $sd[36]")
 //}
 
          function print_massive ($m){
@@ -612,17 +632,17 @@ if ($pr[94]) if (($sd[34])AND($sd[36])) if ($yy!==false) { ;ob_clean (); header 
              return $x;
          }
          
-if ($pr[51]) { 
+if ($pr[51]??null) { 
 	$a1=(strrpos ($dbs_ref,"login.php"))+(strrpos ($dbs_ref,"admin.php"))+(strrpos ($dbs_ref,"login.php")) ;
 	if (!$a1) {echo "<red><bb><ii>"; lprint (OVERLOAD); echo "</red></bb></ii>";exit (1);}
 }
 
 //sd3 eto shrift,  pradm55 - usersh
-if (!$pr[78]) {
-        $systemshrift=$sd[3];
-if ($prauth[$ADM][55]) $systemshrift=$prauth[$ADM][55];
-$buttonshrift=$sd[28];
-$tableshrift=$sd[29];
+if (!($pr[78]??null)) {
+        $systemshrift=$sd[3]??'12px Arial';
+if ($prauth[$ADM][55]??null) $systemshrift=$prauth[$ADM][55];
+$buttonshrift=$sd[28]??'12px Arial';
+$tableshrift=$sd[29]??'12px Arial';
 }
 //    CFG OPT FUTURE  TODO:
 
@@ -636,12 +656,12 @@ $tableshrift=$sd[29];
 //=======================================
 $silent=0;  //set on messaging on error;  //CHANGED@@
 //version check proprty
-$vercfg=$pr[0];
+$vercfg=$pr[0]??0;
 
 if ($vercfg==255) $vercfg=2.30;$file="property";
 $vpropcheck=$vercfg-$vernumb;
 
-if ($pr[37]) $list=groupdbdetect($prdbdata);//ready to groupoperations
+if ($pr[37]??null) $list=groupdbdetect($prdbdata);//ready to groupoperations
 
 // при использовании с разными версиями конфигов будет выдаваться предупреждение, при разнице более
 // одного ядра программа полностью блокируется.
@@ -657,22 +677,22 @@ require ("head.php");  // CSS HERE !!!   tbody добавлен но толку 
 //END OF RIGHTS MODULE
 
   
-if (!$pr[46]) if (($enrestmenu)AND($menuloaded!==1)){  //always on
-?><div id="menu" style="position:absolute; width:<?php echo $pr[44] ; ?>; z-index:0; left: 0px; top: 0px;"><?
+if (!($pr[46]??null)) if (($enrestmenu)AND($menuloaded!==1)){  //always on
+?><div id="menu" style="position:absolute; width:<?php echo $pr[44] ?? 130 ; ?>; z-index:0; left: 0px; top: 0px;"><?
 require_once("indexmenu.php");
 if ($dbstyle3en) echo "</div>";  // эти данные не должны выдаваться никаким образом вперед <head <meta
 }
 
 
 
-if (($fileed)AND($go==cmsg("SAVE"))) simpleedit($fileed,0);
+if (!empty($fileed) AND !empty($go) AND ($go==cmsg("SAVE"))) simpleedit($fileed,0);
 
 
 
 function onend ()
 {
-    global $write,$pr,$enterpoint,$prauth,$ADM,$sd,$codekey,$frameoldcore,$msgexitcalled,$menuloaded,$enrestmenu,$finalcodekey,$activation,$finalactivation,$exitpoint,$shriftsize;
-if (isset($_FILES[$name])) ob_start ();
+    global $write,$pr,$enterpoint,$prauth,$ADM,$sd,$codekey,$frameoldcore,$msgexitcalled,$menuloaded,$enrestmenu,$finalcodekey,$activation,$finalactivation,$exitpoint,$shriftsize,$name;
+if (isset($name) && isset($_FILES[$name])) ob_start ();
 
 //надо бы будет сделать createwin i printwin ($id,$msg)
 // сообщение о некорректном файле dbscript
@@ -693,7 +713,7 @@ if (($codekey==10)OR($codekey==8)) testinfo ();
 if (($codekey==9)OR($codekey==7)) demoinfo ();
 
 
-if (isset($_FILES[$name]))  ob_clean ();
+if (isset($name) && isset($_FILES[$name]))  ob_clean ();
 
 
 	
@@ -715,7 +735,7 @@ closewindow();
 }
 
 
-$realpage=$_GET["pagenow"];
+$realpage=$_GET["pagenow"] ?? null;
 #########################################################
 #
 # ####    #  ###	# #  # # ###
@@ -3410,6 +3430,7 @@ function xfgetcsv ($filedescripter,$pgsize,$separator)
 function readfullcsv ($filedescripter,$oldnew)
 {	global $silent;		//$b;$b=0;
 	global $filbas,$abort;
+	if ($filedescripter===false) return -1;
 	
 	if ($oldnew==="ZZOLD") { $oldnew="old"; $nocachetable=1;};// исп 1 раз для отключения преобразования ;
 	$separator="¦"; if ($oldnew==="old") $separator=";"; 
@@ -3423,7 +3444,8 @@ function readfullcsv ($filedescripter,$oldnew)
 	if ($oldnew!=="old") {
 	 $plevels=xfgetcsv ($filedescripter,$GLOBALS['xfgetlimit'],$separator);//oldcore
 		}
-	while (($table[$tableindexcnt-1][1]==true) OR ($table[$tableindexcnt-1][0]==true) OR ($table[$tableindexcnt-1][0]==="0"))	{  //decoding proc  from init
+	$row=$table[$tableindexcnt-1] ?? null;
+	while (is_array($row) && ((($row[1]??false)==true) OR (($row[0]??false)==true) OR (($row[0]??null)==="0")))	{  //decoding proc  from init
 			$table[$tableindexcnt]=xfgetcsv ($filedescripter,$GLOBALS['xfgetlimit'],$separator);//oldcore
 			
 	if (($oldnew==="old")AND($nocachetable<1)) {
@@ -3431,6 +3453,7 @@ function readfullcsv ($filedescripter,$oldnew)
 		@$tableimpl[$tableindexcnt]=implode("¦", $td); // echo "container -- 
 	}
 	$tableindexcnt++;
+	$row=$table[$tableindexcnt-1] ?? null;
 	}// and lets go to packing data massive; 
 	$dataout=array();
 	if ($oldnew==="old") {	$dataout[1]=$table; $dataout[2]=$tableimpl; } else {
@@ -3485,10 +3508,11 @@ global $fldup,$silent,$pr,$debug;
 function csvopen ($configordbname,$mode,$abort)
 {
 	global $fldup,$silent,$pr,$debug,$debugmode;
+	if (!is_array($abort)) $abort=array((string)$abort,"");
 	//Создание заголовков по умолчанию глобальными (мультиинст) - никак не обрабатывается !!!!  $pr[34]
 	$locale="local";
-	if ($abort[1]==="g") $locale="general" ; // parametes one for all   FOR DEMO- REMOVE 2 LINES!
-	if ($pr[34]==true) $locale="general";
+	if (($abort[1]??'')==="g") $locale="general" ; // parametes one for all   FOR DEMO- REMOVE 2 LINES!
+	if (($pr[34]??null)==true) $locale="general";
 	@$filedescripter=fopen ($configordbname,"rb") ;// get data from sitedata (site)  //errormsg- disabled!!
         if ($filedescripter) $locale=""; //выключить переключение папки вверх если файл _УЖЕ _найден  4.1.77 новое изменение EXPErIMENTAL если будет глючить убратть
 	if ($filedescripter) flock ($filedescripter, 3);
@@ -3501,8 +3525,9 @@ if ($filedescripter==false) {
 		 if (($filedescripter==false)AND($locale!=="general")) {  // по умолчанию параметры локальные  
 				$configordbnamefldup=0;
 				$fileforaction=$configordbname;				$fileforcopy=$abort;//autoconfig for actions
- if ($abort[0]==="1") msgexiterror ("init",$configordbname,"disable");}}
+ if (($abort[0]??'')==="1") msgexiterror ("init",$configordbname,"disable");}}
 if ($mode!=="r") {
+	$err=0;
 	if (strlen ($mode)>3) @fclose ($filedescripter);
 	//if (strlen ($mode)>3) echo "fileforaction=$fileforaction,   fileforcopy=$fileforcopy<br>";
 	//
@@ -3526,7 +3551,7 @@ if ($mode!=="r") {
 	}
 	@$filedescripter=fopen ($fileforaction,$mode);// если файла нигде нет создаст его локально.
         if ($filedescripter) flock ($filedescripter, 3); // LOCK FIX
-		 if ($filedescripter==false) if ($abort[0]==="1") msgexiterror ("init",$configordbname,"disable");
+		 if ($filedescripter==false) if (($abort[0]??'')==="1") msgexiterror ("init",$configordbname,"disable");
 			}	
 	if ($debug==1) {
 			echo "[DEBUG]fldup=$fldup locale=$locale configordbname=$configordbname fileforaction=$fileforaction abort=$abort fileforcopy=$fileforcopy ";
@@ -4874,7 +4899,7 @@ function needupdate ()
 	}
 
 	//конец списка сокращенных функций
-if (!$exitpoint) if(($prauth[$ADM][2]==false)AND(($prauth[$ADM][11]))) { msgexiterror ("ban",$prauth[$ADM][0],"login.php");exit;}
+if (!$coreloadskip) if (!$exitpoint) if((($prauth[$ADM][2]??false)==false)AND($prauth[$ADM][11]??null)) { msgexiterror ("ban",$prauth[$ADM][0]??'','login.php');exit;}
 
 	// BSOD simulator
 function bluescreen ($message)
