@@ -26,7 +26,7 @@
 - Малые сфокусированные диффы; стиль legacy PHP dj--alex (глобалы, `$pr`, csv-конфиги).
 - Сначала корневая причина; не чинить симптом PHP 8 без проверки цепочки `dbscore.lib` → entry PHP.
 - Ядро — **`dbscore.lib`** (~5k строк): не дублировать SQL/авторизацию в entry-файлах.
-- После механического порта — `bash scripts/verify.sh` (или в контейнере).
+- После механического порта — `docker exec dev-web-1 bash scripts/verify.sh` (или curl/smoke с хоста Win).
 - Кодировка: legacy **CP1251** в исходниках; charset MySQL — из конфига (`SET NAMES`).
 
 ## Экономия контекста (из Dahusim — умная, не тупая)
@@ -64,7 +64,7 @@
 |--------|--------|
 | Ориентация | [`MAP.md`](./MAP.md) → `AI/project-map.toml` (секции) |
 | PHP 8 port / mysql→mysqli | `AI/subsystems/php8-port.toml` → `scripts/verify.sh` |
-| Dev / Docker / WSL | `AI/subsystems/dev-docker.toml` → [`README-PHP8.md`](./README-PHP8.md) |
+| Dev / Docker | `AI/subsystems/dev-docker.toml` → [`README-PHP8.md`](./README-PHP8.md) — **Win + Docker Desktop**, не WSL |
 | Ядро / auth / SQL / csv | `AI/subsystems/core-runtime.toml` → `dbscore.lib` (grep + диапазон) |
 | Install wizard | `install.php` + `_conf/property.cfg` schema via `csvopen` |
 | Editor / reader / admin | `w.php`, `r.php`, `admin.php` (entry only) |

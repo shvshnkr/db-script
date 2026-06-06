@@ -1,8 +1,23 @@
 # Dbscript 4 — PHP 8.2 port (dev guide)
 
-Target: **PHP 8.2**, MySQL via **mysqli**. Dev/test on **WSL + Docker Compose**.
+Target: **PHP 8.2**, MySQL via **mysqli**. Dev/test via **Docker Compose**.
 
-## Quick start (WSL)
+## Quick start (Windows — основной)
+
+Docker Desktop уже на машине разработчика. Поднимать стек **с Windows**, без WSL:
+
+```powershell
+cd C:\Users\user\projects\dbscript4_djalex
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose -f dev/docker-compose.yml up -d
+```
+
+Open: http://localhost:8080/install.php
+
+Containers: `dev-web-1`, `dev-db-1`.
+
+## Quick start (WSL — опционально)
+
+Только если нет Docker Desktop на Windows или пользователь явно просит Linux-shell:
 
 ```bash
 cd /mnt/c/Users/user/projects/dbscript4_djalex
@@ -40,13 +55,14 @@ wsl --export Ubuntu C:\Users\user\backups\wsl-before-dbscript4.tar
 
 ## Verify
 
-Inside container or WSL with PHP 8.2:
+Inside container (preferred on Windows):
 
-```bash
-bash scripts/verify.sh
-# or
-docker compose -f dev/docker-compose.yml exec web bash scripts/verify.sh
+```powershell
+docker exec dev-web-1 bash scripts/verify.sh
+docker exec dev-web-1 bash scripts/smoke-install.sh http://127.0.0.1
 ```
+
+Or from WSL if you are already there: `bash scripts/verify.sh`.
 
 ## Manual smoke checklist
 

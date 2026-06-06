@@ -6,7 +6,7 @@
 
 ## Цель (текущая фаза)
 
-Порт на **PHP 8.2** + **mysqli**; dev/test через **WSL + Docker Compose** (Apache + MySQL 8).
+Порт на **PHP 8.2** + **mysqli**; dev/test через **Docker Compose** (Apache + MySQL 8) на **Windows (Docker Desktop)** — контейнеры уже подняты, WSL не нужен.
 
 ## Статус (2026-06-06)
 
@@ -60,29 +60,38 @@ dbscore.lib  →  _conf/property.cfg  (csvopen/readfullcsv)
 
 ## Dev environment
 
-```bash
-# WSL
-cd /mnt/c/Users/user/projects/dbscript4_djalex
-bash scripts/setup-wsl.sh
+**Windows (основной путь):** Docker Desktop уже установлен; работаем с контейнерами **напрямую из PowerShell**, без WSL.
+
+```powershell
+cd C:\Users\user\projects\dbscript4_djalex
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose -f dev/docker-compose.yml up -d
 # → http://localhost:8080/install.php
 ```
 
 | Setting | Value |
 |---------|-------|
 | Web | http://localhost:8080 |
+| Containers | `dev-web-1`, `dev-db-1` |
 | MySQL host (inside compose) | `db` |
 | MySQL root pass | `dbscript_root` |
 | Database | `dbscript_test` |
 | MySQL host port | `3307` |
+| Docker CLI (Win) | `C:\Program Files\Docker\Docker\resources\bin\docker.exe` |
 
-Verify:
+Verify / smoke:
 
-```bash
-bash scripts/smoke-curl.sh http://127.0.0.1:8080          # step 0 only
-docker exec dev-web-1 bash scripts/smoke-install.sh http://127.0.0.1  # full wizard
+```powershell
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/verify.sh
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" exec dev-web-1 bash scripts/smoke-install.sh http://127.0.0.1
 ```
 
-Rollback: `bash scripts/teardown-wsl.sh`
+Rollback (только Docker):
+
+```powershell
+& "C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose -f dev/docker-compose.yml down -v
+```
+
+**WSL — опционально**, не предлагать и не запускать `setup-wsl.sh`, если Docker на Windows уже работает. Скрипты `scripts/setup-wsl.sh` / `teardown-wsl.sh` — для чистой Linux-среды, не для текущей машины разработчика.
 
 ## PHP 8 port checklist
 
