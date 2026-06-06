@@ -1,0 +1,17 @@
+# Dbscript servicectl — NOPASSWD systemctl for www-data (adjust user/units to your host).
+# Install: visudo -f /etc/sudoers.d/dbscript-servicectl
+# Validate: visudo -cf /etc/sudoers.d/dbscript-servicectl
+
+Defaults:www-data !requiretty
+
+www-data ALL=(root) NOPASSWD: /bin/systemctl start mariadb
+www-data ALL=(root) NOPASSWD: /bin/systemctl stop mariadb
+www-data ALL=(root) NOPASSWD: /bin/systemctl restart mariadb
+www-data ALL=(root) NOPASSWD: /bin/systemctl start mysql
+www-data ALL=(root) NOPASSWD: /bin/systemctl stop mysql
+www-data ALL=(root) NOPASSWD: /bin/systemctl restart mysql
+www-data ALL=(root) NOPASSWD: /bin/systemctl reload apache2
+www-data ALL=(root) NOPASSWD: /bin/systemctl restart apache2
+www-data ALL=(root) NOPASSWD: /bin/systemctl reload nginx
+www-data ALL=(root) NOPASSWD: /bin/systemctl restart nginx
+www-data ALL=(root) NOPASSWD: /bin/systemctl reload php*-fpm

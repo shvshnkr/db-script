@@ -22,6 +22,8 @@
 
 Порт на PHP 8 **не является официальным релизом** dj--alex. Проверяйте на своём стенде перед prod.
 
+Расширения ветки **`modern-ops`** (servicectl, CSRF, hardening) — [`README-MODERN-OPS.md`](README-MODERN-OPS.md).
+
 ## Что даёт ветка `php8-port`
 
 - PHP **8.0+** (проверено: **8.2 LTS**, **8.3**), драйвер **mysqli** вместо устаревшего `mysql_*`.

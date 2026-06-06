@@ -10,6 +10,7 @@ $verwritefile="Editor v4.5 beta (c) dj--alex";
 $enterpoint=$verwritefile;// для показа точки входа м�  ¦
 autoexecsql (); 
 extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
+dbs_require_csrf ();
 
 $writefile=1;
 IF ($pr[36])  if (!isset($_SERVER['PHP_AUTH_USER']) ||

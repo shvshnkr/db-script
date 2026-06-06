@@ -19,6 +19,9 @@ smoke_assert_http_code "_local/ denied" \
 smoke_assert_http_code "_data/ denied" \
     "$SMOKE_BASE_URL/_data/" "403"
 
+smoke_assert_http_code "info.php denied unauth" \
+    "$SMOKE_BASE_URL/info.php" "403"
+
 smoke_get "install.php after install" "$SMOKE_BASE_URL/install.php" 20
 if grep -qE 'already installed|Fatal error' "$SMOKE_OUT"; then
     if grep -q 'Fatal error' "$SMOKE_OUT"; then

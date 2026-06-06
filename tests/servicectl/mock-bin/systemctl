@@ -1,0 +1,20 @@
+#!/bin/bash
+# Mock systemctl for CI — honors DBS_DB_UNIT / DBS_WEB_UNITS env.
+set -euo pipefail
+cmd="${1:-}"
+unit="${2:-}"
+case "$cmd" in
+    is-active|is-enabled)
+        case "$unit" in
+            mariadb|mysql|apache2|nginx|php8.2-fpm|php-fpm)
+                exit 0 ;;
+        esac
+        exit 1 ;;
+    list-units)
+        echo "php8.2-fpm.service loaded active running"
+        exit 0 ;;
+    start|stop|restart|reload)
+        exit 0 ;;
+    *)
+        exit 1 ;;
+esac

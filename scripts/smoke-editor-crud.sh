@@ -8,6 +8,7 @@ source "$ROOT/scripts/smoke-lib.sh"
 
 smoke_init "${1:-http://127.0.0.1:8080}" "${2:-/var/www/html}"
 smoke_login
+smoke_csrf_prime
 
 WORD="smoke_crud_$(date +%s)"
 CFG="$SMOKE_ROOT/_conf/denywords.cfg"
@@ -15,9 +16,14 @@ CFG="$SMOKE_ROOT/_conf/denywords.cfg"
 post_form() {
     local label="$1"
     shift
+    local extra=()
+    if [[ -n "${SMOKE_CSRF:-}" ]]; then
+        extra+=(--data-urlencode "_csrf=${SMOKE_CSRF}")
+    fi
     echo -n "$label ... "
     if ! curl -fsS -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" -L --max-time 120 \
         -X POST "$SMOKE_BASE_URL/w.php" \
+        "${extra[@]}" \
         "$@" -o "$SMOKE_OUT"; then
         echo "curl error"
         smoke_fail "$label"

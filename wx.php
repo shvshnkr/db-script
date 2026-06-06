@@ -20,6 +20,7 @@ $verwritefile="Editor v4.3.3 beta (c) dj--alex";
 $enterpoint=$verwritefile;// äëÿ ïîêàçà òî÷êè âõîäà
 autoexecsql ();
 extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
+dbs_require_csrf ();
 //ïðèåì äîëáàíûõ ôàéëîâ
 // ÷àñòü íåêîòîðûõ çàãðóçîê ïåðåìåííûõ ìîæíî óäàëèòü
 if (isset($_FILES["userfile"])) ob_start (); // òàêîå ÷óâñòâî ÷òî ýòà ÷àñòü êîäà ïðîñòî èãíîðèðóåòñÿ.

@@ -58,6 +58,7 @@ $filbas="_conf/property.cfg";
 @$desc=csvopen ($filbas,"r","0");$data=readfullcsv ($desc,"new");
 $configpresent=file_exists ("_conf");
 $pr=($data===-1) ? array() : $data[0];
+if (!$coreloadskip && $configpresent && !$installermode) { dbs_csrf_boot(); }
 if (($pr[93]??null)OR($pr[94]??null)) ob_start ();// test added!!! may be not need
 if (!($pr[40]??null)) @set_time_limit(60); else @set_time_limit ($pr[40]);
 
@@ -104,7 +105,7 @@ $timetoremember=36000; if (!empty($forever)) $timetoremember=360000000;
 		if (isset ($dbs_log)) { $_SERVER['PHP_AUTH_USER']=$dbs_log;}
 		if (isset ($dbs_psw)) { $_SERVER['PHP_AUTH_PW']=$dbs_psw; }
 		$dbsa=a ( base64_encode($dbs_log."¦".$dbs_psw));
-		setcookie ("dbsa",$dbsa,time ()+$timetoremember);
+		dbs_setcookie_dbsa ($dbsa, time ()+$timetoremember);
 		//session_register ("dbsa");
 		//session_commit ();
 		}
@@ -132,7 +133,7 @@ $timetoremember=36000; if (!empty($forever)) $timetoremember=360000000;
 function a ($a) {	return $a; }  // пустышка
 //end auth zone 2
 
-	if (isset ($resetcookie)OR(($pr[36]??'')=="on"))  {setcookie ("dbsa");
+	if (isset ($resetcookie)OR(($pr[36]??'')=="on"))  { dbs_setcookie_dbsa ("", time () - 3600);
 		//unset ($_SERVER['PHP_AUTH_USER']);unset ($_SERVER['PHP_AUTH_PW']);
 		//@session_unset ($dbsa);
 		//@session_destroy (); 
@@ -1087,7 +1088,6 @@ if ($debug) if ($dbtype=="fdb") {echo ">>fixme>>dbs_query - fdb given!<br>";$dbt
    if (($dbtype=="pg")AND($cmd=="SHOW DATABASES")) $cmd="SELECT datname FROM pg_database";
    if (($dbtype=="pg")AND($cmd=="SHOW TABLES")) $cmd="SELECT relname FROM pg_class WHERE relname !~ '^pg_'";
     if ($dbtype=="mysql") {
-                           if ($connect) mysqli_real_escape_string($connect, $cmd);
                            return mysqli_query($connect, $cmd);
     }
     if ($dbtype=="pg") {   pg_escape_string ($cmd);
@@ -1096,7 +1096,6 @@ if ($debug) if ($dbtype=="fdb") {echo ">>fixme>>dbs_query - fdb given!<br>";$dbt
     if ($dbtype=="ibase") {return ibase_query ($cmd,$connect);
 
     }
-    if ($connect) mysqli_real_escape_string($connect, $cmd);
     return mysqli_query($connect, $cmd);
 }
 
@@ -1956,6 +1955,7 @@ function backkey () { //3157
 // используется для вывода кнопок подтверждений, только с cmsg  usage=90%
 function submitkey ($name,$cmsg)
 { global $trafeconom;  		// style=\"dbscriptstyles.css\"  //onDblClick
+ if (dbs_csrf_enabled()) csrfkey ();
  $idadd=$jsadd=$hladd=$selected="";
  if (!$trafeconom) { $idadd=" id=\"".$name."\" ";
  	$jsadd="onMouseOver=\"OM(this)\" onMouseOut=\"OMOut(this)\" onClick=\"AL(this)\"";};
@@ -4249,16 +4249,10 @@ function logwritesql ($logtype,$datecurrent,$usr,$dbs_ip,$shost,$act,$dbs_ref,$b
         $dbtype="mysql";
         $prefix=$sd[30];
         @$connect=dbs_connect ($pr[43],$sd[14] , $sd[17],$dbtype);
-         $act=mysqli_real_escape_string ($connect, $act);
-        @$shost=mysqli_real_escape_string ($connect, $shost); // dbs_ref -->shost    откуда тут локалхост выежает? закоментить нах
-	if ($logtype!="_dbs_".$prefix."_undo_logs") $query="INSERT INTO `dbscriptbk`.`".$logtype."` (datecurrent,usr,dbs_ip,shost,act,referal,baseID,hostIP,error)VALUES ('$datecurrent','$usr','$dbs_ip','$shost','$act','$dbs_ref','$baseID','$hostIP','$finalerrormessage') ;";
-        if ($logtype=="_dbs_".$prefix."_undo_logs")  $query="INSERT INTO `dbscriptbk`.`".$logtype."` (datecurrent,usr,dbs_ip,action,restoreaction,referal,baseID,hostIP,error)VALUES ('$datecurrent','$usr','$dbs_ip','$shost','$act','$dbs_ref','$baseID','$hostIP','$finalerrormessage') ;";
-        //$query=mysql_real_escape_string ($query);
-       //echo $query;
-       //$e=mysql_query ($query,$connect);//,$dbtype);
-	$e=dbs_query ($query,$connect,$dbtype);
+        if (!dbs_logtype_valid ($logtype, $prefix)) return false;
+        $e=dbs_log_insert_prepared ($connect, $logtype, $prefix, $datecurrent, $usr, $dbs_ip, $shost, $act, $dbs_ref, $baseID, $hostIP, $finalerrormessage);
         dbserr ();
- if (!$pr[8]) echo "DEBUG $query.<br>";
+ if (!$pr[8]) echo "DEBUG logwritesql $logtype.<br>";
 	return $a;
  }
 // при редактировании использовать эту херню -  записывать только измененные значения , а не все подряд!  и в базу и в лог!
@@ -4271,7 +4265,7 @@ function quote_smart ( $value )
     // Если переменная - число, то экранировать её не нужно
     // если нет - то окружем её кавычками, и экранируем
 if ( ! is_numeric ( $value )) {
-$value = "'" . mysqli_real_escape_string ( $dbs_mysql_connect, $value ) . "'" ;
+$value = "'" . dbs_escape_value ( $dbs_mysql_connect, $value ) . "'" ;
 }
 return $value ;
 }
@@ -4576,6 +4570,7 @@ function msgexiterror ($type,$data,$script)
 	 if ($type=="errorcfg") $msgwindw=cmsg ("ERR_CFG");
 	if ($type=="SCP") $msgwindw=cmsg ("NOTIMPL");
 	if ($type=="notrights") $msgwindw=cmsg ("NOTRIGHTS");
+	if ($type=="csrf") $msgwindw="CSRF";
 	if ($type=="nomodule") $msgwindw=cmsg ("NOMODULE");
 	if ($type=="expire") { $msgwindw=cmsg ("EXPIRE");	}
 	if ($type=="demo") $msgwindw=cmsg ("DEMO");
@@ -5400,5 +5395,275 @@ $datafile = fopen ($file,"w") or die ("Не удалось записать, и�
 
 
 // лучше поздно чем никогда...
+
+// --- modern-ops: SQL helpers, CSRF, servicectl (branch modern-ops) ---
+
+function dbs_escape_ident ($name) {
+    if (!is_string($name) || $name === '') return false;
+    if (!preg_match('/^[a-zA-Z0-9_`.]+$/', $name)) return false;
+    return $name;
+}
+
+function dbs_escape_value ($connect, $value) {
+    if ($connect) return mysqli_real_escape_string($connect, (string)$value);
+    return addslashes((string)$value);
+}
+
+function dbs_prepare ($connect, $sql) {
+    if (!$connect) return false;
+    return mysqli_prepare($connect, $sql);
+}
+
+function dbs_stmt_execute ($stmt, $types, ...$params) {
+    if (!$stmt) return false;
+    if ($types !== '' && count($params) > 0) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    return mysqli_stmt_execute($stmt);
+}
+
+function dbs_logtype_valid ($logtype, $prefix) {
+    $safe = preg_quote($prefix, '/');
+    return (bool)preg_match('/^_dbs_'.$safe.'_(logs|access_logs|exec_logs|undo_logs)$/', $logtype);
+}
+
+function dbs_log_insert_prepared ($connect, $logtype, $prefix, $datecurrent, $usr, $dbs_ip, $shost, $act, $dbs_ref, $baseID, $hostIP, $finalerrormessage) {
+    if (!$connect || !dbs_logtype_valid($logtype, $prefix)) return false;
+    if ($logtype === "_dbs_".$prefix."_undo_logs") {
+        $sql = "INSERT INTO `dbscriptbk`.`".$logtype."` (datecurrent,usr,dbs_ip,action,restoreaction,referal,baseID,hostIP,error) VALUES (?,?,?,?,?,?,?,?,?)";
+    } else {
+        $sql = "INSERT INTO `dbscriptbk`.`".$logtype."` (datecurrent,usr,dbs_ip,shost,act,referal,baseID,hostIP,error) VALUES (?,?,?,?,?,?,?,?,?)";
+    }
+    $stmt = dbs_prepare($connect, $sql);
+    if (!$stmt) return false;
+    $ok = dbs_stmt_execute($stmt, 'sssssssss', $datecurrent, $usr, $dbs_ip, $shost, $act, $dbs_ref, $baseID, $hostIP, $finalerrormessage);
+    mysqli_stmt_close($stmt);
+    return $ok;
+}
+
+function dbs_editor_insert ($table, $columns, $values, $connect, $dbtype) {
+    if ($dbtype !== 'mysql' || !$connect || !is_array($columns) || !is_array($values)) return false;
+    if (count($columns) !== count($values) || count($columns) < 1) return false;
+    foreach ($columns as $col) {
+        if (dbs_escape_ident($col) === false) return false;
+    }
+    $tableSafe = dbs_escape_ident($table);
+    if ($tableSafe === false) return false;
+    $placeholders = implode(',', array_fill(0, count($columns), '?'));
+    $colList = '`'.implode('`,`', $columns).'`';
+    $sql = "INSERT INTO $tableSafe ($colList) VALUES ($placeholders)";
+    $stmt = dbs_prepare($connect, $sql);
+    if (!$stmt) return false;
+    $types = str_repeat('s', count($values));
+    $ok = dbs_stmt_execute($stmt, $types, ...array_values($values));
+    mysqli_stmt_close($stmt);
+    return $ok;
+}
+
+function dbs_setcookie_dbsa ($value, $expires) {
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $opts = [
+        'expires' => (int)$expires,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ];
+    if ($secure) $opts['secure'] = true;
+    setcookie('dbsa', $value, $opts);
+}
+
+function dbs_csrf_boot () {
+    static $booted = false;
+    if ($booted) return;
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        @session_start();
+    }
+    $booted = true;
+}
+
+function dbs_csrf_enabled () {
+    global $pr, $installermode;
+    if ($installermode) return false;
+    if (($pr[77] ?? '') === 'on') return false;
+    return true;
+}
+
+function dbs_csrf_token () {
+    if (!dbs_csrf_enabled()) return '';
+    dbs_csrf_boot();
+    if (empty($_SESSION['dbs_csrf']) || !is_string($_SESSION['dbs_csrf'])) {
+        $_SESSION['dbs_csrf'] = bin2hex(random_bytes(16));
+    }
+    return $_SESSION['dbs_csrf'];
+}
+
+function dbs_csrf_verify ($token) {
+    if (!dbs_csrf_enabled()) return true;
+    dbs_csrf_boot();
+    return is_string($token) && $token !== '' && hash_equals(dbs_csrf_token(), $token);
+}
+
+function dbs_require_csrf () {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') return;
+    if (!dbs_csrf_enabled()) return;
+    $token = $_POST['_csrf'] ?? '';
+    if (!dbs_csrf_verify($token)) {
+        msgexiterror('csrf', '', 'disable');
+        exit;
+    }
+}
+
+function csrfkey () {
+    if (!dbs_csrf_enabled()) return;
+    $t = htmlspecialchars(dbs_csrf_token(), ENT_QUOTES, 'ISO-8859-1');
+    echo '<input type="hidden" name="_csrf" value="'.$t.'">';
+}
+
+function dbs_servicectl_script () {
+    global $folderscript;
+    return $folderscript.'/scripts/dbs-servicectl.sh';
+}
+
+function dbs_servicectl_cfg () {
+    static $cfg = null;
+    if ($cfg !== null) return $cfg;
+    $cfg = ['enabled' => '1', 'db_unit' => '', 'web_units' => '', 'use_sudo' => 'auto', 'allow_cmdlines' => '1'];
+    $path = '_conf/servicectl.cfg';
+    if (!file_exists($path)) return $cfg;
+    $desc = @csvopen($path, 'r', 0);
+    if (!$desc) return $cfg;
+    $data = readfullcsv($desc, 'new');
+    if (is_array($data) && isset($data[0]) && is_array($data[0])) {
+        $row = $data[0];
+        $cfg['enabled'] = $row[0] ?? '1';
+        $cfg['db_unit'] = $row[1] ?? '';
+        $cfg['web_units'] = $row[2] ?? '';
+        $cfg['use_sudo'] = $row[4] ?? 'auto';
+        $cfg['allow_cmdlines'] = $row[5] ?? '1';
+    }
+    return $cfg;
+}
+
+function dbs_servicectl_actions () {
+    return ['db.stop', 'db.start', 'db.restart', 'web.reload', 'web.restart', 'php-fpm.reload'];
+}
+
+function dbs_servicectl_action_valid ($action) {
+    return in_array($action, dbs_servicectl_actions(), true);
+}
+
+function dbs_servicectl_probe_raw () {
+    $script = dbs_servicectl_script();
+    if (!is_readable($script)) return false;
+    $cmd = 'bash '.escapeshellarg($script).' --probe 2>/dev/null';
+    $out = @shell_exec($cmd);
+    if (!$out) return false;
+    $data = json_decode(trim($out), true);
+    return is_array($data) ? $data : false;
+}
+
+function dbs_servicectl_probe () {
+    static $cache = null;
+    if ($cache !== null) return $cache;
+    $cacheFile = '_local/servicectl.probe.json';
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 60) {
+        $raw = @file_get_contents($cacheFile);
+        $data = $raw ? json_decode($raw, true) : null;
+        if (is_array($data)) { $cache = $data; return $cache; }
+    }
+    $data = dbs_servicectl_probe_raw();
+    if (is_array($data)) {
+        @file_put_contents($cacheFile, json_encode($data));
+        $cache = $data;
+        return $cache;
+    }
+    $cache = [];
+    return $cache;
+}
+
+function dbs_servicectl_available () {
+    global $OSTYPE;
+    $cfg = dbs_servicectl_cfg();
+    if (($cfg['enabled'] ?? '1') !== '1') return false;
+    if ($OSTYPE !== 'LINUX') return false;
+    if (in_array('exec', array_map('trim', explode(',', (string)ini_get('disable_functions'))), true)) return false;
+    $probe = dbs_servicectl_probe();
+    $priv = $probe['privilege'] ?? 'none';
+    if ($priv === 'none') return false;
+    $actions = $probe['actions_available'] ?? '';
+    return $actions !== '';
+}
+
+function dbs_servicectl_run ($action) {
+    if (!dbs_servicectl_action_valid($action)) {
+        return ['ok' => false, 'output' => 'invalid action', 'exit_code' => 1, 'command' => ''];
+    }
+    if (!dbs_servicectl_available()) {
+        return ['ok' => false, 'output' => 'servicectl unavailable', 'exit_code' => 1, 'command' => ''];
+    }
+    $script = dbs_servicectl_script();
+    $resolve = 'bash '.escapeshellarg($script).' --resolve '.escapeshellarg($action).' 2>&1';
+    $command = trim((string)@shell_exec($resolve));
+    $execCmd = 'bash '.escapeshellarg($script).' --execute '.escapeshellarg($action).' 2>&1';
+    $output = [];
+    $code = 1;
+    @exec($execCmd, $output, $code);
+    $text = implode("\n", $output);
+    if (function_exists('logwrite')) {
+        @logwrite('servicectl '.$action.' code='.$code.' '.$command);
+    }
+    return ['ok' => ($code === 0), 'output' => $text, 'exit_code' => $code, 'command' => $command];
+}
+
+function dbs_servicectl_admin_action ($writeVal) {
+    $map = [
+        'MYSQL_STOP' => 'db.stop',
+        'MYSQL_START' => 'db.start',
+        'MYSQL_REBOOT' => 'db.restart',
+        'APACHE_REBOOT' => 'web.reload',
+        'WEB_RELOAD' => 'web.reload',
+        'WEB_RESTART' => 'web.restart',
+    ];
+    foreach ($map as $msgKey => $action) {
+        if ($writeVal === cmsg($msgKey)) return $action;
+    }
+    return '';
+}
+
+function dbs_servicectl_needs_confirm ($action) {
+    return in_array($action, ['db.stop', 'db.restart', 'web.restart'], true);
+}
+
+function dbs_cmdline_validate ($command) {
+    $cfg = dbs_servicectl_cfg();
+    if (($cfg['allow_cmdlines'] ?? '1') !== '1') return false;
+    if (!is_string($command) || $command === '' || strlen($command) > 512) return false;
+    if (preg_match('/[;|&`$()<>\r\n]/', $command)) return false;
+    if (preg_match('/\bsudo\b/i', $command)) return false;
+    return true;
+}
+
+function dbs_cmdline_run ($command) {
+    if (preg_match('/^@servicectl:([a-z.\-]+)$/', trim($command), $m)) {
+        return dbs_servicectl_run($m[1]);
+    }
+    if (!dbs_cmdline_validate($command)) {
+        return ['ok' => false, 'output' => 'command rejected', 'exit_code' => 1, 'command' => $command];
+    }
+    $output = [];
+    $code = 1;
+    @exec($command.' 2>&1', $output, $code);
+    return ['ok' => ($code === 0), 'output' => implode("\n", $output), 'exit_code' => $code, 'command' => $command];
+}
+
+function dbs_servicectl_status_line () {
+    $probe = dbs_servicectl_probe();
+    if (!$probe) return 'servicectl: probe failed';
+    $os = ($probe['os_id'] ?? '?').' '.($probe['version'] ?? '');
+    $stack = $probe['web_stack'] ?? 'none';
+    $priv = $probe['privilege'] ?? 'none';
+    return trim($os.' · '.$stack.' · '.$priv);
+}
 
 ?>

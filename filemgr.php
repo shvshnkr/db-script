@@ -7,6 +7,7 @@ $verfilemgr="Filemgr  v 4.3.5 (c) dj--alex ";
 // ��� ���� ����������� - ob_start();ob_end_flush();
 autoexecsql ();// ob_flush ();exit; zdes menueshe est.
 extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
+dbs_require_csrf ();
 
 // redir - w dbscore
 ///echo "<form settimeout=\"forma\" onMouseover=\"forma\" href=\"javascript:document.getElementByID(\"forma\").submit(go)\"  action=filemgr.php>";

@@ -126,9 +126,9 @@ if ($cmd[0]==="help") { if ($adm==1) {
                          if ($cmdata[$a][1]===$cmd[1]) {
                                  $command = "".$cmdata[$a][2]."";
                                echo "now run : $command";
-                                $x= passthru($command,$output) ;
-                                //echo "x=";print_r ($x);
-                                //echo "output=";print_r ($output)
+                                $res = dbs_cmdline_run ($command);
+                                echo "<pre>".htmlspecialchars($res['output'], ENT_QUOTES, 'ISO-8859-1')."</pre>";
+                                if (!$res['ok']) echo "<red>exit ".$res['exit_code']."</red>";
                                 } ;
                             }
                        //"ID¦Command¦Parameters¦PLVL¦Info¦ReqPage¦ReqData¦ReqAutorun¦P".$addOSenter);

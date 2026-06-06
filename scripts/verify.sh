@@ -70,6 +70,20 @@ if matches=$(scan_active '\b(__autoload|session_register|session_unregister|sess
     echo "$matches"; echo "FAIL: removed session/autoload API"; FAIL=1
 fi
 
+if matches=$(grep -nE '/etc/init\.d/' admin.php 2>/dev/null || true); [[ -n "$matches" ]]; then
+    echo "$matches"; echo "FAIL: hardcoded /etc/init.d in admin.php"; FAIL=1
+fi
+
+if [[ -f scripts/dbs-servicectl.sh ]]; then
+    if command -v shellcheck >/dev/null 2>&1; then
+        if ! shellcheck -x scripts/dbs-servicectl.sh; then
+            FAIL=1
+        fi
+    else
+        echo "WARN: shellcheck not found — skip dbs-servicectl.sh"
+    fi
+fi
+
 if [[ "$FAIL" -eq 0 ]]; then
     echo "All guards passed."
     exit 0
