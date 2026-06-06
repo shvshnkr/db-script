@@ -326,7 +326,7 @@ if (($tableselected)AND($cmd)) {
 				dbserr ();
                                 if ($e===false) $cnt++;
 				}
-                                $act="DBL:DEL_TAB (s) ".$dbselected.".".implode ($tableselected,","); logwrite ($act);
+                                $act="DBL:DEL_TAB (s) ".$dbselected.".".implode(",", $tableselected); logwrite ($act);
 	}
 	if (($cmd=="COPY_TAB")) {
 		 $totaltables=count ($tableselected);
@@ -343,7 +343,7 @@ if (($tableselected)AND($cmd)) {
 				//dbs_query ($cmd,$connect,$dbtype);
 				dbserr ();
 				}
-                                $act="DBL:COPY_TAB (s) ".$dbselected." to $dest::".implode ($tableselected,","); logwrite ($act);
+                                $act="DBL:COPY_TAB (s) ".$dbselected." to $dest::".implode(",", $tableselected); logwrite ($act);
 	}
 	if (($cmd=="MOVE_TAB")) {
 		 $totaltables=count ($tableselected);
@@ -360,7 +360,7 @@ if (($tableselected)AND($cmd)) {
 				dbs_query ($cmd,$connect,$dbtype);
 				dbserr ();
 				}
-                                $act="DBL:MOVE_TAB (s) ".$dbselected." to $dest::".implode ($tableselected,","); logwrite ($act);
+                                $act="DBL:MOVE_TAB (s) ".$dbselected." to $dest::".implode(",", $tableselected); logwrite ($act);
 	}
 	
 	if (($cmd=="MOD_TAB")) {

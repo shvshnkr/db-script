@@ -1122,7 +1122,7 @@ hidekey ("kol",$kol);
 				}
 				*/
    for ($a=0;$a<$bestcnt;$a++) {
-  	if ($bestcontent[$a]!=="") if (strpos ( implode ($bestcontent[$a],"¦"),$strokedata)!==false) {
+  	if ($bestcontent[$a]!=="") if (strpos ( implode("¦", $bestcontent[$a]),$strokedata)!==false) {
   		$rewritecnt=$a;
   		//echo "Found $rewritecnt contains ".$bestcontent[$rewritecnt][0]."<br>";
  // 		echo "Already present, remove first please. Address:$rewritecnt of $bestcnt<br>";exit;

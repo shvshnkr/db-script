@@ -1,4 +1,5 @@
 <?php ob_start ();
+extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
 //$writefullcfgdiscrwin=1;
 // СКАЖЕМ НЕТ ШАБЛОНАМ, мы за оригинальное программирование!
 // только ломая шаблоны и стереотипы можно добится чего то нового.
@@ -11,40 +12,27 @@ echo "Starting install process dbscript. ";
 echo "<a href=\"https://github.com/dj--alex/db-script/\"> Github</a>";
 echo "<br> Module: $verinst<br>";
 
-if ($_POST["step"]<1) {echo "Checking ini<br><div style=\"position:absolute; z-index:4;  top:0; right:0; color: #FFFFFF ; background: #0000aF \"><img src=\"_style/dbsDeusModuslogo.jpg\"></div>";
+if (($_POST["step"] ?? 0)<1) {echo "Checking ini<br><div style=\"position:absolute; z-index:4;  top:0; right:0; color: #FFFFFF ; background: #0000aF \"><img src=\"_style/dbsDeusModuslogo.jpg\"></div>";
+    $phpver=(float)PHP_VERSION;
+    if ($phpver<8.2) die ("$ei <font color=red>Fatal error</font>: PHP 8.2+ required, current ".PHP_VERSION."<br>");
+    if (!extension_loaded('mysqli')) die ("$ei <font color=red>Fatal error</font>: php extension mysqli is required.<br>");
     //переписать msgexiterror  c учётом функции window и вообще сделать там наконец возможность менять размер окна и возможно перемещать его.
-    $phpmem=ini_get ("memory_limit");if ($phpmem<100) echo "$ei settings php.ini memory_limit=$phpmem , recommend inscrease value at least 100M (for big files and dumps - higher)<br>";
-    $phppost=ini_get ("post_max_size");if ($phppost<10) echo "$ei settings : php.ini : post_max_size=$phppost , recommend inscrease value at least 10mb (for big files and dumps - higher)<br>";
-$phptag=ini_get ("short_open_tag"); //if (!$phptag) die ("$ei <font color=red>Fatal error</font>: settings : php.ini : dbscript requires short_open_tag=on ! This version unsupport work without it. Installation failed. ");
-$phpsafe=ini_get ("safe_mode"); if ($phpsafe) echo "settings : php.ini : safe_mode is on. recommend off , it not allows use some inbuild settings and some operations you can get errors without it.<br>";
-$phpglob=ini_get ("register_glogals"); if ($phpglob) echo"$ei notify: register globals is on. recommended off for security reasons.<br>";
-$phpfunc=ini_get ("disable_function");if ($phpfunc) echo "$ei notify: disabled functions $phpfunc<br>";
+    $phpmem=ini_get ("memory_limit");if ((int)$phpmem>0 AND (int)$phpmem<100) echo "$ei settings php.ini memory_limit=$phpmem , recommend inscrease value at least 100M (for big files and dumps - higher)<br>";
+    $phppost=ini_get ("post_max_size");if ((int)$phppost>0 AND (int)$phppost<10) echo "$ei settings : php.ini : post_max_size=$phppost , recommend inscrease value at least 10mb (for big files and dumps - higher)<br>";
+$phptag=ini_get ("short_open_tag");
+$phpfunc=ini_get ("disable_functions");if ($phpfunc) echo "$ei notify: disabled functions $phpfunc<br>";
 if (!extension_loaded('iconv')) echo " $ei Warning : php extension iconv non-exist !  <br>";
-if (!extension_loaded('mb_string')) echo "$ei Warning : php extension mb_string non-exist !  <br>";
-if ( (!extension_loaded('mb_string')) AND (!extension_loaded('iconv'))) echo "$ei  Error: Dbscript need an php encoder - iconv or mb_string. Without it you cant use encoding functions and/or get bugs .<br>";
-//require aa
-if (!extension_loaded('Zend Optimizer')) {echo "$ei  notify: extension Zend optimizer not installed.<br> It requires for optimized versions<br>";
-echo "Note: If you have Dbscript Open SE version , just ignore this message and click <Next>.";
- echo " If you need version without Zend optimizer - get not optimized version here <br>";
- echo "( <a href=\"https://github.com/dj--alex/db-script/\">Dbscript 4.5 SE</a>)<br>";
-  echo "<b><br> <a href=\"install.php?nozend=1\">Next:: Restart as is (without encoder)</a><br></b>";
- echo "<br> <a href=\"install.php?lightcore=1\">event LC (only for dev)</a><br>";
-//echo "fcuk";echo $_GET["lightcore"]; echo "<br>";
- if ($_GET["lightcore"]=="1") lightcore ();
-
- if ($_GET["nozend"]!=1) exit;
+if (!extension_loaded('mbstring')) echo "$ei Warning : php extension mbstring non-exist !  <br>";
+if ( (!extension_loaded('mbstring')) AND (!extension_loaded('iconv'))) echo "$ei  Error: Dbscript need an php encoder - iconv or mbstring. Without it you cant use encoding functions and/or get bugs .<br>";
+ if (($_GET["lightcore"] ?? "")=="1") lightcore ();
 
 };
-
-//$silent=1;
-if ($phpsafe){ $phpmaxtime= ini_get ("max_execution_time"); if ($phpmaxtime<60) echo "safe_mode : settings : php.ini : max_execution time <60. Safe mode not allows me set time automatically. Change one of settiongs pleaxe.<br>";
-}
 //echo "<br>";
 }
-if ($_POST["step"]<1) {;};
+if (($_POST["step"] ?? 0)<1) {;};
 echo "Loading core...";
 //echo "step $step G ".$_GET["step"]." P".$_POST["step"]."<br>";;
-if ($_GET["step"]>0) {echo "Invalid initializing..."; exit;}
+if (($_GET["step"] ?? 0)>0) {echo "Invalid initializing..."; exit;}
 
 $nomnu=1;//блокирует вывод интерфейса программы
 $coreloadskip=1; //блокирует загрузку и проверку настроек ядром программы.
@@ -60,7 +48,7 @@ require ('dbscore.lib'); // i/o file  INCLUDED!
 
 $debugmode=false;$pr[8]=1; //debug off
 echo "".$verprogram."<br>";
-if (($onloadlocal==false)AND($errcrtdir==false)) { echo "<font color=red>Fatal error</font>: Cannot write to program folder.<br>You must enable writing to user web-server or programm  ( Set rwxr--r-- for script.)";exit; };
+if (($onloadlocal==false)AND($errcrtdir==false)) { echo "<font color=red>Fatal error</font>: Cannot write to program folder.<br>You must enable writing for the web-server user (chmod 775 on _conf _logs _local _data, chown www-data).";exit; };
 
 if (!isset ($verprogram)) die ("Core loading failed!");
 if (($vernumb<4.4)or($vernumb>4.9)) die ("Unsupported version core!");
@@ -180,7 +168,7 @@ if ($step==4)
 {
 	echo "<br>".cmsg ("INST_CNF_CRT")."<br>";
         $encodingforce="utf-8";
-        if ( (!extension_loaded('mb_string')) AND (!extension_loaded('iconv'))) {
+        if ( (!extension_loaded('mbstring')) AND (!extension_loaded('iconv'))) {
             $encodingforce="windows-1251";
 echo "You dont have iconv and mb string extensions , encoding forced to cp1251<br>";
             }

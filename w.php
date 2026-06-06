@@ -9,8 +9,7 @@ $verwritefile="Editor v4.5 beta (c) dj--alex";
 
 $enterpoint=$verwritefile;// для показа точки входа м�  ¦
 autoexecsql (); 
-import_request_variables ("PGC","");
-if (isset($_FILES["userfile"])) ob_start ();
+extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
 
 $writefile=1;
 IF ($pr[36])  if (!isset($_SERVER['PHP_AUTH_USER']) ||
@@ -880,15 +879,15 @@ if ($cfgmod==2) $filename="_logs/".$filbas;
 	//..$dest=csvopen ($filename.".exch","w",1);4/1/77
         $dest=csvopen ($filename,"w",1);
 	//character linux delete fail
-  if ($OSTYPE=="WINDOWS") $hdr=implode ($hdr,"¦")."\r\n"; //win32 enter not unix
-if ($OSTYPE=="WINDOWS") $plvl=implode ($plvl,"¦")."\r\n";
-if ($OSTYPE=="LINUX") $hdr=implode ($hdr,"¦");
-if ($OSTYPE=="LINUX") $plvl=implode ($plvl,"¦");
+  if ($OSTYPE=="WINDOWS") $hdr=implode("¦", $hdr)."\r\n"; //win32 enter not unix
+if ($OSTYPE=="WINDOWS") $plvl=implode("¦", $plvl)."\r\n";
+if ($OSTYPE=="LINUX") $hdr=implode("¦", $hdr);
+if ($OSTYPE=="LINUX") $plvl=implode("¦", $plvl);
     fwrite ($dest,$hdr);
   fwrite ($dest,$plvl);
   for ($a=0;$myrow=$tbldorig[$a];$a++) {
   		if (($delete)AND(strpos ($myrow,"_DELETE_IS_REQUIRED!!!"))) { echo "cтрока $a удаляется!\""; continue;}
-  		$writedata=$myrow;//$writedata=implode ($myrow,"¦")."\r\n";
+  		$writedata=$myrow;//$writedata=implode("¦", $myrow)."\r\n";
 		fwrite ($dest,$writedata);
 	}
 fclose ($dest);
@@ -2137,8 +2136,8 @@ if (($write==cmsg ("WF_HDR_REWR"))AND ($prdbdata[$tbl][12]=="fdb")) {
 		$z[$a]=${"z".$a};//принимаем данные юзера
 		$p[$a]=${"p".$a};//принимаем данные юзера
 		}
-	$values=implode ($z,"¦");if ($OSTYPE=="WINDOWS") $values.="\n"; //if ($OSTYPE=="LINUX") $values.="\r\n";//LINUX FIX \n?
-	$plevels=implode ($p,"¦");if ($OSTYPE=="WINDOWS") $plevels.="\n";
+	$values=implode("¦", $z);if ($OSTYPE=="WINDOWS") $values.="\n"; //if ($OSTYPE=="LINUX") $values.="\r\n";//LINUX FIX \n?
+	$plevels=implode("¦", $p);if ($OSTYPE=="WINDOWS") $plevels.="\n";
 	$a="";
 	while (!feof($f))
 	{ @$a.=fread ($f,10000); //echo $a;
@@ -4179,7 +4178,7 @@ $filbas=$userfolder."/best.cfg";
 //echo "=================================================<br>";
 
   for ($a=0;$a<$bestcnt;$a++) {
-  	if ($bestcontent[$a]!=="") if (strpos (@implode ($bestcontent[$a],"¦"),$strokedata)!==false) {
+  	if ($bestcontent[$a]!=="") if (strpos (@implode("¦", $bestcontent[$a]),$strokedata)!==false) {
   		$rewritecnt=$a;
   	if (!$rewr)	{ echo "Already present, remove first please. Address:$rewritecnt of $bestcnt<br>";exit;} 
   	
@@ -4189,8 +4188,8 @@ $filbas=$userfolder."/best.cfg";
   echo "Massive have lines (bestcnt) =$bestcnt<Br>";
 
 if (is_array ($bestheader)) { //header  уже есть
-	$bestheader=implode ($bestheader,"¦");
-	$bestplevel=implode ($bestplevel,"¦");
+	$bestheader=implode("¦", $bestheader);
+	$bestplevel=implode("¦", $bestplevel);
 	echo "tempprint bestheader= $bestheader<bR>";};
 if (($bestheader=="")OR($bestheader=="¦")) {  //header niema
 	$bestheader="activetable¦table¦db¦dataline-autohdr";	$bestplevel=$bestheader;
@@ -4260,12 +4259,11 @@ radio ("massoper",5,"NOP") ;echo "<bR>";
 
 
 
-while (list($var,$value) = each($_POST)) : 
-;
+foreach ($_POST as $var => $value) :
 if (substr($var,0,3)=="bxt") { $box[]= explode ("¦",substr ($var,3)); $boxcnt++;
 //echo "$var , ".substr($var,0,2) ."<br>";  generic table	//..echo "<BR>$var => $value <br>";
 }
-endwhile; 
+endforeach; 
 for ($a=0;$a<$boxcnt;$a++) {
 //echo " box[$a]==>".$box[$a][0].";".$box[$a][1]."<br>";  //ids vID  vID2  DISABLE VISIBLE
 hidekey ("box".$a,$box[$a][0]."+".$box[$a][1]);
@@ -4584,7 +4582,7 @@ function char2array($string) {
 
 function sqlify_line($line, $splitseparator,$separator,$ncols) {
    $line = chop($line);
-   $line_chunks = split ($splitseparator, $line);
+   $line_chunks = explode ($splitseparator, $line);
    if ($ncols != sizeof($line_chunks)) print "<br>#  ошибка, несоответствие колонок и данных<br>";
    for($i=0;$i<count($line_chunks);$i++) {
       $s = trim($line_chunks[$i]);
@@ -4653,7 +4651,7 @@ if ($write===cmsg ("A_CONV_START")) {
    if ($usecomma2x) { $separator=";"; echo "Forced using ; as separator , plevel writing declined.<br>";  }
   $splitseparator = $separator;
 
-   $table_nm = split ("\.", $csv_file_name);
+   $table_nm = explode (".", $csv_file_name);
    $table_name = strtolower($table_nm[0]); // ne ustr
    $table_name=$tablemysqlselect2;
    $out_header = "# source: $tblmysqlselect -- $tablemysqlselect<br># dest : $tblmysqlselect2 -- $tablemysqlselect2 ";

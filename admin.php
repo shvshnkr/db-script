@@ -18,7 +18,7 @@ if (!$activation) Header("Location: login.php");
   authenticate ();}  
 $pageenter=0;
 if ($frameoldcore==1) $write=getvar ('write');//пока не нашел почему равные переменные не равны  write не сравнивается!!!
-import_request_variables ("PG","");  // универсальное решение проблемы
+extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);  // универсальное решение проблемы
      if ($write==cmsg("LST_SHA_FLS")) { header ("Location: r.php?tbl=files&m=4&vID=1&vID2="); };
         if ($write==cmsg("LST_SHA_FLS_DL")) { header ("Location: r.php?tbl=files&m=7.9&vID=!0"); };
         if ($write==cmsg("LST_SHA_FLS_NO")) { header ("Location: r.php?tbl=files&m=7.9&vID=0&fullfield=on"); };
@@ -27,7 +27,7 @@ if ($dbsaa) {
 	setcookie ("dbsa",$dbsaa,time ()+1000);
 	Header("Location: admin.php?cmd=myprof");	exit;			}
 $enterpoint=$veradm;
-if ($encoder=="not installed") errorlog ("Dbscript need an php encoder - iconv or mb_string.");
+if ($encoder=="not installed") errorlog ("Dbscript need an php encoder - iconv or mbstring.");
 
 
  // настройка префиксов для работы с любым языкомым cmd
@@ -942,7 +942,7 @@ $errormassive=explode ("?",$errt ); //опять старые грабли за�
     echo "Error massive counts:".(count ($errormassive)-1)."<br>";
     echo "Total registered tables: ".count ($prdbdata)."<br>";
 //print_r ($errt);
-print_r ($errormassive);// ERRMASS=".implode ($errormassive,"!")."
+print_r ($errormassive);// ERRMASS=".implode("!", $errormassive)."
 for ($a=0;$a<count ($prdbdata);$a++) {
     $partforcompare=$prdbdata[$a][0].";".$prdbdata[$a][1];
     if ($sd[19]=="utf-8") $partforcompare=iconvx("windows-1251","utf-8",$partforcompare);

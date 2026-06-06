@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ..:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/html
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: dbscript_root
+      MYSQL_DATABASE: dbscript_test
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbscript_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pdbscript_root"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  dbscript_mysql_data:

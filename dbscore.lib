@@ -68,7 +68,7 @@ if ($_GET['crc']) { $_GET['crc']=-1;}  //crcignore ?? not work?
 //http://wow.chg.su/inside/w.php?vID=test&vID2=&tbl=293&z0=test&z1=7&z2=test&origid1=test&origid2=test&write=To+confirm+changes  protected  CRC false from GET
 
 
-//@ import_request_variables ("PGC","");
+extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
 //$_POST['ADM']=0;  //ignored? 
 if ($_GET['ADM']) { header ("Location: r.php"); die ("R Tape loading error 0:1");}; // эта защита работает и ДО и ПОСЛЕ импорта
 if ($_POST['ADM']) { header ("Location: r.php"); die ("R Tape loading error 0:1");};//  а вообще лучше плашку про защиту показать
@@ -472,8 +472,8 @@ function iconvx ($from,$to,$var) {
 //$verlang=$data[0][0];
   if (extension_loaded('iconv')) {
        if ($sd[19]=="utf-8") { $verlang=iconv($from,$to,$var); $encoder="iconv"; }
-  } elseif (extension_loaded('mb_string')) {
-      if ($sd[19]=="utf-8") {$verlang=mb_convert_encoding($var,$from,$to); $encoder="mb_string";}
+  } elseif (extension_loaded('mbstring')) {
+      if ($sd[19]=="utf-8") {$verlang=mb_convert_encoding($var,$from,$to); $encoder="mbstring";}
       } else
       { $encoder="php iconv not installed";
 //$verlang=win_utf8($verlang);
@@ -928,6 +928,28 @@ function testadmin ($prauth,$id)
             }
 
 
+$GLOBALS['dbs_fields_cache'] = array();
+$GLOBALS['dbs_fields_handle'] = 0;
+$GLOBALS['dbs_mysql_connect'] = null;
+
+function dbs_mysql_parse_type($typeStr) {
+    $base = $typeStr;
+    $len = 0;
+    if (preg_match('/^(\w+)(?:\((\d+)\))?/', $typeStr, $m)) {
+        $base = $m[1];
+        if (isset($m[2])) $len = (int)$m[2];
+    }
+    return array('base' => $base, 'len' => $len);
+}
+
+function dbs_mysql_build_flags($row) {
+    $flags = array();
+    if (!empty($row['Key']) && $row['Key'] === 'PRI') $flags[] = 'primary_key';
+    if (!empty($row['Extra']) && stripos($row['Extra'], 'auto_increment') !== false) $flags[] = 'auto_increment';
+    if (isset($row['Null']) && $row['Null'] === 'NO') $flags[] = 'not_null';
+    return implode(' ', $flags);
+}
+
 // changes mysql_connect ($prdbdata[$tbl][6], $sd[14] , $sd[17])
 // universal DB module connect, autodetect table type by alias
 function dbs_connect ($host,$login,$pass,$dbtype) {
@@ -952,7 +974,7 @@ if ($host[0]==="#") {  //gethost srvlst.cfg
 }
 if ($dbtype=="mysql") {
 
-if (!extension_loaded('mysql')) { echo " $ei Warning : php extension mysql non-exist !  <br>"; return false; };
+if (!extension_loaded('mysqli')) { echo " Warning : php extension mysqli non-exist !  <br>"; return false; };
 $connect=mysqli_connect ($host,$login,$pass);
 //echo "blyat silent $silent <br>";
 if (!$silent) sqlerr ($connect);
@@ -966,8 +988,9 @@ if ($connect===false) {
                           if ($debug) if (!$pr[43]) {echo "Default server undefined. Fail.<br>";die ("");}
                           $connect = mysqli_connect ($pr[43], $sd[14] , $sd[17]);};
    if ($connect===false) { if ($debug) echo "default server not connected<br>"; return false;}
-               if (($sqlencodingdefault)AND(!$encode)) mysqli_query("SET NAMES `$globalencode`", $connect);
-               if ($encode) mysqli_query("SET NAMES `$encode`", $connect);
+               if (($sqlencodingdefault)AND(!$encode)) mysqli_query($connect, "SET NAMES `$globalencode`");
+               if ($encode) mysqli_query($connect, "SET NAMES `$encode`");
+    $GLOBALS['dbs_mysql_connect'] = $connect;
     return $connect;
 }
 
@@ -1019,8 +1042,9 @@ if ($dbtype=="") echo ">>fixme>>dbs_query - Dbtype not set.<br>";
 if ($debug) if ($dbtype=="fdb") {echo ">>fixme>>dbs_query - fdb given!<br>";$dbtype="mysql";}
    if (($dbtype=="pg")AND($cmd=="SHOW DATABASES")) $cmd="SELECT datname FROM pg_database";
    if (($dbtype=="pg")AND($cmd=="SHOW TABLES")) $cmd="SELECT relname FROM pg_class WHERE relname !~ '^pg_'";
-    if ($dbtype=="mysql") {mysql_real_escape_string ($cmd);
-                           return mysqli_query ($cmd,$connect);
+    if ($dbtype=="mysql") {
+                           if ($connect) mysqli_real_escape_string($connect, $cmd);
+                           return mysqli_query($connect, $cmd);
     }
     if ($dbtype=="pg") {   pg_escape_string ($cmd);
                             return pg_query ($connect,$cmd);
@@ -1028,26 +1052,48 @@ if ($debug) if ($dbtype=="fdb") {echo ">>fixme>>dbs_query - fdb given!<br>";$dbt
     if ($dbtype=="ibase") {return ibase_query ($cmd,$connect);
 
     }
-    mysqli_real_escape_string ($cmd);
-    return mysqli_query ($cmd,$connect);
+    if ($connect) mysqli_real_escape_string($connect, $cmd);
+    return mysqli_query($connect, $cmd);
 }
 
 function dbs_fetch_row ($a,$dbtype) { //changed all
     if (!$dbtype) global $dbtype;
     if ($dbtype=="") echo ">>fixme>>dbs_fetch_row - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_fetch_row ($a);
+    if ($dbtype=="mysql") return mysqli_fetch_row ($a);
     if ($dbtype=="pg") return pg_fetch_row ($a);
     if ($dbtype=="ibase") return ibase_fetch_row ($a);
-    return mysql_fetch_row ($a);
+    return mysqli_fetch_row ($a);
 }
 
-function dbs_list_fields ($a,$b) {
-    global $dbtype;
+function dbs_list_fields ($a,$b,$connect=null) {
+    global $dbtype, $dbs_fields_cache, $dbs_fields_handle, $dbs_mysql_connect;
     if ($dbtype=="") echo ">>fixme>>dbs_list_fields - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_list_fields ($a,$b);
+    if ($dbtype=="mysql") {
+        if (!$connect) $connect = $dbs_mysql_connect;
+        if (!$connect) return false;
+        $dbs_fields_handle++;
+        $handle = $dbs_fields_handle;
+        $tableEsc = mysqli_real_escape_string($connect, $b);
+        $result = mysqli_query($connect, "SHOW COLUMNS FROM `$tableEsc`");
+        $meta = array();
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $parsed = dbs_mysql_parse_type($row['Type']);
+                $meta[] = array(
+                    'name' => $row['Field'],
+                    'type' => $parsed['base'],
+                    'len' => $parsed['len'],
+                    'flags' => dbs_mysql_build_flags($row),
+                );
+            }
+            mysqli_free_result($result);
+        }
+        $dbs_fields_cache[$handle] = $meta;
+        return $handle;
+    }
     if ($dbtype=="pg") return pg_list_fields($a,$b);
     if ($dbtype=="ibase") return ibase_list_fields ($a,$b);
-    return mysql_list_fields ($a,$b);
+    return false;
 }
 
 
@@ -1055,88 +1101,108 @@ function dbs_list_fields ($a,$b) {
 
 function dbs_fetch_array ($a,$dbtype) { //changed all
     if ($dbtype=="") echo ">>fixme>>dbs_fetch_array - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_fetch_array ($a);
+    if ($dbtype=="mysql") return mysqli_fetch_array ($a);
     if ($dbtype=="pg") return pg_fetch_array ($a);
     if ($dbtype=="ibase") return ibase_fetch_array ($a);
-    return mysql_fetch_array ($a);
+    return mysqli_fetch_array ($a);
 }
 
 function dbs_num_fields ($a) {
-       global $dbtype;
+       global $dbtype, $dbs_fields_cache;
     if ($dbtype=="") echo ">>fixme>>dbs_num_fields - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_num_fields ($a);
+    if ($dbtype=="mysql") {
+        if (is_int($a) && isset($dbs_fields_cache[$a])) return count($dbs_fields_cache[$a]);
+        if ($a instanceof mysqli_result) return mysqli_num_fields($a);
+        return 0;
+    }
     if ($dbtype=="pg") return pg_num_fields ($a);
     if ($dbtype=="ibase") return ibase_num_fields ($a);
-    return mysql_num_fields ($a);
+    return 0;
 }
 
 function dbs_num_rows ($a) {
        global $dbtype;
     if ($dbtype=="") echo ">>fixme>>dbs_num_rows - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_num_rows ($a);
+    if ($dbtype=="mysql") return mysqli_num_rows ($a);
     if ($dbtype=="pg") return pg_num_rows ($a);
     if ($dbtype=="ibase") return ibase_num_rows ($a);
-    return mysql_num_rows ($a);
+    return mysqli_num_rows ($a);
 }
 
 
 
 //dbs_field_name
 function dbs_field_name ($a,$i) {
-       global $dbtype;
+       global $dbtype, $dbs_fields_cache;
     if ($dbtype=="") echo ">>fixme>>dbs_field_name - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_field_name ($a,$i);
+    if ($dbtype=="mysql") {
+        if (is_int($a) && isset($dbs_fields_cache[$a][$i])) return $dbs_fields_cache[$a][$i]['name'];
+        if ($a instanceof mysqli_result) return mysqli_fetch_field_direct($a, $i)->name;
+        return '';
+    }
     if ($dbtype=="pg") return pg_field_name ($a,$i);
     if ($dbtype=="ibase") return ibase_field_name ($a,$i);
-    return mysql_field_name ($a,$i);
+    return '';
 }
 
 
 //dbs_field_name
 function dbs_field_type ($a,$i) {
-       global $dbtype;
+       global $dbtype, $dbs_fields_cache;
     if ($dbtype=="") echo ">>fixme>>dbs_field_type - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_field_type ($a,$i);
+    if ($dbtype=="mysql") {
+        if (is_int($a) && isset($dbs_fields_cache[$a][$i])) return $dbs_fields_cache[$a][$i]['type'];
+        if ($a instanceof mysqli_result) return mysqli_fetch_field_direct($a, $i)->type;
+        return '';
+    }
     if ($dbtype=="pg") return pg_field_type ($a,$i);
     if ($dbtype=="ibase") return ibase_field_type ($a,$i);
-    return mysql_field_type ($a,$i);
+    return '';
 }
 
 //dbs_field_name
 function dbs_field_len ($a,$i) {
-       global $dbtype;
+       global $dbtype, $dbs_fields_cache;
     if ($dbtype=="") echo ">>fixme>>dbs_field_len - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_field_len ($a,$i);
+    if ($dbtype=="mysql") {
+        if (is_int($a) && isset($dbs_fields_cache[$a][$i])) return $dbs_fields_cache[$a][$i]['len'];
+        if ($a instanceof mysqli_result) return mysqli_fetch_field_direct($a, $i)->length;
+        return 0;
+    }
     if ($dbtype=="pg") return pg_field_len ($a,$i);
     if ($dbtype=="ibase") return ibase_field_len ($a,$i);
-    return mysql_field_len ($a,$i);
+    return 0;
 }
 
 //dbs_field_name
 function dbs_field_flags ($a,$i) {
-       global $dbtype;
+       global $dbtype, $dbs_fields_cache;
     if ($dbtype=="") echo ">>fixme>>dbs_field_flags - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return mysql_field_flags ($a,$i);
+    if ($dbtype=="mysql") {
+        if (is_int($a) && isset($dbs_fields_cache[$a][$i])) return $dbs_fields_cache[$a][$i]['flags'];
+        return '';
+    }
     if ($dbtype=="pg") return pg_field_flags ($a,$i);
     if ($dbtype=="ibase") return ibase_field_flags ($a,$i);
-    return mysql_field_flags ($a,$i);
+    return '';
 }
 
 
 
 
-function dbs_affected_rows () {
-    global $dbtype;
+function dbs_affected_rows ($connect=null) {
+    global $dbtype, $dbs_mysql_connect;
      if ($dbtype=="") echo ">>fixme>>dbs_affected_rows - Dbtype not set.<br>";
-    if ($dbtype=="mysql") return @mysql_affected_rows ($a);
-    if ($dbtype=="pg") return @pg_affected_rows ($a);
-    if ($dbtype=="ibase") return @ibase_affected_rows ($a);
-    return mysql_affected_rows ($a);
+    if (!$connect) $connect = $dbs_mysql_connect;
+    if ($dbtype=="mysql") return @mysqli_affected_rows ($connect);
+    if ($dbtype=="pg") return @pg_affected_rows ($connect);
+    if ($dbtype=="ibase") return @ibase_affected_rows ($connect);
+    return @mysqli_affected_rows ($connect);
 }
 
 function dbs_selectdb ($dbselected,$connect,$dbtype){
     if ($dbtype=="") echo ">>fixme>>dbs_selectdb - Dbtype not set.<br>";
-    if ($dbtype=="mysql") { $result=mysql_selectdb ($dbselected,$connect);
+    if ($dbtype=="mysql") { $result=mysqli_select_db ($connect, $dbselected);
                            if ($result) return (true);  else  return (false);
     }
     if ($dbtype=="pg") {    //$query = '\connect '.pg_escape_string ($dbselected);
@@ -1150,7 +1216,7 @@ function dbs_selectdb ($dbselected,$connect,$dbtype){
     if ($dbtype=="ibase") { $result=ibase_selectdb ($dbselected,$connect); // not sure
                            if ($result) return (true);  else  return (false);
     }
-    return mysql_selectdb ($dbselected,$connect);
+    return mysqli_select_db ($connect, $dbselected);
     }
 
 
@@ -1530,13 +1596,13 @@ global $silent; // поддержка "тихого" режима без выв�
 				  $cols=count ($row);
 				  $findrecords=0;
 			if ($cols<2) {fclose ($frewrite);unlink ("_data/".$filbas.".txt");return -2;};// no msg
-				$rowdata=implode ($row,"¦"); 
+				$rowdata=implode("¦", $row); 
 				$plevels="";
 				for ($a=0;$a<$cols;$a++) { $plevels.="¦"; } //  plevel
 				@fwrite ($frewrite, $rowdata."\n");  
 				@fwrite ($frewrite, $plevels."\n"); 	
 				 for ($a=0;$dbc=xfgetcsv ($f,$GLOBALS['xfgetlimit'],";");$a++) {
-					  $k = count($dbc); $rowdata=implode ($dbc,"¦"); 
+					  $k = count($dbc); $rowdata=implode("¦", $dbc); 
 							@fwrite ($frewrite, $rowdata."\n");
 				} 
 @fclose ($f);@fclose ($frewrite);
@@ -1566,8 +1632,8 @@ if ($source==false) { if ($silent==0) {msgexiterror ("filenf",$filbas,"disable")
   if ($cols2>$cols1) {$cols=$cols2;} else {$maxcols=$cols1;};
   $maxcols++;
 if ($categorymode==1) {  $hdr[$maxcols]="group";  $plvl[$maxcols]="group";};
-  $hdr=implode ($hdr,"¦")."\r\n"; //win32 enter not unix
-  $plvl=implode ($plvl,"¦")."\r\n";
+  $hdr=implode("¦", $hdr)."\r\n"; //win32 enter not unix
+  $plvl=implode("¦", $plvl)."\r\n";
   		//if ($OSTYPE=="WINDOWS") if ($a+1<$counter) $dat=$dat."\r\n";
 		 //if ($OSTYPE=="LINUX") if ($a+1<$counter) $dat=$dat."\n";
   echo "  HD=$hdr  PLVL=$plvl categorymode=$categorymode category2=$category2";
@@ -1582,7 +1648,7 @@ for ($a=0;$myrow=xfgetcsv ($source,$GLOBALS['xfgetlimit'],"¦");$a++) {
 	$content1integer=$content1;settype ($content1integer,integer);
 	if  (($content1integer==false)AND($content1integer==$content1)) {$groupname=$content1;}
 	$myrow[$maxcols]=$groupname;
-	$writedata=implode ($myrow,"¦")."\r\n";
+	$writedata=implode("¦", $myrow)."\r\n";
 	  		//if ($OSTYPE=="WINDOWS") if ($a+1<$counter) $dat=$dat."\r\n";
 		 //if ($OSTYPE=="LINUX") if ($a+1<$counter) $dat=$dat."\n";
 	fwrite ($dest,$writedata);
@@ -1600,7 +1666,7 @@ for ($a=0;$myrow=xfgetcsv ($source,$GLOBALS['xfgetlimit'],"¦");$a++) {
 		if ($myrow[$category2]!=="") { $remember[$category2]=$myrow[$category2];}
 		if ($myrow[$category2]=="") {$myrow[$category2]=$remember[$category2];}
 		}
-	$writedata=implode ($myrow,"¦")."\r\n";
+	$writedata=implode("¦", $myrow)."\r\n";
 	  		//if ($OSTYPE=="WINDOWS") if ($a+1<$counter) $dat=$dat."\r\n";
 		 //if ($OSTYPE=="LINUX") if ($a+1<$counter) $dat=$dat."\n";
 
@@ -2581,11 +2647,12 @@ function dbserr ()
     return sqlerr ();  //no type specified
 }
 
-function sqlerr ()
+function sqlerr ($connect=null)
 {
-	global $silent;  // 1-тихий режим, нет сообщений  0 -расшифровки из mysql
-	@$errno= mysql_errno ();// 2 - расшифровки сервисом  не нужно
-	@$error= mysql_error ();
+	global $silent, $dbs_mysql_connect;  // 1-тихий режим, нет сообщений  0 -расшифровки из mysql
+	if (!$connect) $connect = $dbs_mysql_connect;
+	@$errno= $connect ? mysqli_errno($connect) : mysqli_connect_errno();// 2 - расшифровки сервисом  не нужно
+	@$error= $connect ? mysqli_error($connect) : mysqli_connect_error();
 	if (!$silent) if ($errno>0) echo "<red><bb>".cmsg("ERROR!")."</bb></red><br>".$errno." - ".$error."<br>";
 /*	if ($silent==2) if ($errno>0) {		echo "<red><bb>";	if ($errno==1062) echo "Ячейка занята";	echo "</font><br></bb>";	} */
 	return $errno;
@@ -2826,10 +2893,7 @@ if(isset($_FILES["userfile"])) ob_end_clean() ;// SILENT CLEAN DATA IF FILE IS D
 //path - путь,  mask - список показ. масок,  protect - список запрещенных масок.<br>
 
 
-/*При сохранении из textarea...
-...нужно проверять get_magic_quotes_gpc(), например:
-if (get_magic_quotes_gpc()) $settings = stripslashes($settings);
-*/
+/*При сохранении из textarea... magic_quotes removed in PHP 8 */
 
 function getdirdata ($path,$mask,$protect)
 {
@@ -3364,7 +3428,7 @@ function readfullcsv ($filedescripter,$oldnew)
 			
 	if (($oldnew==="old")AND($nocachetable<1)) {
 		$td=$table[$tableindexcnt];//echo "INDEX-$tableindexcnt-$td<br><br>";
-		@$tableimpl[$tableindexcnt]=implode ($td,"¦"); // echo "container -- 
+		@$tableimpl[$tableindexcnt]=implode("¦", $td); // echo "container -- 
 	}
 	$tableindexcnt++;
 	}// and lets go to packing data massive; 
@@ -3505,14 +3569,14 @@ function writefullcsv ($filedescripter,$header,$plevel,$massive) {
 	if ($dbs=="2.x") $separator=";";
 	if ($filedescripter==false) { echo "DB_CSV:File cannot be created<br>";return -1;}
 	$rewrite=array (); 
-	 $rewrite[]=implode ($header,$separator); //if ($OSTYPE=="WINDOWS")
+	 $rewrite[]=implode($separator, $header); //if ($OSTYPE=="WINDOWS")
 	//if ($OSTYPE=="LINUX") $rewrite[]=implode ($separator,$header);  //BUG Message from DMA 20'06'08
-	 @$rewrite[]=implode ($plevel,$separator);//if ($OSTYPE=="WINDOWS")
+	 @$rewrite[]=implode($separator, $plevel);//if ($OSTYPE=="WINDOWS")
 	//$cnt=1;$cntmax=count ($massive); REMOVED   cnt--stroke
 	
 for ($stroke=1;$stroke<count($massive);$stroke++) {    // imploding
 		//if ($OSTYPE=="LINUX") $a=implode ($separator,$massive[$cnt]);		//$tojoin=$massive[$stroke];
-		@$a=implode ($massive[$stroke],$separator);//if ($OSTYPE=="WINDOWS")
+		@$a=implode($separator, $massive[$stroke]);//if ($OSTYPE=="WINDOWS")
 		if ($testlinuxlinefeed) if ($OSTYPE=="LINUX") $a=$a."\n"; // Perewod stroki teryetsya ne tut//TEST MAY FIX BUG WITH TEST LINKS AND CAUSE BUG CONF EDIT
 		//leaving THIS line is runs dblinker (remove bug) and adds some bugs in another places
 		// echo $a."<br>"; possible error  msg with cfg user r	
@@ -3621,16 +3685,16 @@ function structsql ($action,$field,$fieldexch,$params) {
 	global $views;// для показа текса запроса
 	@$connect=dbs_connect ($prdbdata[$tbl][6],$sd[14],$sd[17],"mysql");
 	@dbs_selectdb ($prdbdata[$tbl][9], $connect,$dbtype);  //добавлено недавно 11.09.2
-	$res1=@mysql_list_fields ($prdbdata[$tbl][9],$prdbdata[$tbl][5]);
-	$countsresult=@mysql_num_fields($res1); 
+	$res1=@dbs_list_fields ($prdbdata[$tbl][9],$prdbdata[$tbl][5],$connect);
+	$countsresult=@dbs_num_fields($res1); 
 	  if ($countsresult===false) { //if (!$silent)
 	 echo "E_DB: SQL_LINK_".$prdbdata[$tbl][5]."_NOT_CONNECTED!<br>";return -1;
 		};
 		for ($i = 0; $i < $countsresult; $i++) {
-			   $flags[]=mysql_field_flags($res1, $i);
-			   $fieldlen[]=mysql_field_len($res1, $i);
-			   $mycol[]= mysql_field_name($res1, $i) ;
-			   $datatypos[]= mysql_field_type ($res1, $i) ;
+			   $flags[]=dbs_field_flags($res1, $i);
+			   $fieldlen[]=dbs_field_len($res1, $i);
+			   $mycol[]= dbs_field_name($res1, $i) ;
+			   $datatypos[]= dbs_field_type ($res1, $i) ;
 		}
 	$newname=$params[0];
 	if ($params[1]=="prototype") { $newlen=$fieldlen[$fieldexch];
@@ -3702,7 +3766,7 @@ if (($fieldexch=="emptystroke")AND($stroke>1)) $newname="¦";
 		}
 		if ($action=="del") {			unset ($z[$field]);		}
 // echo "test  z1 = ".$z[0]."<br>";
-	$values=implode ($z,"¦");
+	$values=implode("¦", $z);
 	if ($OSTYPE=="LINUX") $values.="\n";  // это добавление , не трогать... сначала редактирование.
         $values.="\n";
 	fwrite ($fwr,$values);
@@ -4107,9 +4171,6 @@ function logwritesql ($logtype,$datecurrent,$usr,$dbs_ip,$shost,$act,$dbs_ref,$b
 	global $dbtype,$pr,$sd,$debug;
         //echo $act;
         $silent=1;
-        ini_set('magic_quotes_gpc', '0');
-        if ($debug) echo "mqgpc=".get_magic_quotes_gpc();   // 1
-        if ($debug) echo "mqrtm=".get_magic_quotes_runtime(); // 0
         if ($act=="") return false; // не слать пустые строки.
        
         // тут у нас где то размножаются косые и кавычки.
@@ -4120,8 +4181,8 @@ function logwritesql ($logtype,$datecurrent,$usr,$dbs_ip,$shost,$act,$dbs_ref,$b
         $dbtype="mysql";
         $prefix=$sd[30];
         @$connect=dbs_connect ($pr[43],$sd[14] , $sd[17],$dbtype);
-         $act=mysql_real_escape_string ($act);
-        @$shost=mysql_real_escape_string ($shost); // dbs_ref -->shost    откуда тут локалхост выежает? закоментить нах
+         $act=mysqli_real_escape_string ($connect, $act);
+        @$shost=mysqli_real_escape_string ($connect, $shost); // dbs_ref -->shost    откуда тут локалхост выежает? закоментить нах
 	if ($logtype!="_dbs_".$prefix."_undo_logs") $query="INSERT INTO `dbscriptbk`.`".$logtype."` (datecurrent,usr,dbs_ip,shost,act,referal,baseID,hostIP,error)VALUES ('$datecurrent','$usr','$dbs_ip','$shost','$act','$dbs_ref','$baseID','$hostIP','$finalerrormessage') ;";
         if ($logtype=="_dbs_".$prefix."_undo_logs")  $query="INSERT INTO `dbscriptbk`.`".$logtype."` (datecurrent,usr,dbs_ip,action,restoreaction,referal,baseID,hostIP,error)VALUES ('$datecurrent','$usr','$dbs_ip','$shost','$act','$dbs_ref','$baseID','$hostIP','$finalerrormessage') ;";
         //$query=mysql_real_escape_string ($query);
@@ -4138,14 +4199,11 @@ function logwritesql ($logtype,$datecurrent,$usr,$dbs_ip,$shost,$act,$dbs_ref,$b
     // Функция экранирования переменных
 function quote_smart ( $value )
 {
-    // если magic_quotes_gpc включена - используем stripslashes
-if ( get_magic_quotes_gpc ()) {
-$value = stripslashes ( $value );
-}
+    global $dbs_mysql_connect;
     // Если переменная - число, то экранировать её не нужно
     // если нет - то окружем её кавычками, и экранируем
 if ( ! is_numeric ( $value )) {
-$value = "'" . mysql_real_escape_string ( $value ) . "'" ;
+$value = "'" . mysqli_real_escape_string ( $dbs_mysql_connect, $value ) . "'" ;
 }
 return $value ;
 }
@@ -4219,7 +4277,7 @@ rfsysdatareq ();// определения для системных заголо
 //..$writefile==1)
 if (($prdbdata[$tbl][12]=="fdb")AND($prauth[$ADM][10]>=$writeright)) {	
 	$fil=$tbl.";".$dbc[$md2column];
-        if ($directedit) {$vID=implode ($dbc,"^^");
+        if ($directedit) {$vID=implode("^^", $dbc);
             if ($directedit==2) $vID=base64_encode ($vID);
             $fil=$tbl.";".$vID;
             }
@@ -4282,7 +4340,7 @@ echo "<td><a target=b3 href='w.php?write=".cmsg ("WF_UNDO")."&u0=".$dbc[0]."&u1=
 
 //мешает  убирает кнопки с ссылок($writefile==1)
 if (($prdbdata[$tbl][12]=="mysql")AND($prauth[$ADM][10]>=$writeright)) {	$fil=$tbl.";".$myrow[$md2column]; 
-                                                                            if ($directedit) {$vID=implode ($myrow,"^^");
+                                                                            if ($directedit) {$vID=implode("^^", $myrow);
                                                                                     if ($directedit==2) $vID=base64_encode ($vID);
                                                                                     $fil=$tbl.";".$vID;
                                                                                     }
@@ -4309,7 +4367,7 @@ if ($trafeconom) { echo "<td><a target=b1 href='r.php?$fil'><img src=$commstr bo
 }
 
  if ($cfgmod!==2)  if ($enablecbx) {	 $cbx="t".$myrow[$md2column]."";  //$bxt-
-                                   if ($directedit) {$cbx="t".implode ($myrow,"^^"); }                                             // добавили директ едит
+                                   if ($directedit) {$cbx="t".implode("^^", $myrow); }                                             // добавили директ едит
 	 if (!$directedit) if ($virtualid!==0) $cbx=$cbx."+".$myrow[$virtualid]; // вывод вторго ID если требуется  fil --> cbx  +
 	 echo "<td>";checkbox("","\"bx".$cbx."\"");echo "</td>";
   }

@@ -1,5 +1,5 @@
 <?php
-$stx = $REMOTE_ADDR ;$st = substr ($stx,0,7);
+$stx = $_SERVER['REMOTE_ADDR'] ?? '';$st = substr ($stx,0,7);
 $exitpoint="exitpoint";
 
 $verlogin="Login manager 4.0 (c) dj--alex";

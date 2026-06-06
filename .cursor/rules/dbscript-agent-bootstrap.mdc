@@ -1,0 +1,62 @@
+---
+description: Dbscript4 — пути, команды, что не искать заново
+alwaysApply: true
+---
+
+# Dbscript4 agent bootstrap
+
+## Проект — не искать
+
+| | |
+|---|---|
+| Корень | `C:\Users\user\projects\dbscript4_djalex` |
+| WSL path | `/mnt/c/Users/user/projects/dbscript4_djalex` |
+| Ветка | `php8-port` |
+| Remote | `https://github.com/dj--alex/db-script.git` |
+| Ядро | `dbscore.lib` (не `dbscore.php`) |
+| Init typo | `initalize.php` (legacy spelling) |
+
+## Dev — не искать
+
+| | |
+|---|---|
+| Compose | `dev/docker-compose.yml` |
+| Setup | `bash scripts/setup-wsl.sh` |
+| Verify | `bash scripts/verify.sh` |
+| Install URL | http://localhost:8080/install.php |
+| MySQL in Docker | host `db`, pass `dbscript_root`, db `dbscript_test` |
+| Mechanical port | `php scripts/port-mechanical.php` |
+
+## Entry PHP — не repo-wide grep
+
+| Задача | Файл |
+|--------|------|
+| Router | `index.php` |
+| Install | `install.php` |
+| Login | `login.php` |
+| Editor | `w.php`, `wx.php` |
+| Reader | `r.php` |
+| Admin | `admin.php` |
+| Files | `filemgr.php` |
+
+## Читать первым (не explore)
+
+1. `AGENTS.md` — router + git + tokens
+2. `MAP.md` — entry points + dev
+3. `AI/project-map.toml` — L0 секции по задаче
+4. `README-PHP8.md` — smoke checklist
+
+## Git — коммить сам
+
+После логической порции работы: add → commit → `git push origin php8-port`. Не `_conf/`, не `AI/`.
+
+## Не повторять каждую сессию
+
+- Glob всего репо для списка entry PHP — таблица выше
+- Читать `dbscore.lib` целиком — grep + Read диапазона
+- Искать docker-compose / verify.sh — пути выше
+- Спрашивать «коммитить?» — коммитить по AGENTS.md
+
+## Повторный поиск → фиксация
+
+2-й поиск того же пути/команды → append `AI/project-map.toml` `[discoveries]`; если универсально — обновить этот файл.

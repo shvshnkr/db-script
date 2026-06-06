@@ -6,7 +6,7 @@ $verfilemgr="Filemgr  v 4.3.5 (c) dj--alex ";
   $enterpoint=$verfilemgr;#end of conf
 // ��� ���� ����������� - ob_start();ob_end_flush();
 autoexecsql ();// ob_flush ();exit; zdes menueshe est.
-@ import_request_variables ("PG","");
+extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
 
 // redir - w dbscore
 ///echo "<form settimeout=\"forma\" onMouseover=\"forma\" href=\"javascript:document.getElementByID(\"forma\").submit(go)\"  action=filemgr.php>";
@@ -321,7 +321,7 @@ if ($go==cmsg (FMG_SHARE)) if (!$multiactionsign)
 
         if ((!$prauth[$ADM][54])AND($coreredir!="step2")) { lprint ("DIS") ; exit;};
   //if ($multiaction==1) { echo "ffa==".$fileforaction; };
-    if ($username) @$userlist=implode ($username,",");
+    if ($username) @$userlist=implode(",", $username);
     if ($share!=="GENLNK_USR") $userlist="";
     if ($file===false) exit;
     $filelist=(explode ("¦",base64_decode ($filelistmassive))); //����� �� �������� ������ ������ ������ . ��� ���� ����� �������� ����� �� ���������� ������ ��� ���������.
@@ -397,7 +397,7 @@ if ($go==cmsg (FMG_SHARE)) if ($multiactionsign)
 { 
 
         if ((!$prauth[$ADM][54])AND($coreredir!="step2")) { lprint ("DIS") ; exit;};
-    if ($username) @$userlist=implode ($username,",");
+    if ($username) @$userlist=implode(",", $username);
     if ($share!=="GENLNK_USR") $userlist="";
     if ($file===false) exit;
     $pathmulti=base64_decode ($pathmulti);
@@ -699,7 +699,7 @@ if ((($cmd==cmsg("FMG_SHARE"))and($prauth[$ADM][36])) OR ($coreredir=="SH_UPDD_F
     if ($multiaction) { for ($a=0;$a<$filearrcount;$a++) { $file[$a]=$path."/".$fileforaction[$a]; 
      echo "File $a: $fileforaction[$a]<br>;";
     }
-    $filelistmassive=base64_encode (implode ($fileforaction,"¦")); //������ � ����� �������� ���� �������� ������ � multiaction
+    $filelistmassive=base64_encode (implode("¦", $fileforaction)); //������ � ����� �������� ���� �������� ������ � multiaction
             } 
             
             

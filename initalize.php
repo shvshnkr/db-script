@@ -1,5 +1,5 @@
 <?php
-require_once ('dbscore.php');
+require_once ('dbscore.lib');
 //$script="login.php";
  if ($pr[36]=="on")  { 
  	$script="disable";

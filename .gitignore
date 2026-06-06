@@ -1,0 +1,17 @@
+# Runtime / install artifacts (never commit)
+_conf/
+_logs/
+_local/
+_data/
+
+# Agent local map + worklog (committed stubs: AGENTS.md, MAP.md, .cursor/rules/)
+AI/
+
+# Docker local state
+dev/install-manifest.txt
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~

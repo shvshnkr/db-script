@@ -19,7 +19,7 @@ $verwritefile="Editor v4.3.3 beta (c) dj--alex";
 
 $enterpoint=$verwritefile;// äëÿ ïîêàçà òî÷êè âõîäà
 autoexecsql ();
-import_request_variables ("PGC","");  // óíèâåðñàëüíîå ðåøåíèå ïðîáëåì
+extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
 //ïðèåì äîëáàíûõ ôàéëîâ
 // ÷àñòü íåêîòîðûõ çàãðóçîê ïåðåìåííûõ ìîæíî óäàëèòü
 if (isset($_FILES["userfile"])) ob_start (); // òàêîå ÷óâñòâî ÷òî ýòà ÷àñòü êîäà ïðîñòî èãíîðèðóåòñÿ.
@@ -900,15 +900,15 @@ echo "<br>Çàìåíåíî âñåãî çíà÷åíèé : $findrecords<br><br>";
 	//..$dest=csvopen ($filename.".exch","w",1);4/1/77
         $dest=csvopen ($filename,"w",1);
 	//character linux delete fail
-  if ($OSTYPE=="WINDOWS") $hdr=implode ($hdr,"¦")."\r\n"; //win32 enter not unix
-if ($OSTYPE=="WINDOWS") $plvl=implode ($plvl,"¦")."\r\n";
-if ($OSTYPE=="LINUX") $hdr=implode ($hdr,"¦");
-if ($OSTYPE=="LINUX") $plvl=implode ($plvl,"¦");
+  if ($OSTYPE=="WINDOWS") $hdr=implode("¦", $hdr)."\r\n"; //win32 enter not unix
+if ($OSTYPE=="WINDOWS") $plvl=implode("¦", $plvl)."\r\n";
+if ($OSTYPE=="LINUX") $hdr=implode("¦", $hdr);
+if ($OSTYPE=="LINUX") $plvl=implode("¦", $plvl);
     fwrite ($dest,$hdr);
   fwrite ($dest,$plvl);
   for ($a=0;$myrow=$tbldorig[$a];$a++) {
   		if (($delete)AND(strpos ($myrow,"_DELETE_IS_REQUIRED!!!"))) { echo "Ñòðîêà $a óäàëÿåòñÿ!"; continue;}
-  		$writedata=$myrow;//$writedata=implode ($myrow,"¦")."\r\n";
+  		$writedata=$myrow;//$writedata=implode("¦", $myrow)."\r\n";
 		fwrite ($dest,$writedata);
 	}
 fclose ($dest);
@@ -2198,8 +2198,8 @@ if (($write==cmsg ("WF_HDR_REWR"))AND ($prdbdata[$tbl][12]=="fdb")) {
 		$z[$a]=${"z".$a};//ïðèíèìàåì äàííûå þçåðà
 		$p[$a]=${"p".$a};//ïðèíèìàåì äàííûå þçåðà
 		}
-	$values=implode ($z,"¦");if ($OSTYPE=="WINDOWS") $values.="\n"; //if ($OSTYPE=="LINUX") $values.="\r\n";//LINUX FIX  à â âèíäå îíî íå ðàáîòàåò çà÷åì âîîáùå \n?
-	$plevels=implode ($p,"¦");if ($OSTYPE=="WINDOWS") $plevels.="\n"; //if ($OSTYPE=="LINUX") $plevels.="\r\n";//LINUX FIX  - ÷å ïðàâäà ðàáîòàåò??files.cfg íå ïðèíèìàåò..âèäèìî íå ñîâïàäàåò òî òî. õåðíÿ - ïîïðàâëÿåì äëÿ ðàáîòû ñ êîíôèãóðàöèåé
+	$values=implode("¦", $z);if ($OSTYPE=="WINDOWS") $values.="\n"; //if ($OSTYPE=="LINUX") $values.="\r\n";//LINUX FIX  à â âèíäå îíî íå ðàáîòàåò çà÷åì âîîáùå \n?
+	$plevels=implode("¦", $p);if ($OSTYPE=="WINDOWS") $plevels.="\n"; //if ($OSTYPE=="LINUX") $plevels.="\r\n";//LINUX FIX  - ÷å ïðàâäà ðàáîòàåò??files.cfg íå ïðèíèìàåò..âèäèìî íå ñîâïàäàåò òî òî. õåðíÿ - ïîïðàâëÿåì äëÿ ðàáîòû ñ êîíôèãóðàöèåé
 	$a="";
 	while (!feof($f))
 	{ @$a.=fread ($f,10000); //echo $a;
@@ -2672,7 +2672,7 @@ echo "datafieldID=$datafieldID<BR>";//$datafieldID);"
 		*/
 	} // 2 ðàçà ïðîâåðÿåò îäíî çíà÷åíèå â áàçå òîëüêî ðàçíûìè ìåòîäàìè.
 	// nen íàäî ïðîñòî ñâåðèòü data â undo   è çàïèñàòü íîâîå çíà÷åíèå.
-	@$olddata=implode ($datasplitters[$datafieldID],$result); // âîò ýòî è íàäî ñîõðàíÿòü è îòêàòûâàòü
+	@$olddata=implode ($datasplitters[$datafieldID],$result);
 	$undodata="UPDATE `".$prdbdata[$tbl][9]."`.`".$prdbdata[$tbl][5]."` SET `".$mycol[$datafieldcolsel]."`='".$myrowold."');";
 	if (!$crcignore) {
 				@$crcnew=crc32(trim($olddata));
@@ -3564,7 +3564,7 @@ $result = dbs_query ($cmd, $connect,$dbtype);
   if ($views) echo cmsg ("WF_EXQUE")."$cmd<br><br>";
  echo cmsg ("WF_QUECOMP").dbs_affected_rows ().cmsg ("WF_Q1")."<br>";
 $silent=0;$errno=dbserr ();// ïèøåò îøèáêó è åå êîä  è åãî æå âîçâðàùàåò
-$error= mysql_error ();
+$error= mysqli_error ($connect);
 //echo $error;
 if ($errno) {lprint ("WF_POSERR");}
 //endof executing
@@ -4311,7 +4311,7 @@ $filbas=$userfolder."/best.cfg";  // âîçìîæíî áóäåò äá â initse 
 //echo "=================================================<br>";
 
   for ($a=0;$a<$bestcnt;$a++) {
-  	if ($bestcontent[$a]!=="") if (strpos (@implode ($bestcontent[$a],"¦"),$strokedata)!==false) {
+  	if ($bestcontent[$a]!=="") if (strpos (@implode("¦", $bestcontent[$a]),$strokedata)!==false) {
   		$rewritecnt=$a;
   	if (!$rewr)	{ echo "Already present, remove first please. Address:$rewritecnt of $bestcnt<br>";exit;}
 
@@ -4321,8 +4321,8 @@ $filbas=$userfolder."/best.cfg";  // âîçìîæíî áóäåò äá â initse 
   echo "Massive have lines (bestcnt) =$bestcnt<Br>";
 
 if (is_array ($bestheader)) { //header óæå åñòü
-	$bestheader=implode ($bestheader,"¦");
-	$bestplevel=implode ($bestplevel,"¦");
+	$bestheader=implode("¦", $bestheader);
+	$bestplevel=implode("¦", $bestplevel);
 	echo "tempprint bestheader= $bestheader<bR>";};
 if (($bestheader=="")OR($bestheader=="¦")) {  //header îòñóòñòâóåò
 	$bestheader="activetable¦table¦db¦dataline-autohdr";	$bestplevel=$bestheader;
@@ -4394,12 +4394,12 @@ radio ("massoper",5,"NOP") ;echo "<bR>";
 
 
 
-while (list($var,$value) = each($_POST)) :
+foreach ($_POST as $var => $value) :
 ;
 if (substr($var,0,3)=="bxt") { $box[]= explode ("¦",substr ($var,3)); $boxcnt++;
 //echo "$var , ".substr($var,0,2) ."<br>";  generic table	//..echo "<BR>$var => $value <br>";
 }
-endwhile;
+endforeach;
 for ($a=0;$a<$boxcnt;$a++) {
 //echo " box[$a]==>".$box[$a][0].";".$box[$a][1]."<br>";  //ids vID  vID2  DISABLE VISIBLE
 hidekey ("box".$a,$box[$a][0]."+".$box[$a][1]);
@@ -4733,7 +4733,7 @@ function char2array($string) {
 
 function sqlify_line($line, $splitseparator,$separator,$ncols) {
    $line = chop($line);
-   $line_chunks = split ($splitseparator, $line);
+   $line_chunks = explode ($splitseparator, $line);
    if ($ncols != sizeof($line_chunks)) print "<br># îøèáêà, íåñîîòâåòñòâèå êîëîíîê è äàííûõ<br>";
    for($i=0;$i<count($line_chunks);$i++) {
       $s = trim($line_chunks[$i]);
@@ -4802,7 +4802,7 @@ if ($write===cmsg ("A_CONV_START")) {
    if ($usecomma2x) { $separator=";"; echo "Forced using ; as separator , plevel writing declined.<br>";  }
   $splitseparator = $separator;
 
-   $table_nm = split ("\.", $csv_file_name);
+   $table_nm = explode (".", $csv_file_name);
    $table_name = strtolower($table_nm[0]); // ne ustr
    $table_name=$tablemysqlselect2;
    $out_header = "# source: $tblmysqlselect -- $tablemysqlselect<br># dest : $tblmysqlselect2 -- $tablemysqlselect2 ";
