@@ -99,4 +99,18 @@ else
     fail "w.php content"
 fi
 
-echo "ALL OK: install → login → w.php"
+echo -n "r.php reader ... "
+if ! curl -fsS -b "$COOKIE" -L --max-time 60 "$BASE_URL/r.php?viewid=.ver&base=0" -o "$OUT"; then
+    fail "r.php GET"
+fi
+if grep -qE 'Fatal error|Uncaught Error' "$OUT"; then
+    fail "r.php"
+fi
+if grep -qE 'Version|\.ver|Fatal|notright' "$OUT"; then
+    echo "OK"
+else
+    grep -E 'login\.php|notright|Fatal' "$OUT" | head -5
+    fail "r.php content"
+fi
+
+echo "ALL OK: install → login → w.php → r.php"

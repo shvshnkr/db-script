@@ -139,9 +139,9 @@ if ($cmd[0]==="help") { if ($adm==1) {
 		if (!isset ($mode)) {$mode=$m;}	//."&mode=".  -->  ."&m=".
 		if ($vID==="_NULL_") { lprint ("RF_DECODER_RS"); exit; }
 		if (!isset ($review)) $review=0;
-		if (($go==cmsg(BROWSE))OR(($review==1)AND($mode==3))) {$mode=9; }; //автовключение обзора категориий  бесмысленно если она не подд.
-		if ($go==cmsg(BEST)) {$mode=5 ;}; // shows editor selected products
-		if ($go==cmsg(ASSEMBLY)) {$mode=11 ;  }; // 9  free unlinked must be linked in disable to createPC.php
+		if (($go==cmsg("BROWSE"))OR(($review==1)AND($mode==3))) {$mode=9; }; //автовключение обзора категориий  бесмысленно если она не подд.
+		if ($go==cmsg("BEST")) {$mode=5 ;}; // shows editor selected products
+		if ($go==cmsg("ASSEMBLY")) {$mode=11 ;  }; // 9  free unlinked must be linked in disable to createPC.php
 
 		$enterpoint=$verreadfile; // для показа точки входа
 
@@ -261,7 +261,7 @@ if ($cmd[0]==="help") { if ($adm==1) {
 		}
 		
 	rfsysdatareq();
-	$tblint=$tbl;settype($tblint,integer);// разрешает базу называть по имени.
+	$tblint=$tbl;settype($tblint,"integer");// разрешает базу называть по имени.
 	if ($cfgmod===0) {
 	if ($tblint==false) $tbl=getidbyid ($prdbdata,1,"realid",$tbl);
 	}
@@ -336,7 +336,7 @@ if ($cmd[0]==="help") { if ($adm==1) {
 				$fp= fopen ("_templates/copyright.txt","r");
 				if ($fp) {
 					$f=fread ($fp,1000);
-					echo cmsg (DESIGN).":".$f."<br>";
+					echo cmsg ("DESIGN").":".$f."<br>";
 				}
 				//echo "Menu style:3";
 				} 
@@ -918,7 +918,7 @@ hidekey ("kol",$kol);
 								// multithread options
 								$content1=strtolower ($dbc[$category]); $findid1=strpos($content1,$vID);
 								$content2=strtolower ($dbc[($category+1)]); $findid2=strpos($content2,$vID);
-								$content1int=$content1; settype ($content1int,integer);
+								$content1int=$content1; settype ($content1int,"integer");
 								//	$content2int=$content2; settype ($content2int,integer);  //!!
 								if  (($found==1)AND($content1!=="")AND($content1int==0)) { $found=0;}
 								//	  if  (($found==2)AND($content2!=="")) { $found=0;} //OR($findid2!==false)
@@ -1107,7 +1107,7 @@ hidekey ("kol",$kol);
 			{
 			$activetable=$prdbdata[$tbl][1];
 			//echo "Active table: $activetable [$tablemysqlselect'$tblmysqlselect]; Given data total:$boxcnt<br>";
-			echo cmsg(A_BEST).".<br>";
+			echo cmsg("A_BEST").".<br>";
 			$filbas=$userfolder."/best.cfg";  // возможно будет дб в initse  с созданием шапки если файла вообще нет+++
   				 $best=csvopen ($filbas,"r",0);$data=readfullcsv ($best,"new");
  				// $data=readdescripters ();

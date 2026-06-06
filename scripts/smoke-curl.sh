@@ -20,6 +20,11 @@ if grep -q "Unsupported version core" "$OUT"; then
     exit 1
 fi
 
+if grep -q "already installed" "$OUT"; then
+    echo "OK: install.php reports site already installed (_conf present)"
+    exit 0
+fi
+
 if grep -q "Select your language" "$OUT"; then
     echo "OK: install wizard step 0 (language selection)"
     exit 0

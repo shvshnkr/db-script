@@ -17,7 +17,7 @@
 | `mysql_*` → `mysqli_*` в `dbscore.lib` | ✅ в работе |
 | Dev Docker (`dev/docker-compose.yml`) | ✅ добавлен, не запушен |
 | `scripts/verify.sh` | ✅ синтаксис + grep-guards |
-| Smoke install/login/editor | ✅ full wizard (MySQL `db`/`dbscript_root`) → login → `w.php` |
+| Smoke install/login/editor | ✅ full wizard → login → `w.php` → `r.php` (.ver) |
 | Agent map / worklog | ✅ AGENTS.md, MAP.md, `.cursor/rules/` |
 
 ## Entry points (HTTP)

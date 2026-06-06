@@ -5,6 +5,10 @@
 
 $openedwindows=0;
 $coreSE=1;
+$coreloadskip = $coreloadskip ?? false;
+$installermode = $installermode ?? false;
+$dbdataskip = $dbdataskip ?? false;
+$exitpoint = $exitpoint ?? null;
 // ajax test - <script>$.get("my.php",[],function(res) { alert("a") });</script>
 // SE repo
 $svn1="http://db-script.googlecode.com/svn/trunk/";
@@ -2928,6 +2932,8 @@ if(isset($_FILES["userfile"])) ob_end_clean() ;// SILENT CLEAN DATA IF FILE IS D
 function getdirdata ($path,$mask,$protect)
 {
 	global $prauth,$ADM,$sysreq;
+if ($mask && !is_array($mask)) $mask=array($mask);
+if ($protect && !is_array($protect)) $protect=array($protect);
 $file=array();
  @$dir=opendir($path);
 
@@ -4817,7 +4823,10 @@ if ($windowopen==1) closewindow ();
 function window ($script,$actions)
 {global $sd,$msgexitcalled,$openedwindows;
 $msgexitcalled=1;$openedwindows++;
-  initwindowactions (0);
+  if (!is_array($script)) {
+    $script = array('message' => '', 'color' => 'header', 'icon' => '', 'mainheader' => (string)$script);
+  }
+  if (function_exists('initwindowactions')) initwindowactions (0);
 //	$sizetopic=$shriftsize;
 	 //if ($shriftsize<4) $sizetopic=4;
 	//if ($sizetopic==6) $changesize=2;	if ($sizetopic==4) $changesize=-3;
@@ -4853,7 +4862,7 @@ if ($icon) echo $$icon;
 if ($message)	echo $message."<br>"; // not succesfully tested
 
 	if ($actions) {
-            if (is_array ($action)==true) foreach ($actions as $key => $value) 	{
+            if (is_array ($actions)==true) foreach ($actions as $key => $value) 	{
 		echo "<CENTER><form action=".$value." method=post><br> ";
 		submitkey ("go",$key);echo "</form><br></CENTER> "; 
 	}}
