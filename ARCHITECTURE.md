@@ -109,7 +109,7 @@ Controllers and future REST handlers call **only** these methods. No SQL in entr
 ## 6. Views
 
 - Twig templates in `templates/` (layouts, editor, admin).
-- Lang strings in `_langdb/*.toml` (UTF-8).
+- Lang strings in `_langdb/*.json` UTF-8 (converted from legacy `.cfg`; small UI packs may use `.toml`)
 - Static CSS: `public/css/app.css` + variables from `styles.toml`.
 
 Legacy `_templates/*.php` removed in final phase.

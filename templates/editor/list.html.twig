@@ -1,11 +1,17 @@
-{% extends 'layout/base.html.twig' %}
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ result.visual_name }} — {{ site_name }}{% endblock %}
 
 {% block body %}
-<h1>{{ result.visual_name }} ({{ result.table }})</h1>
-<p><a href="w-arch.php">← All tables</a> · {{ user }}</p>
-<p>Total: {{ result.total }} · page {{ result.page }}</p>
+<h1>{{ result.visual_name }} <small>({{ result.table }})</small></h1>
+<p class="dbs-meta">
+  <a href="w-arch.php">← {{ t('BROWSE', 'Tables') }}</a>
+  · {{ t('RF_PRINTLIM', 'Total') }}: {{ result.total }}
+  · {{ t('PAGE', 'Page') }} {{ result.page }}
+</p>
 {% if columns is not empty %}
-<table border="1" cellpadding="4" cellspacing="0">
+<div class="dbs-table-wrap">
+<table class="dbs-table">
   <thead>
     <tr>{% for col in columns %}<th>{{ col }}</th>{% endfor %}</tr>
   </thead>
@@ -15,7 +21,8 @@
   {% endfor %}
   </tbody>
 </table>
+</div>
 {% else %}
-<p>No rows.</p>
+<p>{{ t('NOTUSED', 'No rows') }}</p>
 {% endif %}
 {% endblock %}

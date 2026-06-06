@@ -35,7 +35,13 @@ final class InstallWriter
         ]);
 
         $this->config->save('sitedata', [
-            'branding' => ['logo' => 'dbslogo.gif', 'welcome' => 'Welcome to Dbscript.'],
+            'branding' => [
+                'logo' => 'dbslogo.gif',
+                'site_name' => 'Dbscript',
+                'welcome' => $lang === 'russian'
+                    ? 'Добро пожаловать в Dbscript.'
+                    : 'Welcome to Dbscript.',
+            ],
             'mysql' => ['login' => $mysqlUser, 'password' => $mysqlPass, 'host' => $mysqlHost],
             'search' => ['mode1' => 'by name', 'mode2' => 'by code', 'mode3' => 'show all'],
         ]);
@@ -44,7 +50,14 @@ final class InstallWriter
 
         $this->config->save('dbdata', ['tables' => []]);
         $this->config->save('pages', ['pages' => []]);
-        $this->config->save('styles', ['theme' => ['bg' => '#f4f4f8', 'fg' => '#1a1a2e', 'accent' => '#0000af']]);
+        $this->config->save('styles', [
+            'theme' => [
+                'bg' => '#f4f4f8',
+                'fg' => '#1a1a2e',
+                'accent' => '#0000af',
+                'border' => '#c8c8d8',
+            ],
+        ]);
         $this->config->save('denywords', ['words' => ['drop', 'truncate']]);
         $this->config->save('files', ['allowed' => ['html', 'gif', 'bmp', 'png']]);
 

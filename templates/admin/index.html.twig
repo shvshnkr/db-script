@@ -1,0 +1,25 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ t('CMDAUTHINF', 'Admin') }} — {{ site_name }}{% endblock %}
+
+{% block body %}
+<h1>{{ t('CMDAUTHINF', 'Administration')|slice(0, 40) }}</h1>
+<p>{{ t('REGTO', 'Signed in as') }} <strong>{{ user }}</strong> ({{ role }})</p>
+
+<h2>{{ t('LOGIN', 'Users') }}</h2>
+<table class="dbs-table">
+  <thead><tr><th>{{ t('LOGIN', 'Login') }}</th><th>role</th><th>active</th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    <tr><td>{{ u.login }}</td><td>{{ u.role }}</td><td>{{ u.active ? 'yes' : 'no' }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Configs (TOML)</h2>
+<ul>
+  {% for name in config_files %}
+    <li><code>_conf/{{ name }}.toml</code></li>
+  {% endfor %}
+</ul>
+{% endblock %}

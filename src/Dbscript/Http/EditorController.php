@@ -8,13 +8,12 @@ use Dbscript\Auth\AuthMiddleware;
 use Dbscript\Config\DbdataRepository;
 use Dbscript\Database\ConnectionFactory;
 use Dbscript\Service\EditorService;
-use Dbscript\View\TwigRenderer;
+use Dbscript\View\TwigFactory;
 
 final class EditorController
 {
     public function __construct(
         private readonly EditorService $editor,
-        private readonly TwigRenderer $view,
     ) {
     }
 
@@ -34,8 +33,8 @@ final class EditorController
         ]);
 
         header('Content-Type: text/html; charset=UTF-8');
-        echo $this->view->render('editor/list.html.twig', [
-            'user' => $claims['login'],
+        $view = TwigFactory::create(Application::get());
+        echo $view->render('editor/list.html.twig', [
             'result' => $result,
             'columns' => $result['rows'] !== [] ? array_keys($result['rows'][0]) : [],
         ]);
@@ -45,8 +44,8 @@ final class EditorController
     private function renderTablePicker(array $claims): void
     {
         header('Content-Type: text/html; charset=UTF-8');
-        echo $this->view->render('editor/tables.html.twig', [
-            'user' => $claims['login'],
+        $view = TwigFactory::create(Application::get());
+        echo $view->render('editor/tables.html.twig', [
             'tables' => $this->editor->listTables(),
         ]);
     }
@@ -57,8 +56,6 @@ final class EditorController
         $dbdata = new DbdataRepository($config);
         $connections = new ConnectionFactory($config);
         $editor = new EditorService($dbdata, $connections);
-        $view = new TwigRenderer($app->root() . '/templates');
-
-        return new self($editor, $view);
+        return new self($editor);
     }
 }

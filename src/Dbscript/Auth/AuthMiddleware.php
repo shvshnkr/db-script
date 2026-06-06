@@ -30,6 +30,11 @@ final class AuthMiddleware
             exit;
         }
 
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $_SESSION['dbs_current_user'] = $claims['login'];
+
         return $claims;
     }
 }

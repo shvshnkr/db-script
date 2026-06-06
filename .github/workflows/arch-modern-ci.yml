@@ -34,6 +34,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker compose -f dev/docker-compose.yml up -d --build
-      - run: docker compose -f dev/docker-compose.yml exec -T web bash -c 'composer install --no-interaction && bash scripts/smoke-all.sh http://127.0.0.1 /var/www/html'
-        env:
-          SMOKE_SKIP_INSTALL: "1"
+      - run: docker compose -f dev/docker-compose.yml exec -T web bash -c 'composer update --no-interaction && php scripts/arch-modern-install-dev.php testpass12 && php scripts/arch-modern-seed-demo.php && vendor/bin/phpunit --testsuite unit && bash scripts/smoke-arch-modern.sh http://127.0.0.1'

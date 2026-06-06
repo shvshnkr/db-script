@@ -1,0 +1,20 @@
+<header class="dbs-header">
+    <div class="dbs-brand">
+        <strong>{{ site_name|default('Dbscript') }}</strong>
+        {% if welcome %}<span class="dbs-welcome">{{ welcome }}</span>{% endif %}
+    </div>
+    <nav class="dbs-nav">
+        <a href="w-arch.php">{{ t('BROWSE', 'Editor') }}</a>
+        <a href="admin-arch.php">{{ t('CMDAUTHINF', 'Admin')|slice(0, 24) }}…</a>
+        {% if current_user %}
+            <span class="dbs-user">{{ current_user }}</span>
+            <a href="logout-arch.php">{{ t('EXIT', 'Logout') }}</a>
+        {% else %}
+            <a href="login-arch.php">{{ t('LOGIN', 'Login') }}</a>
+        {% endif %}
+        <span class="dbs-lang">
+            <a href="?lang=english">EN</a> |
+            <a href="?lang=russian">RU</a>
+        </span>
+    </nav>
+</header>

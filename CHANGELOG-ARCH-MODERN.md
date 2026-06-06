@@ -10,7 +10,12 @@
 - `scripts/arch-modern-seed-demo.php` — demo table for Docker dev
 - `dev/Dockerfile` + entrypoint: `pdo_mysql` for Doctrine DBAL
 
-### Fixed
+### Added (phase 4)
+- `MessageCatalog`, `LangResolver`, `ThemeService`, `TwigFactory` with `t()` helper
+- UTF-8 lang: `_langdb/english.json`, `_langdb/russian.json` (from cfg via convert script)
+- Twig `layout/app.html.twig`, nav partial, themed CSS variables from `styles.toml`
+- `LoginController`, `AdminController`, `logout-arch.php`
+- `scripts/smoke-arch-modern.sh`, CI smoke gate updated
 - `JwtAuthService`: lcobucci v5 `relatedTo()` for subject claim
 - `composer.json`: `php-collective/toml` @dev + `composer.lock` updated
 - PSR-4 autoload `Dbscript\` → `src/Dbscript/`

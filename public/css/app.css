@@ -1,14 +1,65 @@
-/** arch-modern base styles — theme vars from styles.toml at runtime */
+/** arch-modern base styles — theme vars injected from styles.toml */
 
 :root {
     --dbs-bg: #f4f4f8;
     --dbs-fg: #1a1a2e;
     --dbs-accent: #0000af;
+    --dbs-border: #c8c8d8;
 }
+
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: system-ui, sans-serif;
+    font-family: system-ui, "Segoe UI", sans-serif;
     background: var(--dbs-bg);
     color: var(--dbs-fg);
+    line-height: 1.45;
 }
+
+.dbs-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--dbs-accent);
+    color: #fff;
+}
+
+.dbs-header a { color: #fff; margin-right: 0.75rem; }
+.dbs-brand strong { font-size: 1.1rem; }
+.dbs-welcome { opacity: 0.85; margin-left: 0.75rem; font-size: 0.9rem; }
+.dbs-user { opacity: 0.9; margin: 0 0.5rem; }
+.dbs-lang { opacity: 0.85; font-size: 0.85rem; }
+
+.dbs-main { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+
+.dbs-table { width: 100%; border-collapse: collapse; background: #fff; }
+.dbs-table th, .dbs-table td {
+    border: 1px solid var(--dbs-border);
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+}
+.dbs-table th { background: #ececf4; }
+
+.dbs-table-list { list-style: none; padding: 0; }
+.dbs-table-list li { margin: 0.35rem 0; }
+
+.dbs-form label { display: block; margin: 0.5rem 0; }
+.dbs-form input { padding: 0.35rem 0.5rem; min-width: 220px; }
+.dbs-form button {
+    margin-top: 0.75rem;
+    padding: 0.45rem 1rem;
+    background: var(--dbs-accent);
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+}
+
+.dbs-error { color: #b00020; }
+.dbs-meta { color: #555; font-size: 0.95rem; }
+.dbs-table-wrap { overflow-x: auto; }
+
+h1 small { font-weight: normal; color: #666; font-size: 0.85em; }

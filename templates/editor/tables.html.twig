@@ -1,13 +1,14 @@
-{% extends 'layout/base.html.twig' %}
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ t('BROWSE', 'Editor') }} — {{ site_name }}{% endblock %}
 
 {% block body %}
-<h1>Editor — tables</h1>
-<p>Signed in as {{ user }}</p>
-<ul>
+<h1>{{ t('BROWSE', 'Editor') }} — {{ t('SELLINK', 'Tables') }}</h1>
+<ul class="dbs-table-list">
 {% for table in tables %}
   <li><a href="w-arch.php?tbl={{ table.id }}">{{ table.visual_name|default(table.mysql_table) }}</a></li>
 {% else %}
-  <li>No tables in dbdata.toml</li>
+  <li>{{ t('NOTUSED', 'No tables configured') }}</li>
 {% endfor %}
 </ul>
 {% endblock %}
