@@ -25,7 +25,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 | [`master`](https://github.com/shvshnkr/db-script/tree/master) | upstream dj--alex | зеркало оригинала, без порта | ✅ |
 | [`php8-port`](https://github.com/shvshnkr/db-script/tree/php8-port) | `master` | механический порт на PHP 8.0+ | ✅ |
 | [`modern-ops`](https://github.com/shvshnkr/db-script/tree/modern-ops) | `php8-port` | эксплуатация: CSRF, session-auth, servicectl | ✅ |
-| [`arch-modern`](https://github.com/shvshnkr/db-script/tree/arch-modern) | `modern-ops` | предложение архитектуры 2026 (PSR-4, TOML, JWT, Twig) | ✅ |
+| [`arch-modern`](https://github.com/shvshnkr/db-script/tree/arch-modern) | `modern-ops` | черновик альтернативной архитектуры (PSR-4, TOML, JWT, Twig) | ✅ |
 | [`arch-spa`](https://github.com/shvshnkr/db-script/tree/arch-spa) | `arch-modern` | REST `/api/v1` + React SPA `/app/*` | ⏳ локально, push ожидается |
 
 ---
@@ -77,7 +77,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 
 | | |
 |---|---|
-| **Зачем** | Показать dj--alex «как должно быть в 2026» — **без** обратной совместимости с csv/`dbscore.lib` |
+| **Зачем** | Черновик перестройки Dbscript под современный PHP-стек — **для рассмотрения автором**, без обратной совместимости с csv/`dbscore.lib` |
 | **Что сделано** | PSR-4 `src/Dbscript/`; TOML `_conf/*.toml`; JWT `dbs_jwt`; Twig SSR; `EditorService`/`ReaderService`; install/login/admin/w-arch/r-arch; SQL/denywords; CSV export |
 | **Параллельно** | Legacy `dbscore.lib` + `*.cfg` + `w.php`/`r.php` ещё не вырезаны (фаза cutover) |
 | **Последний коммит** | [`04bb5ce`](https://github.com/shvshnkr/db-script/commit/04bb5ce) — editor CRUD, reader, SQL/denywords, CSV export |
