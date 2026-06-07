@@ -13,7 +13,7 @@
 			</ul>
 			<div class="txt">
 		<?php
-		if (($prauth[$ADM][16]==false)AND($write==true) ) {
+		if ((($prauth[$ADM][16] ?? null)==false)AND(($write ?? null)==true) ) {
 			$messageid=rmsg ($write);
 			$msghelpid="F1_".$messageid;//	echo "msg for key $msghelpid is ".cmsg ($msghelpid)."<br>";
 			lprint ($msghelpid);
@@ -43,7 +43,7 @@
 		<?php 		// function used li and ul tags function genericmenu
 	
 		for ($a=0;$a<64;$a++) {
-	if ($pgheader[$a]==$languageprofile) $thislanguagepagescolumn=$a;
+	if (($pgheader[$a] ?? '')==$languageprofile) $thislanguagepagescolumn=$a;
 }
 for ($a=0;$a<$pgcnt;$a++) {
     	if ($pgcontent[$a+1][1]=="") continue;
