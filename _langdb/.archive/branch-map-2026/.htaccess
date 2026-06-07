@@ -1,0 +1,2 @@
+# Archive notes — not part of CMS runtime; deny web access if Apache serves _langdb
+Require all denied
