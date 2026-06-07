@@ -25,7 +25,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 | [`master`](https://github.com/shvshnkr/db-script/tree/master) | upstream dj--alex | зеркало оригинала, без порта | ✅ |
 | [`php8-port`](https://github.com/shvshnkr/db-script/tree/php8-port) | `master` | механический порт на PHP 8.0+ | ✅ |
 | [`modern-ops`](https://github.com/shvshnkr/db-script/tree/modern-ops) | `php8-port` | эксплуатация: CSRF, session-auth, servicectl | ✅ |
-| [`arch-modern`](https://github.com/shvshnkr/db-script/tree/arch-modern) | `modern-ops` | предложение архитектуры 2026 (PSR-4, TOML, JWT, Twig) | ✅ |
+| [`arch-modern`](https://github.com/shvshnkr/db-script/tree/arch-modern) | `modern-ops` | черновик альтернативной архитектуры (PSR-4, TOML, JWT, Twig) | ✅ |
 | [`arch-spa`](https://github.com/shvshnkr/db-script/tree/arch-spa) | `arch-modern` | REST `/api/v1` + React SPA `/app/*` | ⏳ локально, push ожидается |
 
 ---
@@ -77,7 +77,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 
 | | |
 |---|---|
-| **Зачем** | Показать dj--alex «как должно быть в 2026» — **без** обратной совместимости с csv/`dbscore.lib` |
+| **Зачем** | Черновик перестройки Dbscript под современный PHP-стек — **для рассмотрения автором**, без обратной совместимости с csv/`dbscore.lib` |
 | **Что сделано** | PSR-4 `src/Dbscript/`; TOML `_conf/*.toml`; JWT `dbs_jwt`; Twig SSR; `EditorService`/`ReaderService`; install/login/admin/w-arch/r-arch; SQL/denywords; CSV export |
 | **Параллельно** | Legacy `dbscore.lib` + `*.cfg` + `w.php`/`r.php` ещё не вырезаны (фаза cutover) |
 | **Последний коммит** | [`04bb5ce`](https://github.com/shvshnkr/db-script/commit/04bb5ce) — editor CRUD, reader, SQL/denywords, CSV export |
@@ -99,8 +99,8 @@ dj--alex/master (4.3.x, PHP 5/7)
 | **Что сделано (локально)** | OpenAPI `openapi.yaml`; `src/Dbscript/Http/Api/`; JWT auth API; editor API; `frontend/` (Vite+React+TS); `public/app/` build; smoke `smoke-api-auth.sh`, `smoke-spa.sh`; docs `ARCHITECTURE-SPA.md`, `DESIGN-SPA.md` |
 | **В работе** | CRUD modal (phase 2); FileManager SPA (phase 3); SQL panel (phase 4); CI `arch-spa-ci.yml`; push ветки на GitHub |
 | **База коммита** | `04bb5ce` (tip `arch-modern` на момент ответвления) |
-| **Публичный README** | [`README-ARCH-SPA.md`](./../../README-ARCH-SPA.md) *(пока только локально)* |
-| **Handoff (подробно)** | [`handoff-djalex.ru.md`](./arch-spa-2026/handoff-djalex.ru.md) |
+| **Публичный README** | `README-ARCH-SPA.md` *(пока только локально)* |
+| **Handoff (подробно)** | [`arch-spa-2026/handoff-djalex.ru.md`](./arch-spa-2026/handoff-djalex.ru.md) |
 
 **API:** `GET/POST /api/v1/auth/*`, `GET /api/v1/tables`, `GET/POST/PUT/DELETE /api/v1/rows` — контракт в `openapi.yaml`  
 **SPA routes:** `/app/login`, `/app/editor/:tableId`, `/app/files` (phase 3)
@@ -116,7 +116,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 | `php8-port` | [`php8-port-2026/handoff`](https://github.com/shvshnkr/db-script/blob/php8-port/_langdb/.archive/php8-port-2026/handoff-djalex.ru.md) | [`README.md`](https://github.com/shvshnkr/db-script/blob/php8-port/README.md) |
 | `modern-ops` | [`modern-ops-2026/handoff`](https://github.com/shvshnkr/db-script/blob/modern-ops/_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md) | [`README-MODERN-OPS.md`](https://github.com/shvshnkr/db-script/blob/modern-ops/README-MODERN-OPS.md) |
 | `arch-modern` | [`arch-modern-2026/handoff`](https://github.com/shvshnkr/db-script/blob/arch-modern/_langdb/.archive/arch-modern-2026/handoff-djalex.ru.md) | [`README-ARCH-MODERN.md`](https://github.com/shvshnkr/db-script/blob/arch-modern/README-ARCH-MODERN.md) |
-| `arch-spa` | [`arch-spa-2026/handoff`](./arch-spa-2026/handoff-djalex.ru.md) | [`README-ARCH-SPA.md`](../../README-ARCH-SPA.md) |
+| `arch-spa` | [`arch-spa-2026/handoff`](./arch-spa-2026/handoff-djalex.ru.md) | `README-ARCH-SPA.md` *(локально)* |
 
 ---
 
