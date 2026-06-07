@@ -58,6 +58,7 @@ smoke_post() {
     local url="$2"
     local data="$3"
     local timeout="${4:-120}"
+    data="$(smoke_csrf_append "$data")"
     echo -n "$label ... "
     if ! curl -fsS -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" -L --max-time "$timeout" \
         -X POST "$url" -d "$data" -o "$SMOKE_OUT"; then
@@ -73,6 +74,7 @@ smoke_post_save_headers() {
     local url="$2"
     local data="$3"
     local timeout="${4:-120}"
+    data="$(smoke_csrf_append "$data")"
     echo -n "$label ... "
     if ! curl -fsS -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" -L --max-time "$timeout" \
         -X POST "$url" -d "$data" -o "$SMOKE_OUT" -D "$SMOKE_HDR"; then
@@ -100,6 +102,31 @@ smoke_assert_http_code() {
     echo "OK: $label HTTP $code"
 }
 
+smoke_csrf_prime() {
+    smoke_get "csrf prime admin" "$SMOKE_BASE_URL/admin.php" 60
+    SMOKE_CSRF="$(grep -oE 'name="_csrf" value="[^"]+"' "$SMOKE_OUT" 2>/dev/null | head -1 | sed 's/.*value="//;s/"$//' || true)"
+    if [[ -z "${SMOKE_CSRF:-}" ]]; then
+        smoke_get "csrf prime w" "$SMOKE_BASE_URL/w.php" 60
+        SMOKE_CSRF="$(grep -oE 'name="_csrf" value="[^"]+"' "$SMOKE_OUT" 2>/dev/null | head -1 | sed 's/.*value="//;s/"$//' || true)"
+    fi
+    if [[ -z "${SMOKE_CSRF:-}" ]]; then
+        echo "WARN: CSRF token not found (csrf may be disabled via pr77)"
+    fi
+}
+
+smoke_csrf_append() {
+    local data="$1"
+    if [[ -n "${SMOKE_CSRF:-}" ]]; then
+        if [[ -n "$data" ]]; then
+            echo "${data}&_csrf=${SMOKE_CSRF}"
+        else
+            echo "_csrf=${SMOKE_CSRF}"
+        fi
+    else
+        echo "$data"
+    fi
+}
+
 smoke_login() {
     local user="${1:-TEST}"
     local pass="${2:-TEST}"
@@ -111,6 +138,7 @@ smoke_login() {
     if ! grep -q 'dbsa' "$SMOKE_COOKIE" 2>/dev/null; then
         echo "WARN: dbsa cookie not in jar (may still be session-only)"
     fi
+    smoke_csrf_prime
 }
 
 smoke_assert_pattern() {

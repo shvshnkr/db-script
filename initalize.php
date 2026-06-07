@@ -3,9 +3,7 @@ require_once ('dbscore.lib');
 //$script="login.php";
  if ($pr[36]=="on")  { 
  	$script="disable";
-if (!isset($_SERVER['PHP_AUTH_USER']) ||
-     ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
-   authenticate();}  
+dbs_require_basic_auth();
  };
  
 if ($pr[36]!=="on") if (!isset ($_SERVER['PHP_AUTH_USER']))  msgexiterror ("anonymous",0,"disable");

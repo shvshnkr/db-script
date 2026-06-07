@@ -32,6 +32,8 @@ fi
 run smoke-admin-test.sh
 run smoke-cold-paths.sh
 run smoke-security.sh
+run smoke-csrf.sh
+run smoke-servicectl.sh
 run smoke-auth.sh
 run smoke-index-router.sh
 run smoke-editor-crud.sh

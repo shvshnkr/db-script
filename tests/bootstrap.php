@@ -13,5 +13,9 @@ $coreloadskip = true;
 $installermode = true;
 $dbdataskip = true;
 $nomnu = 1;
+$GLOBALS['coreloadskip'] = true;
+$GLOBALS['installermode'] = true;
+$GLOBALS['dbdataskip'] = true;
+$GLOBALS['nomnu'] = 1;
 
 require_once dirname(__DIR__) . '/dbscore.lib';

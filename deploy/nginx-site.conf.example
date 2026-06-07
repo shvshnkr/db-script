@@ -11,6 +11,10 @@ server {
 
     client_max_body_size 64m;
 
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
     # Config, logs, local runtime, user uploads — never serve over HTTP
     location ~ ^/_(conf|logs|local|data)(/|$) {
         deny all;

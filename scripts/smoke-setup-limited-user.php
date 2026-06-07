@@ -8,6 +8,7 @@ declare(strict_types=1);
 $coreloadskip = true;
 $dbdataskip = true;
 $nomnu = 1;
+$installermode = true;
 
 chdir(dirname(__DIR__));
 require_once 'dbscore.lib';

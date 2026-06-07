@@ -33,9 +33,7 @@ exit;}
 
 //
  if ($pr[36]=="on")  { 
-if (!isset($_SERVER['PHP_AUTH_USER']) ||
-     ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
-   authenticate();}  
+dbs_require_basic_auth();
  };
  
 	 if (($pr[36]=="on")AND($ADM==0)) { lprint ("LG_OFF");   exit;};

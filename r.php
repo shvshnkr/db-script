@@ -116,6 +116,7 @@ if ($cmd[0]==="help") { if ($adm==1) {
                     exit;}
 
                if ($cmd[0]==="cmd") {
+                    if (empty($prauth[$ADM][2])) { msgexiterror ("notrights"," administrator","r.php"); exit; }
                     echo "Command :: ".$cmd[1]."<br>";
                     $cmcount=count($cmdata)-1;
                     //echo "Servers:$cmcount<br>";
@@ -126,9 +127,9 @@ if ($cmd[0]==="help") { if ($adm==1) {
                          if ($cmdata[$a][1]===$cmd[1]) {
                                  $command = "".$cmdata[$a][2]."";
                                echo "now run : $command";
-                                $x= passthru($command,$output) ;
-                                //echo "x=";print_r ($x);
-                                //echo "output=";print_r ($output)
+                                $res = dbs_cmdline_run ($command);
+                                echo "<pre>".htmlspecialchars($res['output'], ENT_QUOTES, 'ISO-8859-1')."</pre>";
+                                if (!$res['ok']) echo "<red>exit ".$res['exit_code']."</red>";
                                 } ;
                             }
                        //"ID¦Command¦Parameters¦PLVL¦Info¦ReqPage¦ReqData¦ReqAutorun¦P".$addOSenter);
@@ -208,7 +209,8 @@ if ($cmd[0]==="help") { if ($adm==1) {
 		If ($prauth[$ADM][2]==true) {  // команды ТОЛЬКО для администриторов
 		if (($cmd[0]==="genactcode")AND($prauth[$ADM][42])) { echo genactcode();exit;}
 		 if (($cmd[0]==="genactcode")AND(!$prauth[$ADM][42])) { msgexiterror ("notrights"," superuser","admin.php"); }
-		if ($cmd[0]==="hashgen") { echo hashgen($cmd[1]);exit;}
+		if (($cmd[0]==="hashgen")AND($prauth[$ADM][42])) { echo hashgen($cmd[1]);exit;}
+		 if (($cmd[0]==="hashgen")AND(!$prauth[$ADM][42])) { msgexiterror ("notrights"," superuser","admin.php"); exit; }
 		if ($cmd[0]==="print") { echo (${$cmd[1]});exit;}
 		if (($cmd[0]==="deactivate")AND($prauth[$ADM][42])) {
 				$a=genactcode();
@@ -1214,15 +1216,10 @@ hidekey ("kol",$kol);
 
 	function relogin ()
 			{
-				//global $tbl;
-				$tbl=1;
+				dbs_auth_session_clear();
 				header('WWW-Authenticate: Basic realm="Модуль данных dbscript "');
-				header('HTTP/1.0 401 Unauthorized');   echo "<form action='getfile.php' METHOD='post'>\n"; //{$_SERVER['PHP_SELF']}
-				echo "<input type='hidden' name='SeenBefore' value='0' />\n";
-				echo "<input type='hidden' name='OldAuth' value='{$_SERVER['PHP_AUTH_USER']}' />\n";
-				submitkey ("auth","AUTHEN");
-				echo "<br><br>Can be used only one times. Other way - is close and open your browser.";
-				echo "</form></p>\n";
+				header('HTTP/1.0 401 Unauthorized');
+				exit;
 			}
 
 

@@ -19,16 +19,15 @@ $verwritefile="Editor v4.3.3 beta (c) dj--alex";
 
 $enterpoint=$verwritefile;// äëÿ ïîêàçà òî÷êè âõîäà
 autoexecsql ();
-extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);
+dbs_lock_adm();
+dbs_require_csrf ();
 //ïðèåì äîëáàíûõ ôàéëîâ
 // ÷àñòü íåêîòîðûõ çàãðóçîê ïåðåìåííûõ ìîæíî óäàëèòü
 if (isset($_FILES["userfile"])) ob_start (); // òàêîå ÷óâñòâî ÷òî ýòà ÷àñòü êîäà ïðîñòî èãíîðèðóåòñÿ.
 
 
 $writefile=1;
-IF ($pr[36])  if (!isset($_SERVER['PHP_AUTH_USER']) ||
-   ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
-  authenticate ();}
+IF ($pr[36])  dbs_require_basic_auth();
 
 
 
@@ -3337,20 +3336,25 @@ if (($write==cmsg("KEY_S_EXCH"))AND($prdbdata[$tbl][12]!="fdb")) {
 
 		if (!$wfemptyenab) if (($prauth[$ADM][4]===false)AND($strupdmode==="allstrokes") AND (strlen ($sourceid)==0)) { echo "<red><bb>".cmsg ("LIM")."</bb><br></red>".cmsg ("WF_EX_ANY_D") ; exit;} ;
 	//îêîí÷àíèå îáðàáîòêè îøèáîê
+	$q_vID = quote_smart($vID);
+	$q_vID2 = quote_smart($vID2);
+	$q_sourceid = quote_smart($sourceid);
+	$q_exchid = quote_smart($exchid);
+	$q_subsplitter = quote_smart($subsplitter);
 	if ((strlen ($sourceid)==0)AND($strupdmode!=="substrokes"))
-		{ $cmd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`='".$exchid."' WHERE `".$mycol[$md2column]."`= '".$vID."'";
-			if ($delete) $cmd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$md2column]."`= '".$vID."'";
+		{ $cmd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`=".$q_exchid." WHERE `".$mycol[$md2column]."`=".$q_vID;
+			if ($delete) $cmd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$md2column]."`=".$q_vID;
 				}  // åñëè íå óêàçàíà öåëü çàìåíû òîãäà çàìåíÿåò ëþáîå çíà÷åíèå â ïðåäåëàõ ID
 
 	if ((strlen ($sourceid)!==0)AND($strupdmode!=="substrokes"))
-		{ $cmd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`='".$exchid."' WHERE `".$mycol[$field]."`= '".$sourceid."'";
-		if ($delete) $cmd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`= '".$sourceid."'";
+		{ $cmd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`=".$q_exchid." WHERE `".$mycol[$field]."`=".$q_sourceid;
+		if ($delete) $cmd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`=".$q_sourceid;
 				} // çàìåíÿåò óêàçàííûå çíà÷åíèÿ â ïðåäåëàõ ID  ,  ìîæåò ðàñøèðÿòñÿ allstrokes
 				// allstrokes??  onestroke
 	if (($strupdmode=="onestroke") AND (strlen ($sourceid)!==0)) {
-		$cmd=$cmd." AND `".$mycol[$md2column]."`= '".$vID."'";
+		$cmd=$cmd." AND `".$mycol[$md2column]."`=".$q_vID;
 		if (($virtualid>0)AND (strlen ($vID2)!==0)) {
-					$cmd = $cmd." AND `".$mycol[$virtualid]."`= '".$vID2."'";};};
+					$cmd = $cmd." AND `".$mycol[$virtualid]."`=".$q_vID2;};};
 
 	if (($addifenable1)OR($addifenable2)) {$cmd=$cmd.$cmdaddif;		}; // âûï äîï óñëîâèÿ ìîäåðíèç.
 
@@ -3358,8 +3362,8 @@ if (($write==cmsg("KEY_S_EXCH"))AND($prdbdata[$tbl][12]!="fdb")) {
 
 // SUBSTRREPLACE çàìåíà âíóòðè ñòðîêè áåç èíäåêñà
 if (($strupdmode=="substrokes")AND(!$emusubstroke))	{
-	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`=REPLACE (`".$mycol[$field]."`,$sourceid,$exchid) WHERE `$mycol[$field]` LIKE '%$sourceid%'";
-if ($delete) $cmd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`LIKE  '%".$sourceid."%'";
+	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`=REPLACE (`".$mycol[$field]."`, ".$q_sourceid.", ".$q_exchid.") WHERE `".$mycol[$field]."` LIKE CONCAT('%', ".$q_sourceid.", '%')";
+if ($delete) $cmd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."` LIKE CONCAT('%', ".$q_sourceid.", '%')";
 	echo "";
 	if (($addifenable1)OR($addifenable2)) {$upd=$upd.$cmdaddif;		}; // âûï äîï óñëîâèÿ ìîäåðíèç.
 	$result = dbs_query ($upd,$connect,$dbtype);;$cmd="";
@@ -3374,7 +3378,7 @@ if ($delete) $cmd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field].
 // SUBINDSTRREPLACE çàìåíà âíóòðè ñòðîêè ñ èíäåêîì  -
 if (($strupdmode=="subindstrokes")AND(!$emusubstroke))	{
 //calc maximum row inside data field
-	$cmd="SELECT * FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`LIKE '%".$sourceid."%'";
+	$cmd="SELECT * FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."` LIKE CONCAT('%', ".$q_sourceid.", '%')";
 	$result = dbs_query ($cmd, $connect,$dbtype);$myrow = dbs_fetch_row ($result,$dbtype);
 	$a=trim ($myrow[$field]); $b=explode ($subsplitter,$a);$endsub=count ($b); //end calc  $endsub
 	if ($test1) {echo "COMMAND: $cmd<bR>:";
@@ -3382,7 +3386,7 @@ if (!$pr[8]) echo "DEBUG Test first row:".$a."<br><br>";
 if (!$pr[8]) echo "DEBUG Substroke cont $endsub codes - editing row $subindex data : ".$b[$subindex-1]."<br>None changes, just test,encoding index real (without 0)<br><bR>";
 }
   $startsub=-1+$subindex; $endsub=-($endsub-$subindex); // corrected
-$substringone=" (SUBSTRING_INDEX(SUBSTRING_INDEX(".$mycol[$field].",'".$subsplitter."','".$subindex."'),'".$subsplitter."','-1') )";
+$substringone=" (SUBSTRING_INDEX(SUBSTRING_INDEX(".$mycol[$field].", ".$q_subsplitter.", '".((int)$subindex)."'), ".$q_subsplitter.", '-1') )";
 //substrone ïîëó÷àåò çíà÷åíèå èñêîìîãî ýëåìåíòà è ìîæåò ñðàâíèâàòñÿ êàê îáû÷íàÿ ïåðåìåííàÿ
 /*if ($test1) {
 	$cmd="SELECT $substringone as A FROM `".$prdbdata[$tbl][5]."` WHERE A='".$sourceid."'";
@@ -3392,9 +3396,9 @@ if (!$pr[8]) echo "COMMAND 2 : $cmd<br><bR><br>Substroke 2 row:".$myrow[0]."<br>
 */
 
 
-	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`= CONCAT(SUBSTRING_INDEX(`".$mycol[$field]."`, '".$subsplitter."', '".($startsub)."'), ' ".$exchid." ' ,SUBSTRING_INDEX(`".$mycol[$field]."`, '".$subsplitter."', '".$endsub."'))  WHERE (".$substringone.")=".$sourceid." "; // where ÷àñòüâåðíàÿ.
+	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`= CONCAT(SUBSTRING_INDEX(`".$mycol[$field]."`, ".$q_subsplitter.", '".((int)$startsub)."'), ' ', ".$q_exchid.", ' ', SUBSTRING_INDEX(`".$mycol[$field]."`, ".$q_subsplitter.", '".((int)$endsub)."'))  WHERE (".$substringone.")=".$q_sourceid." "; // where ÷àñòüâåðíàÿ.
  // êñòàòè âðîäå áàã ñ ýòîé ôèãíåé â öñâ äî ñèõ ïîð îñòàëñÿÿLIKE '%".$subsplitter.$sourceid.$subsplitter."%'
-if ($delete) $upd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE ".$substringone."='".$sourceid."' ";
+if ($delete) $upd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE ".$substringone."=".$q_sourceid." ";
 	if (($addifenable1)OR($addifenable2)) {$upd=$upd.$cmdaddif;		}; // âûï äîï óñëîâèÿ ìîäåðíèç.
 	$result = dbs_query ($upd,$connect,$dbtype);;$cmd="";$silent=0;dbserr ();
 	if ($views) echo cmsg ("WF_EXQUE").$upd."<br><br>".cmsg ("WF_QUECOMP").dbs_affected_rows ().cmsg ("WF_Q1")."<br>";
@@ -3403,14 +3407,17 @@ if ($delete) $upd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE ".$substringone."=
 
 //ìîäóëb ýìóëÿöèè ñóáñòðîê
 // SUBSTRREPLACE çàìåíà âíóòðè ñòðîêè áåç èíäåêñà  ýìóëÿöèÿ(!!!)
-if (($strupdmode=="substrokes")AND($emusubstroke)) { $sourcefield="SELECT * FROM `".$prdbdata[$tbl][9]."`.`".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`LIKE '%".$sourceid."%'";
+if (($strupdmode=="substrokes")AND($emusubstroke)) { $sourcefield="SELECT * FROM `".$prdbdata[$tbl][9]."`.`".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."` LIKE CONCAT('%', ".$q_sourceid.", '%')";
 $subselect=dbs_query ($sourcefield,$connect,$dbtype);
 while($row=dbs_fetch_array($subselect,$connect,$dbtype))
 	{ $data=$row[$field];$guided=$row[$md2column];
 	//echo $row[0]." -- ".$row[$field]." -- ".$field." <br>";
 $replid=$data; $replid=str_replace ($sourceid, $exchid,$replid);// replid ýòî ìàññèâ êîòîðûé íóæä â èçìåíåíèè
-	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`='".$replid."' WHERE `".$mycol[$field]."`= '".$data."' AND `".$mycol[$md2column]."`= '".$guided."'";
-	if ($delete) $upd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`= '".$data."' AND `".$mycol[$md2column]."`= '".$guided."'";
+	$q_data = quote_smart($data);
+	$q_guided = quote_smart($guided);
+	$q_replid = quote_smart($replid);
+	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`=".$q_replid." WHERE `".$mycol[$field]."`=".$q_data." AND `".$mycol[$md2column]."`=".$q_guided;
+	if ($delete) $upd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`=".$q_data." AND `".$mycol[$md2column]."`=".$q_guided;
 	if (($addifenable1)OR($addifenable2)) {$upd=$upd.$cmdaddif;		}; // âûï äîï óñëîâèÿ ìîäåðíèç.
 	$result = dbs_query ($upd,$connect,$dbtype);;$cmd="";
 	if ($views) echo cmsg ("WF_EXQUE").$upd."<br><br>".cmsg ("WF_QUECOMP").dbs_affected_rows ().cmsg ("WF_Q1")."<br>";
@@ -3423,7 +3430,7 @@ echo "Âûïîëíåíî ".$findrecords." öèêëîâ.<br>";
 
 // SUBINDSTRREPLACE çàìåíà âíóòðè ñòðîêè ñ èíäåêîì  ýìóëÿöèÿ
 if (($strupdmode=="subindstrokes")AND($emusubstroke)) {
-$sourcefield="SELECT * FROM `".$prdbdata[$tbl][9]."`.`".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."` LIKE '%".$sourceid."%'";
+$sourcefield="SELECT * FROM `".$prdbdata[$tbl][9]."`.`".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."` LIKE CONCAT('%', ".$q_sourceid.", '%')";
 $subselect=dbs_query ($sourcefield,$connect,$dbtype);
 while($row=dbs_fetch_array($subselect,$connect,$dbtype))
 	{ $data=$row[$field];$guided=$row[$md2column];
@@ -3433,8 +3440,11 @@ if ($dataexp[$subindex]==$sourceid) {
 	//echo "Dataexp - $dataexp ;; dataexp index ".$dataexp[$subindex]." ;; index  $subindex;  source $sourceid; exh $exchid<br>";
 	$dataexp[$subindex]=$exchid;
 $replid=implode ($subsplitter,$dataexp); //$replid=str_replace ($sourceid, $exchid,$replid);// replid ýòî ìàññèâ êîòîðûé íóæä â èçìåíåíèè
-	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`='".$replid."' WHERE `".$mycol[$field]."`= '".$data."' AND `".$mycol[$md2column]."`= '".$guided."'";
-	if ($delete) $upd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`= '".$data."' AND `".$mycol[$md2column]."`= '".$guided."'";
+	$q_data = quote_smart($data);
+	$q_guided = quote_smart($guided);
+	$q_replid = quote_smart($replid);
+	$upd="UPDATE `".$prdbdata[$tbl][5]."` SET `".$mycol[$field]."`=".$q_replid." WHERE `".$mycol[$field]."`=".$q_data." AND `".$mycol[$md2column]."`=".$q_guided;
+	if ($delete) $upd="DELETE FROM `".$prdbdata[$tbl][5]."` WHERE `".$mycol[$field]."`=".$q_data." AND `".$mycol[$md2column]."`=".$q_guided;
 	if (($addifenable1)OR($addifenable2)) {$upd=$upd.$cmdaddif;		}; // âûï äîï óñëîâèÿ ìîäåðíèçèðîâàíî
 	$result = dbs_query ($upd,$connect,$dbtype);;$cmd="";
 	if ($views) echo cmsg ("WF_EXQUE").$upd."<br><br>".cmsg ("WF_QUECOMP").dbs_affected_rows ().cmsg ("WF_Q1")."<br>";

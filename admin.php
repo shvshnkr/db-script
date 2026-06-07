@@ -13,18 +13,17 @@ require_once ('initalize.php'); // функция подготовки к раб
  //У рекламы есть и хорошие стороны - теперь все знают, где женщины прячут свои крылышки<br>
 autoexecsql (); 
 if (!$activation) Header("Location: login.php");
-   if (!isset($_SERVER['PHP_AUTH_USER']) ||
-   ($_POST['SeenBefore'] == 1 && $_POST['OldAuth'] == $_SERVER['PHP_AUTH_USER'])) {
-  authenticate ();}  
+   dbs_require_basic_auth();
 $pageenter=0;
 if ($frameoldcore==1) $write=getvar ('write');//пока не нашел почему равные переменные не равны  write не сравнивается!!!
-extract(array_merge($_GET, $_POST, $_COOKIE), EXTR_SKIP);  // универсальное решение проблемы
+dbs_lock_adm();
+dbs_require_csrf ();
      if ($write==cmsg("LST_SHA_FLS")) { header ("Location: r.php?tbl=files&m=4&vID=1&vID2="); };
         if ($write==cmsg("LST_SHA_FLS_DL")) { header ("Location: r.php?tbl=files&m=7.9&vID=!0"); };
         if ($write==cmsg("LST_SHA_FLS_NO")) { header ("Location: r.php?tbl=files&m=7.9&vID=0&fullfield=on"); };
 
 if ($dbsaa) { 
-	setcookie ("dbsa",$dbsaa,time ()+1000);
+	if ($ADM > 0) dbs_auth_session_create($prauth[$ADM][0], time ()+36000);
 	Header("Location: admin.php?cmd=myprof");	exit;			}
 $enterpoint=$veradm;
 if ($encoder=="not installed") errorlog ("Dbscript need an php encoder - iconv or mbstring.");
@@ -97,29 +96,30 @@ if (($write==cmsg ("A_ACSS_ED"))or($go==cmsg("A_ACSS_ED"))) { cssed () ;exit; };
 	if ($write===cmsg("A_RES_CFG")) { restorecfgs () ; }
  	if ($prauth[$ADM][42]) {
 		echo "<br>";
-	if ($OSTYPE=="LINUX") { ;
-				if ($write===cmsg ("MYSQL_STOP")) {
-					$a=passthru ("/etc/init.d/mysql stop"); 
-				echo $a."<br>";
-					}
-				if ($write===cmsg ("MYSQL_START")) {
-					$a=passthru ("/etc/init.d/mysql start"); 
-				echo $a."<br>";
-				}
-				if ($write===cmsg ("MYSQL_REBOOT")) {
-				$a=passthru ("/etc/init.d/mysql restart");
-				echo $a."<br>";
-				}
-				if ($write===cmsg ("APACHE_REBOOT")) {
-				$a=passthru ("/etc/init.d/apache2 restart");
-				echo $a."<br>";
-				}
-	
-	}  ;
-	if ($write===cmsg ("MYSQL_STOP")) { ; }  ;
-	if ($write===cmsg ("MYSQL_REBOOT")) { ; } ; 
-	if ($write===cmsg ("APACHE_REBOOT")) { ; } ; 
-	if ($write===cmsg ("EXEC_SHELL_CMD")) { Header("Location: command.php");; } ; 
+		$svcAction = '';
+		if (!empty($servicectl_action) && dbs_servicectl_action_valid ($servicectl_action)) {
+			$svcAction = $servicectl_action;
+		} else {
+			$svcAction = dbs_servicectl_admin_action ($write);
+		}
+		if ($svcAction !== '') {
+			if (dbs_servicectl_needs_confirm ($svcAction) && ($servicectl_confirm ?? '') !== '1') {
+				echo "<red>".cmsg("SRV_CONFIRM")."</red><br>";
+				echo '<form action="admin.php" method="post">';
+				csrfkey ();
+				echo '<input type="hidden" name="servicectl_confirm" value="1">';
+				echo '<input type="hidden" name="servicectl_action" value="'.htmlspecialchars($svcAction, ENT_QUOTES, 'ISO-8859-1').'">';
+				submitkey ("write","SRV_CONFIRM_BTN");
+				echo '</form>';
+			} elseif (dbs_servicectl_available()) {
+				$res = dbs_servicectl_run ($svcAction);
+				echo "<pre>".htmlspecialchars($res['command']."\n".$res['output'], ENT_QUOTES, 'ISO-8859-1')."</pre>";
+				if (!$res['ok']) echo "<red>exit ".$res['exit_code']."</red><br>";
+			} else {
+				echo "<red>servicectl unavailable — ".htmlspecialchars(dbs_servicectl_status_line(), ENT_QUOTES, 'ISO-8859-1')."</red><br>";
+			}
+		}
+	if ($write===cmsg ("EXEC_SHELL_CMD")) { Header("Location: w.php?tbl=cmdlines"); exit; } ; 
  	}
  	
    	echo $veradm."<br>";
@@ -169,10 +169,14 @@ $backupstate=@csvopen ("_conf/dbdata.cfg.backup.dat","r","0");
  		<?php if ($prauth[$ADM][42]) {?>
  		<form action=admin.php method=post>
 	<?php echo "</red>";lprint("SRV_SU_MSG");echo "<br>";
+	echo htmlspecialchars(dbs_servicectl_status_line(), ENT_QUOTES, 'ISO-8859-1')."<br>";
+	if (dbs_servicectl_available()) {
 	submitkey ("write","MYSQL_START"); 
 	submitkey ("write","MYSQL_STOP"); 
 	submitkey ("write","MYSQL_REBOOT"); 
 	submitkey ("write","APACHE_REBOOT"); 
+	submitkey ("write","WEB_RESTART");
+	} else { echo "<i>servicectl disabled (no privilege or not Linux)</i><br>"; }
 	submitkey ("write","EXEC_SHELL_CMD");
 
   submitkey ("write","SYNC");
@@ -1191,10 +1195,9 @@ echo "DEBUG Состояние gmlimitcfg=$gmlimitcfg<br> ";
 // здесь у нас указывается что пользователь хочет изменить пароль.  не даём ему это сделать если стоит запрет на смену пароля.
 		if ($gmlimitcfg==0)	$prauth[$ADMM][0]=stripslashes ($LOGINUSER); 			
 		echo "<form action=\"admin.php\" method=\"POST\">";
-		if ($PASSWORDUSER==true) { $prauth[$ADMM][1]=hashgen ($PASSWORDUSER);
+		if ($PASSWORDUSER==true) { $prauth[$ADMM][1]=dbs_password_hash ($PASSWORDUSER);
 	//здесь у нас надо отправить новый кук чтобы пользователь мог не перезаходить после смены пароля.
-		$dbsa=a ( base64_encode($prauth[$ADMM][0]."¦".$PASSWORDUSER));
-			if ($ADM==$ADMM) hidekey ("dbsaa",$dbsa); 
+			if ($ADM==$ADMM) hidekey ("dbsaa","1");
 			if ($ADM!==$ADMM) echo "...<br>";
 		} else { $prauth[$ADMM][1]=stripslashes ($HASHUSER);};
 		submitkey ("dalee","CONT");
