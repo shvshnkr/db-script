@@ -10,14 +10,15 @@
 | Editor | w-arch.php | `/app/editor/:tableId` |
 | API | контракт в ARCHITECTURE.md | `/api/v1/*` |
 
-Dbscript на этом форке **не в prod** — здесь собран прототип редактора на React SPA для ознакомления автором, без legacy-миграций.
+Dbscript на этом форке **не в prod** — прототип редактора на React SPA для ознакомления автором.
 
 ## Документы
 
-- [`ARCHITECTURE-SPA.md`](ARCHITECTURE-SPA.md) — API + SPA слой
-- [`DESIGN-SPA.md`](DESIGN-SPA.md) — UX/UI токены и чеклист
+- [`ARCHITECTURE-SPA.md`](ARCHITECTURE-SPA.md) — API + SPA слой, паритет w.php
+- [`DESIGN-SPA.md`](DESIGN-SPA.md) — UX/UI токены
 - [`openapi.yaml`](openapi.yaml) — REST контракт
 - Handoff: [`_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md`](_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md)
+- Карта веток: [`_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md`](_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md)
 
 ## Dev
 
@@ -29,7 +30,6 @@ docker compose exec web php scripts/arch-modern-seed-demo.php
 
 cd frontend && npm ci && npm run dev
 # SPA: http://127.0.0.1:5173/app/
-# API proxied to http://127.0.0.1:8080/api/v1/
 ```
 
 Prod build:
@@ -39,12 +39,15 @@ cd frontend && npm ci && npm run build
 # → public/app/
 ```
 
-Smoke:
+## Smoke (arch-spa gate)
 
 ```bash
-docker compose exec web bash scripts/smoke-api-auth.sh http://127.0.0.1
-vendor/bin/phpunit --testsuite unit
+docker compose exec web bash scripts/smoke-all-spa.sh http://127.0.0.1
 ```
+
+Включает: PHPUnit, SPA build check, auth, editor CRUD, LIVEMOD PUT, CSV import, reader, files, converter fdb↔mysql, index-router, auth gates.
+
+> Для `php8-port` используйте `scripts/smoke-all.sh`. Для **arch-spa** — только `smoke-all-spa.sh`.
 
 ## Требования
 

@@ -7,6 +7,7 @@ import {
   fetchRow,
   fetchRows,
   fetchTables,
+  rowPk,
   updateRow,
   type ColumnMeta,
   type RowsPayload,
@@ -45,6 +46,7 @@ export function EditorPage() {
   const [editRow, setEditRow] = useState<Record<string, unknown> | undefined>();
   const [busy, setBusy] = useState(false);
   const [sqlOpen, setSqlOpen] = useState(false);
+  const [liveMod, setLiveMod] = useState(false);
 
   const canEdit = user?.role === 'admin' || user?.role === 'editor';
   const canSql = user !== null;
@@ -167,6 +169,34 @@ export function EditorPage() {
     }
   };
 
+  const handleCellSave = async (pk: string, column: string, value: string) => {
+    if (!tableId) {
+      return;
+    }
+
+    try {
+      await updateRow(tableId, pk, { [column]: value });
+      setRowsPayload((prev) => {
+        if (!prev) {
+          return prev;
+        }
+        return {
+          ...prev,
+          rows: prev.rows.map((row) => {
+            const rowKey = rowPk(row, columns.filter((c) => c.primary).map((c) => c.name));
+            if (rowKey !== pk) {
+              return row;
+            }
+            return { ...row, [column]: value };
+          }),
+        };
+      });
+    } catch (err) {
+      toast.show(err instanceof Error ? err.message : 'Save failed', 'error');
+      throw err;
+    }
+  };
+
   const handleImport = async (fileList: FileList | null) => {
     if (!tableId) {
       return;
@@ -239,6 +269,13 @@ export function EditorPage() {
                 <Button variant="danger" onClick={() => void handleDelete()} disabled={!hasSelection || busy}>
                   {t('KEY_DEL', 'Delete')}
                 </Button>
+                <Button
+                  variant={liveMod ? 'primary' : 'ghost'}
+                  disabled={busy || columns.length === 0}
+                  onClick={() => setLiveMod((prev) => !prev)}
+                >
+                  {t('LIVEMOD', 'Live!')}
+                </Button>
               </>
             ) : null}
             {canSql ? (
@@ -294,6 +331,8 @@ export function EditorPage() {
                 }}
                 onDoubleClick={(pk) => void openEdit(pk)}
                 selectable={canEdit}
+                liveMod={liveMod && canEdit}
+                onCellSave={canEdit ? handleCellSave : undefined}
               />
               <footer className={styles.footer}>
                 <Button

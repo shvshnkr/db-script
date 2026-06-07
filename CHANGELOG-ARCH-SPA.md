@@ -14,6 +14,7 @@
 - PHPUnit: `SpaApiPhaseTest`
 - Extended `scripts/smoke-spa.sh` (menu, i18n, files, reader, sql, converter)
 - **A_IMPEXP converter:** `ImportExportService`, `POST /api/v1/converter/{preview,run}`, `/app/converter` SPA (legacy `importexporttbl()` fdb↔mysql)
+- **LIVEMOD:** inline cell editing in editor grid (`LIVEMOD` toggle → PUT row on blur)
 
 ### Removed (phase 6)
 
@@ -33,7 +34,7 @@
 - CI: `.github/workflows/arch-spa-ci.yml`
 - Apache `.htaccess` routes for `/api/v1` and `/app`
 
-### Non-goals (v1)
+### Non-goals
 
-- LIVEMOD inline editing
 - Admin SPA (SSR `admin-arch.php` only)
+- SCP→CSV legacy converter stub from w.php

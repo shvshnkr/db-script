@@ -7,9 +7,9 @@
 
 ## 1. Зачем ветка
 
-`arch-spa` — **наследник `arch-modern`**: тот же backend (PSR-4, TOML, JWT, EditorService), но **UI редактора — React SPA** вместо монолита `w.php` + frameset.
+`arch-spa` — **наследник `arch-modern`**: тот же backend (PSR-4, TOML, JWT, EditorService), но **UI — React SPA** вместо монолита `w.php` + frameset.
 
-Цель: рабочий прототип редактора с привычным UX Dbscript, но на React SPA и REST API — для ознакомления автором, без prod-миграций.
+Цель: рабочий прототип редактора с привычным UX Dbscript на REST + React — для ознакомления автором, без prod-миграций.
 
 ---
 
@@ -24,6 +24,8 @@ php8-port → modern-ops → arch-modern → arch-spa
 | arch-modern | Twig SSR | Services API-ready |
 | **arch-spa** | React `/app/*` | REST `/api/v1/*` |
 
+Карта всех веток: [`branch-map-2026/BRANCH-MAP.ru.md`](../branch-map-2026/BRANCH-MAP.ru.md)
+
 ---
 
 ## 3. Что взято из arch-modern
@@ -34,7 +36,7 @@ php8-port → modern-ops → arch-modern → arch-spa
 | JWT cookie `dbs_jwt` | `JwtAuthService` |
 | Editor CRUD | `EditorService` |
 | Theme tokens | `ThemeService` → `GET /api/v1/theme` |
-| Install / Admin SSR | `install-arch.php`, `admin-arch.php` (v1) |
+| Install / Admin SSR | `install-arch.php`, `admin-arch.php` |
 
 ---
 
@@ -45,15 +47,12 @@ php8-port → modern-ops → arch-modern → arch-spa
 Примеры:
 
 ```bash
-# 401 без auth
-curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/api/v1/auth/me
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/api/v1/auth/me   # 401
 
-# login
 curl -s -X POST http://127.0.0.1/api/v1/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"login":"admin","password":"testpass12"}'
 
-# tables (Bearer)
 curl -s -H "Authorization: Bearer TOKEN" http://127.0.0.1/api/v1/tables
 ```
 
@@ -69,13 +68,14 @@ frontend/
   npm run build  → public/app/
 ```
 
-Роуты:
-
 | Route | Страница |
 |-------|----------|
 | `/app/login` | LoginPage |
-| `/app/editor/:tableId` | EditorPage |
-| `/app/files` | FileManager (phase 3) |
+| `/app/editor/:tableId` | Editor CRUD, LIVEMOD, SQL, CSV |
+| `/app/reader/:tableId` | Search, view, export |
+| `/app/files` | File manager |
+| `/app/converter` | A_IMPEXP fdb↔mysql |
+| `/app/info/:slug` | .ver / .info / .author / .help |
 
 ---
 
@@ -83,11 +83,10 @@ frontend/
 
 Документ: [`DESIGN-SPA.md`](../../../DESIGN-SPA.md)
 
-- Toolbar mapping: KEY_ADD/EDIT/DEL → кнопки Editor
+- Toolbar: KEY_ADD/EDIT/DEL, LIVEMOD, KEY_EXECUTE, A_IMPEXP
 - Tokens из `styles.toml` (`--color-accent` и др.)
-- Чеклист приёмки перед merge UI-фаз
 
-**Статус v1:** Login + AppShell + Editor grid wireframe; CRUD modal — phase 2.
+**Статус v1:** полный editor + reader + files + converter; LIVEMOD inline; legacy entry points удалены.
 
 ---
 
@@ -95,25 +94,22 @@ frontend/
 
 | w.php | API | SPA | Статус |
 |-------|-----|-----|--------|
-| tbl picker | GET /tables | EditorPage select | MVP |
-| list rows | GET /rows | DataGrid | MVP |
-| KEY_ADD | POST /rows | RecordForm | phase 2 |
-| KEY_EDIT | PUT /rows/{pk} | Modal form | phase 2 |
-| KEY_DEL | DELETE /rows | bulk select | phase 2 |
-| KEY_EXECUTE | POST /sql | SqlPanel | phase 4 |
-| A_IMPEXP | import/export | — | phase 4 |
+| tbl picker | GET /tables | EditorPage select | ✅ |
+| list rows | GET /rows | DataGrid | ✅ |
+| KEY_ADD | POST /rows | RecordForm | ✅ |
+| KEY_EDIT | PUT /rows/{pk} | Modal form | ✅ |
+| KEY_DEL | DELETE /rows | bulk select | ✅ |
+| KEY_EXECUTE | POST /sql | SqlPanel | ✅ |
+| A_IMPEXP | POST /converter/*, import | ConverterPage + CSV | ✅ |
+| LIVEMOD | PUT /rows/{pk} (field) | inline grid edit | ✅ (реализовано; в legacy был stub) |
+| r.php .ver/.info | GET /info/{slug} | InfoPage | ✅ |
+| filemgr.php | GET/POST /files | FilesPage | ✅ |
+
+**Удалено (cutover):** `w.php`, `wx.php`, `r.php`, `filemgr.php`, `GlobalBridge`, frameset `index.php`.
 
 ---
 
-## 8. Что удалится (после green smoke)
-
-- `w.php`, `wx.php`, `r.php`, `filemgr.php`
-- `GlobalBridge`
-- frameset в `index.php` → redirect `/app`
-
----
-
-## 9. Auth
+## 8. Auth
 
 - Cookie `dbs_jwt` (httpOnly, SameSite=Lax) для same-origin SPA
 - `Authorization: Bearer` для API/smoke
@@ -121,26 +117,28 @@ frontend/
 
 ---
 
-## 10. Как проверить
+## 9. Как проверить
 
 ```bash
 docker compose -f dev/docker-compose.yml up -d --build
 docker compose exec web php scripts/arch-modern-install-dev.php testpass12
 docker compose exec web php scripts/arch-modern-seed-demo.php
-docker compose exec web bash scripts/smoke-api-auth.sh http://127.0.0.1
 cd frontend && npm ci && npm run build
+docker compose exec web bash scripts/smoke-all-spa.sh http://127.0.0.1
 ```
 
+Gate для arch-spa: **`scripts/smoke-all-spa.sh`** (не `smoke-all.sh` из php8-port — тот ссылается на удалённые `w.php`/`wx.php`).
+
 ---
 
-## 11. Non-goals v1
+## 10. Non-goals
 
 - Mobile app, offline PWA
-- LIVEMOD inline
 - Admin SPA (остаётся SSR)
+- SCP→CSV режим из legacy w.php (недоделан в оригинале)
 
 ---
 
-## 12. Лицензия
+## 11. Лицензия
 
 Неофициальный форк для предложения архитектуры. Модель лицензии dj--alex не меняется.

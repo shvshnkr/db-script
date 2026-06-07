@@ -75,6 +75,31 @@ if [[ -z "$pk" ]]; then
 fi
 echo "OK create row pk=${pk}"
 
+live_title="livemod-$(date +%s)"
+live_code=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT \
+  -H "Authorization: Bearer ${token}" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: DbscriptSPA' \
+  -d "{\"title\":\"${live_title}\"}" \
+  "${BASE}/api/v1/tables/${table_id}/rows/${pk}")
+if [[ "$live_code" != "200" ]]; then
+  echo "FAIL: livemod PUT expected 200, got ${live_code}"
+  exit 1
+fi
+echo "OK livemod inline update"
+
+import_code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+  -H "Authorization: Bearer ${token}" \
+  -H 'Content-Type: text/csv' \
+  -H 'X-Requested-With: DbscriptSPA' \
+  --data-binary $'title\nimport-smoke\n' \
+  "${BASE}/api/v1/tables/${table_id}/import")
+if [[ "$import_code" != "200" ]]; then
+  echo "FAIL: csv import expected 200, got ${import_code}"
+  exit 1
+fi
+echo "OK csv import"
+
 del_code=$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE \
   -H "Authorization: Bearer ${token}" \
   -H 'Content-Type: application/json' \
@@ -130,5 +155,17 @@ if [[ "$conv_run_code" != "200" ]]; then
   exit 1
 fi
 echo "OK converter mysql->fdb"
+
+conv_fdb_code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+  -H "Authorization: Bearer ${token}" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: DbscriptSPA' \
+  -d '{"source_id":2,"destination_id":1,"rewrite":true,"verbose":false}' \
+  "${BASE}/api/v1/converter/run")
+if [[ "$conv_fdb_code" != "200" ]]; then
+  echo "FAIL: converter fdb->mysql run expected 200, got ${conv_fdb_code}"
+  exit 1
+fi
+echo "OK converter fdb->mysql"
 
 echo "smoke-spa: PASS"

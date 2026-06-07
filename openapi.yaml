@@ -290,6 +290,64 @@ paths:
       responses:
         '200':
           description: OK
+  /converter/tables:
+    get:
+      summary: List tables for fdb/mysql converter
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /converter/preview:
+    post:
+      summary: Preview fdb↔mysql conversion
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_id, destination_id]
+              properties:
+                source_id: { type: integer }
+                destination_id: { type: integer }
+      responses:
+        '200':
+          description: OK
+        '422':
+          description: Validation error (e.g. same engine)
+  /converter/run:
+    post:
+      summary: Run fdb↔mysql conversion (legacy importexporttbl)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_id, destination_id]
+              properties:
+                source_id: { type: integer }
+                destination_id: { type: integer }
+                rewrite: { type: boolean }
+                use_semicolon: { type: boolean }
+                unique_id: { type: boolean }
+                verbose: { type: boolean }
+      responses:
+        '200':
+          description: OK
+  /info/{slug}:
+    get:
+      summary: Info page content (.ver, .info, .author, .help)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Auth required for protected slugs
 components:
   securitySchemes:
     bearerAuth:

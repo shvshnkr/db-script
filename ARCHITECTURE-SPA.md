@@ -52,7 +52,7 @@ JSON envelope:
 
 Errors: `{ "code": "notrights", "message": "..." }` with HTTP 4xx.
 
-### Implemented (phase 0–6)
+### Implemented
 
 | Method | Path | Auth |
 |--------|------|------|
@@ -70,6 +70,10 @@ Errors: `{ "code": "notrights", "message": "..." }` with HTTP 4xx.
 | GET | `/api/v1/reader/tables/{id}/export.csv` | yes |
 | GET/POST/DELETE | `/api/v1/files/...` | yes |
 | POST | `/api/v1/sql/execute` | yes |
+| GET | `/api/v1/converter/tables` | yes |
+| POST | `/api/v1/converter/preview` | yes |
+| POST | `/api/v1/converter/run` | yes |
+| GET | `/api/v1/info/{slug}` | optional |
 
 See [`openapi.yaml`](openapi.yaml).
 
@@ -83,12 +87,24 @@ frontend/
     api/client.ts       fetch + credentials + X-Requested-With
     auth/AuthContext.tsx
     layout/AppShell.tsx
-    pages/LoginPage.tsx, EditorPage.tsx, ReaderPage.tsx, FilesPage.tsx
+    pages/LoginPage.tsx, EditorPage.tsx, ReaderPage.tsx, FilesPage.tsx, ConverterPage.tsx
+    components/editor/  DataGrid (LIVEMOD), RecordForm, SqlPanel
     components/ui/      Button, Input, Modal, Toast
     styles/tokens.css
 ```
 
 Build: `cd frontend && npm ci && npm run build` → `public/app/`.
+
+### SPA routes
+
+| Route | Page |
+|-------|------|
+| `/app/login` | Login |
+| `/app/editor/:tableId` | Editor CRUD + LIVEMOD + SQL + CSV import/export |
+| `/app/reader/:tableId` | Search + view + export |
+| `/app/files` | File manager |
+| `/app/converter` | A_IMPEXP fdb↔mysql |
+| `/app/info/:slug` | .ver / .info / .author / .help |
 
 ---
 
@@ -102,19 +118,36 @@ Inherited from arch-modern: `JwtAuthService`, `UserRepository`, TOML users.
 
 ---
 
+## w.php parity (arch-spa v1)
+
+| Legacy w.php | arch-spa |
+|--------------|----------|
+| tbl picker | Editor table select |
+| list rows | DataGrid |
+| KEY_ADD / KEY_EDIT / KEY_DEL | Modal CRUD + bulk delete |
+| KEY_EXECUTE | SqlPanel |
+| A_IMPEXP (importexporttbl) | `/app/converter` + single-table CSV in editor |
+| LIVEMOD | Inline cell edit toggle in editor (beyond legacy stub) |
+| r.php dot pages | `/app/info/:slug` |
+| filemgr.php | `/app/files` |
+
+---
+
 ## Verification
 
 ```bash
 composer install
-vendor/bin/phpunit --testsuite unit
 cd frontend && npm ci && npm run build
 docker compose -f dev/docker-compose.yml up -d --build
-docker compose exec web bash scripts/smoke-api-auth.sh http://127.0.0.1
+docker compose exec web php scripts/arch-modern-install-dev.php testpass12
+docker compose exec web php scripts/arch-modern-seed-demo.php
+docker compose exec web bash scripts/smoke-all-spa.sh http://127.0.0.1
 ```
 
 CI: [`.github/workflows/arch-spa-ci.yml`](.github/workflows/arch-spa-ci.yml)
 
-Handoff (RU): [`_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md`](_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md)
+Handoff (RU): [`_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md`](_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md)  
+Branch map: [`_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md`](_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md)
 
 ---
 
@@ -123,15 +156,15 @@ Handoff (RU): [`_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md`](_langdb/.a
 | Legacy | Replacement |
 |--------|-------------|
 | `w.php`, `wx.php` | `/app/editor` |
-| `r.php` | `/app/reader` |
+| `r.php` | `/app/reader` + `/app/info/*` |
 | `filemgr.php` | `/app/files` |
 | `GlobalBridge` | removed (unused) |
 | frameset `index.php` | redirect → `/app` |
 
 ---
 
-## Non-goals (v1)
+## Non-goals
 
 - Mobile native app, offline PWA
-- Full LIVEMOD inline editing
-- Admin SPA (SSR admin v1 only)
+- Admin SPA (SSR `admin-arch.php` only)
+- SCP→CSV legacy converter mode (unfinished in original w.php)
