@@ -1,7 +1,7 @@
 # Dbscript 4 — Architecture (arch-modern)
 
 **Branch:** `arch-modern` · **Base:** `modern-ops`  
-**Audience:** dj--alex and contributors evaluating a 2026-era PHP CMS layout.
+**Audience:** dj--alex and contributors reviewing a draft modern PHP layout for Dbscript.
 
 Dbscript is **not deployed anywhere** on this fork path — no legacy migration. Fresh install writes UTF-8 TOML + `password_hash` only.
 

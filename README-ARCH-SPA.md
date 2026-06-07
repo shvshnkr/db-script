@@ -10,7 +10,7 @@
 | Editor | w-arch.php | `/app/editor/:tableId` |
 | API | контракт в ARCHITECTURE.md | `/api/v1/*` |
 
-Dbscript на этом форке **не в prod** — можно показать dj--alex современный редактор без legacy-миграций.
+Dbscript на этом форке **не в prod** — здесь собран прототип редактора на React SPA для ознакомления автором, без legacy-миграций.
 
 ## Документы
 

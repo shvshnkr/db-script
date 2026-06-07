@@ -1,6 +1,6 @@
-# arch-modern — clean architecture proposal for dj--alex
+# arch-modern — draft alternative architecture (for author review)
 
-Ветка **`arch-modern`** от **`modern-ops`**: предложение новой архитектуры Dbscript 4 «как должно быть в 2026», **без** обратной совместимости с csv/`dbscore.lib`/`dbsa`.
+Ветка **`arch-modern`** от **`modern-ops`**: черновик перестройки Dbscript 4 под современный PHP-стек (PSR-4, TOML, JWT, Twig) — **для рассмотрения автором**, без обратной совместимости с csv/`dbscore.lib`/`dbsa`.
 
 | | |
 |---|---|
@@ -12,7 +12,7 @@
 
 ## Зачем
 
-Dbscript **нигде не используется** в prod на этом форке → можно показать dj--alex улучшенную модель без миграционного багажа.
+Dbscript **нигде не используется** в prod на этом форке → здесь можно спокойно экспериментировать с альтернативной моделью, не затрагивая рабочие установки.
 
 ## Что меняется vs modern-ops
 
