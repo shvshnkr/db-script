@@ -52,7 +52,7 @@ JSON envelope:
 
 Errors: `{ "code": "notrights", "message": "..." }` with HTTP 4xx.
 
-### Implemented (phase 0–2 MVP)
+### Implemented (phase 0–6)
 
 | Method | Path | Auth |
 |--------|------|------|
@@ -60,15 +60,18 @@ Errors: `{ "code": "notrights", "message": "..." }` with HTTP 4xx.
 | POST | `/api/v1/auth/logout` | yes |
 | GET | `/api/v1/auth/me` | yes |
 | GET | `/api/v1/theme` | no |
-| GET | `/api/v1/tables` | yes |
-| GET | `/api/v1/tables/{id}/meta` | yes |
-| GET | `/api/v1/tables/{id}/rows` | yes |
-| GET | `/api/v1/tables/{id}/rows/{pk}` | yes |
-| POST | `/api/v1/tables/{id}/rows` | yes |
-| PUT | `/api/v1/tables/{id}/rows/{pk}` | yes |
-| DELETE | `/api/v1/tables/{id}/rows` | yes |
+| GET | `/api/v1/menu` | yes |
+| GET | `/api/v1/i18n` | no |
+| GET | `/api/v1/i18n/languages` | no |
+| GET/POST/PUT/DELETE | `/api/v1/tables/...` | yes |
+| POST | `/api/v1/tables/{id}/import` | yes |
+| GET | `/api/v1/reader/tables/{id}/search` | yes |
+| GET | `/api/v1/reader/tables/{id}/rows/{pk}` | yes |
+| GET | `/api/v1/reader/tables/{id}/export.csv` | yes |
+| GET/POST/DELETE | `/api/v1/files/...` | yes |
+| POST | `/api/v1/sql/execute` | yes |
 
-Reader, files, menu — phase 3–5. See [`openapi.yaml`](openapi.yaml).
+See [`openapi.yaml`](openapi.yaml).
 
 ---
 
@@ -80,7 +83,7 @@ frontend/
     api/client.ts       fetch + credentials + X-Requested-With
     auth/AuthContext.tsx
     layout/AppShell.tsx
-    pages/LoginPage.tsx, EditorPage.tsx
+    pages/LoginPage.tsx, EditorPage.tsx, ReaderPage.tsx, FilesPage.tsx
     components/ui/      Button, Input, Modal, Toast
     styles/tokens.css
 ```
@@ -115,14 +118,14 @@ Handoff (RU): [`_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md`](_langdb/.a
 
 ---
 
-## Removed (after parity gates)
+## Removed (arch-spa cutover)
 
-| Legacy | When |
-|--------|------|
-| `w.php`, `wx.php` | Editor SPA green |
-| `r.php` | Reader SPA green |
-| `filemgr.php` | Files SPA green |
-| `GlobalBridge` | with w/r removal |
+| Legacy | Replacement |
+|--------|-------------|
+| `w.php`, `wx.php` | `/app/editor` |
+| `r.php` | `/app/reader` |
+| `filemgr.php` | `/app/files` |
+| `GlobalBridge` | removed (unused) |
 | frameset `index.php` | redirect → `/app` |
 
 ---

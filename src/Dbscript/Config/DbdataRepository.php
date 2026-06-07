@@ -34,7 +34,7 @@ final class DbdataRepository
         return null;
     }
 
-    /** Legacy $prdbdata row shape for GlobalBridge. */
+    /** Row shape compatible with legacy dbdata consumers. */
     public function toLegacyRow(array $table): array
     {
         return [

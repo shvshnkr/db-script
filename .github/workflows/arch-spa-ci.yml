@@ -45,4 +45,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker compose -f dev/docker-compose.yml up -d --build
-      - run: docker compose -f dev/docker-compose.yml exec -T web bash -c 'composer update --no-interaction && php scripts/arch-modern-install-dev.php testpass12 && php scripts/arch-modern-seed-demo.php && vendor/bin/phpunit --testsuite unit && bash scripts/smoke-api-auth.sh http://127.0.0.1'
+      - run: docker compose -f dev/docker-compose.yml exec -T web bash -c 'composer update --no-interaction && php scripts/arch-modern-install-dev.php testpass12 && php scripts/arch-modern-seed-demo.php && vendor/bin/phpunit --testsuite unit && bash scripts/smoke-all-spa.sh http://127.0.0.1'

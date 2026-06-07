@@ -6,10 +6,16 @@ namespace Dbscript\Http\Api;
 use Dbscript\Application;
 use Dbscript\Auth\JwtAuthService;
 use Dbscript\Config\DbdataRepository;
+use Dbscript\Config\FilesCfgRepository;
 use Dbscript\Config\UserRepository;
 use Dbscript\Database\ConnectionFactory;
+use Dbscript\I18n\LangResolver;
 use Dbscript\Security\DenywordsGuard;
 use Dbscript\Service\EditorService;
+use Dbscript\Service\FileManagerService;
+use Dbscript\Service\InfoService;
+use Dbscript\Service\MenuService;
+use Dbscript\Service\ReaderService;
 use Dbscript\View\ThemeService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,6 +57,8 @@ final class ApiKernel
             if ($claims === null) {
                 return ApiResponse::unauthorized();
             }
+        } else {
+            $claims = $this->auth->readFromRequest($request);
         }
 
         foreach ($match['params'] as $key => $value) {
@@ -80,7 +88,18 @@ final class ApiKernel
             new ConnectionFactory($config),
             new DenywordsGuard($config),
         );
+        $reader = new ReaderService(new DbdataRepository($config), new ConnectionFactory($config), $editor);
         $editorCtrl = new EditorApiController($editor);
+        $readerCtrl = new ReaderApiController($reader);
+        $filesCtrl = new FilesApiController(new FileManagerService(
+            $config,
+            new FilesCfgRepository($this->app->root() . '/_conf'),
+            $this->app->root(),
+        ));
+        $sqlCtrl = new SqlApiController($editor);
+        $menuCtrl = new MenuApiController(new MenuService($config));
+        $infoCtrl = new InfoApiController(new InfoService($config));
+        $i18nCtrl = new I18nApiController(new LangResolver($config, $this->app->root() . '/_langdb'));
         $themeCtrl = new ThemeApiController(new ThemeService($config));
 
         $router = new ApiRouter();
@@ -90,6 +109,16 @@ final class ApiKernel
         $router->add('GET', '/api/v1/auth/me', fn (Request $req, ?array $claims, bool $secure) => $authCtrl->me($claims ?? []));
 
         $router->add('GET', '/api/v1/theme', fn () => $themeCtrl->show(), false);
+
+        $router->add('GET', '/api/v1/menu', fn () => $menuCtrl->list());
+        $router->add('GET', '/api/v1/info', fn () => $infoCtrl->list(), false);
+        $router->add('GET', '/api/v1/info/{slug}', fn (Request $req, ?array $claims) => $infoCtrl->show(
+            (string) $req->attributes->get('slug'),
+            $req,
+            $claims,
+        ), false);
+        $router->add('GET', '/api/v1/i18n', fn (Request $req) => $i18nCtrl->bundle($req), false);
+        $router->add('GET', '/api/v1/i18n/languages', fn () => $i18nCtrl->languages(), false);
 
         $router->add('GET', '/api/v1/tables', fn () => $editorCtrl->listTables());
         $router->add('GET', '/api/v1/tables/{tableId}/meta', fn (Request $req) => $editorCtrl->columnMeta((string) $req->attributes->get('tableId')));
@@ -111,6 +140,37 @@ final class ApiKernel
             (string) $req->attributes->get('tableId'),
             $req,
         ));
+        $router->add('POST', '/api/v1/tables/{tableId}/import', fn (Request $req) => $editorCtrl->importCsv(
+            (string) $req->attributes->get('tableId'),
+            $req,
+        ));
+
+        $router->add('GET', '/api/v1/reader/tables/{tableId}/search', fn (Request $req) => $readerCtrl->search(
+            (string) $req->attributes->get('tableId'),
+            $req,
+        ));
+        $router->add('GET', '/api/v1/reader/tables/{tableId}/rows/{pk}', fn (Request $req) => $readerCtrl->viewRow(
+            (string) $req->attributes->get('tableId'),
+            (string) $req->attributes->get('pk'),
+        ));
+        $router->add('GET', '/api/v1/reader/tables/{tableId}/export.csv', fn (Request $req) => $readerCtrl->exportCsv(
+            (string) $req->attributes->get('tableId'),
+            $req,
+        ));
+
+        $router->add('GET', '/api/v1/files', fn (Request $req, ?array $claims) => $filesCtrl->list($req, $claims ?? []));
+        $router->add('POST', '/api/v1/files', fn (Request $req, ?array $claims) => $filesCtrl->upload($req, $claims ?? []));
+        $router->add('GET', '/api/v1/files/{hash}/download', fn (Request $req, ?array $claims) => $filesCtrl->download(
+            (string) $req->attributes->get('hash'),
+            $claims ?? [],
+        ));
+        $router->add('DELETE', '/api/v1/files/{hash}', fn (Request $req, ?array $claims) => $filesCtrl->delete(
+            (string) $req->attributes->get('hash'),
+            $req,
+            $claims ?? [],
+        ));
+
+        $router->add('POST', '/api/v1/sql/execute', fn (Request $req, ?array $claims) => $sqlCtrl->execute($req, $claims ?? []));
 
         return $router;
     }

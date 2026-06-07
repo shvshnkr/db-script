@@ -153,6 +153,61 @@ final class EditorService
         return $deleted;
     }
 
+    /** @return array{imported: int, skipped: int} */
+    public function importCsv(string $tableId, string $csv): array
+    {
+        $csv = ltrim($csv, "\xEF\xBB\xBF");
+        if ($csv === '') {
+            throw new \InvalidArgumentException('Empty CSV payload');
+        }
+
+        $handle = fopen('php://temp', 'r+');
+        if ($handle === false) {
+            throw new \RuntimeException('Cannot parse CSV');
+        }
+
+        fwrite($handle, $csv);
+        rewind($handle);
+
+        $headers = fgetcsv($handle);
+        if (!is_array($headers) || $headers === []) {
+            fclose($handle);
+            throw new \InvalidArgumentException('CSV header row is required');
+        }
+
+        $imported = 0;
+        $skipped = 0;
+        while (($line = fgetcsv($handle)) !== false) {
+            if ($line === [null] || $line === []) {
+                continue;
+            }
+
+            $row = [];
+            foreach ($headers as $index => $header) {
+                if (!is_string($header) || $header === '') {
+                    continue;
+                }
+                $row[$header] = $line[$index] ?? '';
+            }
+
+            if ($row === []) {
+                $skipped++;
+                continue;
+            }
+
+            try {
+                $this->createRow($tableId, $row);
+                $imported++;
+            } catch (\Throwable) {
+                $skipped++;
+            }
+        }
+
+        fclose($handle);
+
+        return ['imported' => $imported, 'skipped' => $skipped];
+    }
+
     /** @return array<string, mixed> */
     public function executeSql(string $query, array $context = []): array
     {

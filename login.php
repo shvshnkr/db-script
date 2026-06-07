@@ -48,8 +48,8 @@ If (($_COOKIE['dbsa'])AND($ADM===0)) { echo "Your login as anonymous." ;
  echo "</form>";
 
 echo "<table border=0 ><tr><td>";pictogramm("search.png","getfile.php",cmsg ("MNU_3"));
-echo "<td>";echo "<td>";pictogramm("key1.png","filemgr.php",cmsg ("MNU_7"));
-echo "<td>";pictogramm("temp.png","r.php?viewid=.ver&base=0",cmsg ("MNU_4"));
+echo "<td>";echo "<td>";pictogramm("key1.png","/app/files",cmsg ("MNU_7"));
+echo "<td>";pictogramm("temp.png","/app/info/ver",cmsg ("MNU_4"));
 echo "</tr></table>";
 
 exit;}  
@@ -58,7 +58,7 @@ If (($dbsa)AND($ADM===0)) { echo "Your login as anonymous." ;
 ?><form action="login.php" method="post"> <?php if ($anprinted==false) submitkey ("resetcookie","LOGOUT");
  echo "</form>";
 echo "<table border=0 ><tr><td>";pictogramm("search.png","getfile.php",cmsg ("MNU_3"));
-echo "<td>";echo "<td>";pictogramm("key1.png","filemgr.php",cmsg ("MNU_7"));
+echo "<td>";echo "<td>";pictogramm("key1.png","/app/files",cmsg ("MNU_7"));
 echo "</tr></table>";
 exit;}  
 
@@ -196,14 +196,14 @@ echo "<table border=0 ><tr>";
 echo "<td>";pictogramm("config.png","admin.php",cmsg ("MNU_0"));
 echo "<td>";pictogramm("userprofile.png","admin.php?cmd=myprof",cmsg ("MNU_1"));
 echo "<td>";pictogramm("search.png","getfile.php",cmsg ("MNU_3"));
-echo "<td>";pictogramm("editor.png","w.php",cmsg ("MNU_2"));
+echo "<td>";pictogramm("editor.png","/app/editor",cmsg ("MNU_2"));
 echo "<td>";pictogramm("dblinker.png","dblinker.php",cmsg ("MNU_8"));
-echo "<td>";pictogramm("filemgr.png","filemgr.php",cmsg ("MNU_7"));echo "</tr><tr>";
-echo "<td>";pictogramm("version.png","r.php?viewid=.ver&base=0",cmsg ("MNU_4"));
+echo "<td>";pictogramm("filemgr.png","/app/files",cmsg ("MNU_7"));echo "</tr><tr>";
+echo "<td>";pictogramm("version.png","/app/info/ver",cmsg ("MNU_4"));
 echo "<td>";pictogramm("save_f.png","admin.php?cmd=note",cmsg ("MNU_5"));
-echo "<td>";pictogramm("userinfo.png","r.php?viewid=.info&base=0",cmsg ("MNU_9"));
+echo "<td>";pictogramm("userinfo.png","/app/info/info",cmsg ("MNU_9"));
 echo "<td>";pictogramm("test.png","admin.php?cmd=test",cmsg ("MNU_6"));
-echo "<td>";pictogramm("author.png","r.php?vID=.author&base=0",cmsg ("MNU_10"));
+echo "<td>";pictogramm("author.png","/app/info/author",cmsg ("MNU_10"));
 echo "</tr></table>";
 
 

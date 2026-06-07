@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   createRow,
@@ -12,11 +12,16 @@ import {
   type RowsPayload,
   type TableMeta,
 } from '../api/editor';
+import { readerExportUrl } from '../api/reader';
+import { importCsv } from '../api/sql';
+import { useAuth } from '../auth/AuthContext';
 import { DataGrid } from '../components/editor/DataGrid';
 import { RecordForm } from '../components/editor/RecordForm';
+import { SqlPanel } from '../components/editor/SqlPanel';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
+import { useI18n } from '../i18n/I18nContext';
 import styles from './EditorPage.module.css';
 
 type ModalMode = 'add' | 'edit' | null;
@@ -25,6 +30,9 @@ export function EditorPage() {
   const { tableId } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useI18n();
+  const { user } = useAuth();
+  const importRef = useRef<HTMLInputElement>(null);
 
   const [tables, setTables] = useState<TableMeta[]>([]);
   const [columns, setColumns] = useState<ColumnMeta[]>([]);
@@ -36,6 +44,10 @@ export function EditorPage() {
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editRow, setEditRow] = useState<Record<string, unknown> | undefined>();
   const [busy, setBusy] = useState(false);
+  const [sqlOpen, setSqlOpen] = useState(false);
+
+  const canEdit = user?.role === 'admin' || user?.role === 'editor';
+  const canSql = user !== null;
 
   const reloadRows = useCallback(async () => {
     if (!tableId) {
@@ -114,10 +126,10 @@ export function EditorPage() {
     try {
       if (modalMode === 'add') {
         await createRow(tableId, data);
-        toast.show('Record created', 'success');
+        toast.show(t('KEY_ADD', 'Record created'), 'success');
       } else if (modalMode === 'edit' && selectedPk) {
         await updateRow(tableId, selectedPk, data);
-        toast.show('Record saved', 'success');
+        toast.show(t('KEY_EDIT', 'Record saved'), 'success');
       }
       setModalMode(null);
       await reloadRows();
@@ -137,14 +149,14 @@ export function EditorPage() {
       return;
     }
 
-    if (!window.confirm(`Delete ${pks.length} record(s)?`)) {
+    if (!window.confirm(`${t('KEY_DEL', 'Delete')} ${pks.length}?`)) {
       return;
     }
 
     setBusy(true);
     try {
       const deleted = await deleteRows(tableId, pks);
-      toast.show(`Deleted ${deleted} record(s)`, 'success');
+      toast.show(`${t('KEY_DEL', 'Deleted')} ${deleted}`, 'success');
       setSelectedPk(null);
       setSelectedPks(new Set());
       await reloadRows();
@@ -155,6 +167,31 @@ export function EditorPage() {
     }
   };
 
+  const handleImport = async (fileList: FileList | null) => {
+    if (!tableId) {
+      return;
+    }
+    const file = fileList?.[0];
+    if (!file) {
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const csv = await file.text();
+      const result = await importCsv(tableId, csv);
+      toast.show(`${t('A_IMPEXP', 'Import')}: ${result.imported}, skipped ${result.skipped}`, 'success');
+      await reloadRows();
+    } catch (err) {
+      toast.show(err instanceof Error ? err.message : 'Import failed', 'error');
+    } finally {
+      setBusy(false);
+      if (importRef.current) {
+        importRef.current.value = '';
+      }
+    }
+  };
+
   const totalPages = rowsPayload ? Math.max(1, Math.ceil(rowsPayload.total / rowsPayload.limit)) : 1;
   const hasSelection = selectedPk !== null || selectedPks.size > 0;
 
@@ -162,9 +199,9 @@ export function EditorPage() {
     <div className={styles.page}>
       <header className={styles.top}>
         <div>
-          <h1>Editor</h1>
+          <h1>{t('MNU_2', 'Editor')}</h1>
           <p className={styles.meta}>
-            {rowsPayload?.visual_name ?? (tableId ? `Table #${tableId}` : 'Select a table')}
+            {rowsPayload?.visual_name ?? (tableId ? `Table #${tableId}` : t('MNU_2', 'Editor'))}
           </p>
         </div>
         <select
@@ -175,7 +212,7 @@ export function EditorPage() {
             navigate(next ? `/editor/${next}` : '/editor');
           }}
         >
-          <option value="">Select table…</option>
+          <option value="">{t('KEY_HEAD', 'Select table…')}</option>
           {tables.map((table) => (
             <option key={table.id} value={table.id}>
               {table.visual_name ?? table.mysql_table ?? table.id}
@@ -187,22 +224,54 @@ export function EditorPage() {
       {tableId ? (
         <>
           <div className={styles.toolbar}>
-            <Button variant="secondary" onClick={openAdd} disabled={busy || columns.length === 0}>
-              Add
-            </Button>
+            {canEdit ? (
+              <>
+                <Button variant="secondary" onClick={openAdd} disabled={busy || columns.length === 0}>
+                  {t('KEY_ADD', 'Add')}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => selectedPk && void openEdit(selectedPk)}
+                  disabled={!selectedPk || busy}
+                >
+                  {t('KEY_EDIT', 'Edit')}
+                </Button>
+                <Button variant="danger" onClick={() => void handleDelete()} disabled={!hasSelection || busy}>
+                  {t('KEY_DEL', 'Delete')}
+                </Button>
+              </>
+            ) : null}
+            {canSql ? (
+              <Button variant="secondary" onClick={() => setSqlOpen(true)} disabled={busy}>
+                {t('KEY_EXECUTE', 'SQL')}
+              </Button>
+            ) : null}
             <Button
-              variant="secondary"
-              onClick={() => selectedPk && void openEdit(selectedPk)}
-              disabled={!selectedPk || busy}
+              variant="ghost"
+              disabled={busy}
+              onClick={() => {
+                window.location.href = readerExportUrl(tableId);
+              }}
             >
-              Edit
+              {t('A_IMPEXP', 'Export CSV')}
             </Button>
-            <Button variant="danger" onClick={() => void handleDelete()} disabled={!hasSelection || busy}>
-              Delete
-            </Button>
+            {canEdit ? (
+              <>
+                <Button variant="ghost" disabled={busy} onClick={() => importRef.current?.click()}>
+                  {t('A_IE_SRC', 'Import CSV')}
+                </Button>
+                <input
+                  ref={importRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  hidden
+                  onChange={(event) => void handleImport(event.target.files)}
+                />
+              </>
+            ) : null}
           </div>
 
-          {loading ? <p className={styles.meta}>Loading…</p> : null}
+          {loading ? <p className={styles.meta}>{t('KEY_LOAD', 'Loading…')}</p> : null}
 
           {!loading && rowsPayload ? (
             <>
@@ -224,6 +293,7 @@ export function EditorPage() {
                   });
                 }}
                 onDoubleClick={(pk) => void openEdit(pk)}
+                selectable={canEdit}
               />
               <footer className={styles.footer}>
                 <Button
@@ -231,7 +301,7 @@ export function EditorPage() {
                   disabled={page <= 1 || busy}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  Prev
+                  {t('KEY_PREV', 'Prev')}
                 </Button>
                 <span>
                   Page {page} / {totalPages} · {rowsPayload.total} rows
@@ -241,19 +311,19 @@ export function EditorPage() {
                   disabled={page >= totalPages || busy}
                   onClick={() => setPage((p) => p + 1)}
                 >
-                  Next
+                  {t('KEY_NEXT', 'Next')}
                 </Button>
               </footer>
             </>
           ) : null}
         </>
       ) : (
-        <p className={styles.empty}>Select a table to view records.</p>
+        <p className={styles.empty}>{t('KEY_HEAD', 'Select a table to view records.')}</p>
       )}
 
       <Modal
         open={modalMode !== null}
-        title={modalMode === 'add' ? 'Add record' : 'Edit record'}
+        title={modalMode === 'add' ? t('KEY_ADD', 'Add record') : t('KEY_EDIT', 'Edit record')}
         onClose={() => setModalMode(null)}
       >
         {modalMode && columns.length > 0 ? (
@@ -265,6 +335,10 @@ export function EditorPage() {
             onSubmit={handleSave}
           />
         ) : null}
+      </Modal>
+
+      <Modal open={sqlOpen} title={t('KEY_EXECUTE', 'SQL')} onClose={() => setSqlOpen(false)}>
+        {sqlOpen ? <SqlPanel tableId={tableId} onClose={() => setSqlOpen(false)} /> : null}
       </Modal>
     </div>
   );

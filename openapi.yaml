@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Dbscript API
   version: 1.0.0
-  description: arch-spa REST v1 (inherits EditorService from arch-modern)
+  description: arch-spa REST v1 (EditorService, ReaderService, FileManagerService)
 servers:
   - url: /api/v1
 paths:
@@ -43,6 +43,29 @@ paths:
   /theme:
     get:
       summary: CSS theme variables from styles.toml
+      responses:
+        '200':
+          description: OK
+  /menu:
+    get:
+      summary: SPA navigation items
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /i18n:
+    get:
+      summary: Message catalog bundle
+      parameters:
+        - name: lang
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /i18n/languages:
+    get:
+      summary: Available languages
       responses:
         '200':
           description: OK
@@ -142,6 +165,128 @@ paths:
           in: path
           required: true
           schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/import:
+    post:
+      summary: Import rows from CSV body
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          text/csv:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: OK
+  /reader/tables/{tableId}/search:
+    get:
+      summary: Reader search/list
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+  /reader/tables/{tableId}/rows/{pk}:
+    get:
+      summary: Reader view row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /reader/tables/{tableId}/export.csv:
+    get:
+      summary: Export CSV
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: CSV file
+  /files:
+    get:
+      summary: List files
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Upload file (multipart)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201':
+          description: Created
+  /files/{hash}/download:
+    get:
+      summary: Download file
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: hash
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: File stream
+  /files/{hash}:
+    delete:
+      summary: Delete file
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: hash
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /sql/execute:
+    post:
+      summary: Execute SQL query
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string }
+                table_id: { type: string }
       responses:
         '200':
           description: OK

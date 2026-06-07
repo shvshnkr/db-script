@@ -8,7 +8,7 @@
 			<ul class="second-navigation">
 				<li><a href="http://dj.chg.su/dbscript" id="off_site"><?=cmsg ("DEVSIT")?></a></li>
 				<li><a href="http://dj.chg.su/dbscript/DBSCRIPTinstruction.doc" id="sn_tutorials"><?=cmsg ("MANUAL")?></a></li>
-				<li><a href="r.php?viewid=.ver&base=0" id="addons_download"><?=cmsg ("VERS")?></a></li>
+				<li><a href="/app/info/ver" id="addons_download"><?=cmsg ("VERS")?></a></li>
 				<li><a href="mailto:dj--alex@ya.ru" id="sn_signup"><?if ($codekey>6) lprint ("REGI_DBS");?></a></li>
 			</ul>
 			<div class="txt">

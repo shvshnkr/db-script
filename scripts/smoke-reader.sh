@@ -1,5 +1,5 @@
 #!/bin/bash
-# L1/L2: reader dot-commands and POST search.
+# L1/L2: reader info pages via REST API (arch-spa).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,20 +11,32 @@ smoke_login
 
 echo "=== smoke-reader ==="
 
-smoke_check_url "r.php .ver" \
-    "$SMOKE_BASE_URL/r.php?viewid=.ver&base=0" \
-    'Version|\.ver|4\.5|Core'
+token=$(curl -sS -X POST "$SMOKE_BASE_URL/api/v1/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d '{"login":"admin","password":"testpass12"}' \
+  | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["token"]??"";')
 
-smoke_check_url "r.php .help" \
-    "$SMOKE_BASE_URL/r.php?vID=.help&base=0" \
-    'HLPINF|\.help|command|help'
+check_info() {
+  local label="$1"
+  local slug="$2"
+  local pattern="$3"
+  local auth="${4:-0}"
+  echo -n "$label ... "
+  local headers=()
+  if [[ "$auth" == "1" ]]; then
+    headers+=(-H "Authorization: Bearer ${token}")
+  fi
+  body=$(curl -sS "${headers[@]}" "$SMOKE_BASE_URL/api/v1/info/${slug}")
+  if ! echo "$body" | grep -qE "$pattern"; then
+    echo "$body"
+    smoke_fail "$label"
+  fi
+  echo "OK"
+}
 
-smoke_check_url "r.php .author" \
-    "$SMOKE_BASE_URL/r.php?vID=.author&base=0" \
-    'dj|alex|author|Author'
+check_info "info .ver" "ver" 'Dbscript|4\.5|arch-spa|Core' 0
+check_info "info .help" "help" 'help|\.ver|\.help' 0
+check_info "info .author" "author" 'Dj--alex|dj-alex|Author' 0
+check_info "info .info" "info" 'Login|Role|Priority' 1
 
-smoke_check_url "r.php .info" \
-    "$SMOKE_BASE_URL/r.php?vID=.info&base=0" \
-    'info|About|CMD|Fatal'
-
-echo "ALL OK: reader dot-commands (.ver .help .author .info)"
+echo "ALL OK: reader info pages (.ver .help .author .info)"

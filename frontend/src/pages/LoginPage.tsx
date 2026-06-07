@@ -4,10 +4,12 @@ import { ApiClientError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { useI18n } from '../i18n/I18nContext';
 import styles from './LoginPage.module.css';
 
 export function LoginPage() {
   const { user, loading, login } = useAuth();
+  const { t } = useI18n();
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,7 +30,7 @@ export function LoginPage() {
       if (err instanceof ApiClientError) {
         setError(err.message);
       } else {
-        setError('Login failed. Please try again.');
+        setError(t('KEY_AUTH_FAIL', 'Login failed. Please try again.'));
       }
     } finally {
       setSubmitting(false);
@@ -39,10 +41,10 @@ export function LoginPage() {
     <div className={styles.page}>
       <form className={styles.card} onSubmit={onSubmit}>
         <h1>Dbscript</h1>
-        <p className={styles.subtitle}>Sign in to continue</p>
+        <p className={styles.subtitle}>{t('ENTER', 'Sign in to continue')}</p>
 
         <Input
-          label="Login"
+          label={t('KEY_LOGIN', 'Login')}
           name="login"
           autoComplete="username"
           value={loginName}
@@ -51,7 +53,7 @@ export function LoginPage() {
         />
 
         <Input
-          label="Password"
+          label={t('KEY_PASS', 'Password')}
           name="password"
           type="password"
           autoComplete="current-password"
@@ -62,7 +64,7 @@ export function LoginPage() {
         />
 
         <Button type="submit" loading={submitting} className={styles.submit}>
-          Sign in
+          {t('ENTER', 'Sign in')}
         </Button>
       </form>
     </div>

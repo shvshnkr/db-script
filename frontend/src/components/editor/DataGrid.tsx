@@ -10,6 +10,7 @@ type Props = {
   onSelect: (pk: string | null) => void;
   onToggle: (pk: string, checked: boolean) => void;
   onDoubleClick: (pk: string) => void;
+  selectable?: boolean;
 };
 
 export function DataGrid({
@@ -20,6 +21,7 @@ export function DataGrid({
   onSelect,
   onToggle,
   onDoubleClick,
+  selectable = true,
 }: Props) {
   const pkColumns = columns.filter((c) => c.primary).map((c) => c.name);
   const displayColumns =
@@ -34,7 +36,7 @@ export function DataGrid({
       <table className={styles.grid}>
         <thead>
           <tr>
-            <th className={styles.checkCol} aria-label="Select" />
+            {selectable ? <th className={styles.checkCol} aria-label="Select" /> : null}
             {displayColumns.map((column) => (
               <th key={column}>{column}</th>
             ))}
@@ -51,17 +53,19 @@ export function DataGrid({
                 onClick={() => onSelect(pk)}
                 onDoubleClick={() => onDoubleClick(pk)}
               >
-                <td className={styles.checkCol}>
-                  <input
-                    type="checkbox"
-                    checked={selectedPks.has(pk)}
-                    onChange={(event) => {
-                      event.stopPropagation();
-                      onToggle(pk, event.target.checked);
-                    }}
-                    aria-label={`Select row ${pk}`}
-                  />
-                </td>
+                {selectable ? (
+                  <td className={styles.checkCol}>
+                    <input
+                      type="checkbox"
+                      checked={selectedPks.has(pk)}
+                      onChange={(event) => {
+                        event.stopPropagation();
+                        onToggle(pk, event.target.checked);
+                      }}
+                      aria-label={`Select row ${pk}`}
+                    />
+                  </td>
+                ) : null}
                 {displayColumns.map((column) => (
                   <td key={column}>{String(row[column] ?? '')}</td>
                 ))}

@@ -102,6 +102,20 @@ final class EditorApiController
         }
     }
 
+    public function importCsv(string $tableId, Request $request): Response
+    {
+        $csv = $request->getContent();
+        if ($csv === '') {
+            return ApiResponse::fail(['code' => 'validation', 'message' => 'CSV body is required.'], 422);
+        }
+
+        try {
+            return ApiResponse::ok($this->editor->importCsv($tableId, $csv));
+        } catch (\InvalidArgumentException $e) {
+            return ApiResponse::fail(['code' => 'validation', 'message' => $e->getMessage()], 422);
+        }
+    }
+
     /** @return array<string, mixed> */
     private function jsonBody(Request $request): array
     {
