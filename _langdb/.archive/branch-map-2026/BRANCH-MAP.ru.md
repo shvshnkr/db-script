@@ -154,4 +154,16 @@ dj--alex/master (4.3.x, PHP 5/7)
 
 ---
 
+## 7. Для AI-агентов (Cursor / CI)
+
+| Правило | Действие |
+|---------|----------|
+| **Где править карту** | **Только этот файл** на ветке **`arch-modern`** |
+| **Не править** | `BRANCH-MAP.ru.md` на `php8-port`, `modern-ops`, `arch-spa` — там **stub**-редирект сюда |
+| **Локальные правила** | `AGENTS.md`, `MAP.md` (gitignored), `.cursor/rules/dbscript-agent-bootstrap.mdc` — дублируют это правило |
+| **После обновления статуса ветки** | commit + `git push github arch-modern`; stub-ветки **не трогать** |
+| **arch-spa smoke** | `scripts/smoke-all-spa.sh` — **не** `smoke-all.sh` (legacy `w.php`/`wx.php`) |
+
+---
+
 *Единая точка входа в документацию веток (канон на `arch-modern`). Детали — в handoff каждой ветки.*
