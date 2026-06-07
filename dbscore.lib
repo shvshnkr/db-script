@@ -2017,10 +2017,11 @@ return ($mznumb);
 // грубо:  удаляем ==1  и заменяем ==0 на ! 
 // full: if ($descr=="on") {включено} else { выключено;};
 function checkbox ($varname,$varforprint)	{
-$selected='';
-if ($varname!=='' && isset($varname[0]) && $varname[0]=="#") { $selected=" checked";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
-if ($varname!=='' && isset($varname[0]) && $varname[0]=="!") { $selected=" selected";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
-if ($varname!=='' && isset($varname[0]) && $varname[0]=="%") { $selected=" disabled";$varname[0]=" ";$varname=trim ($varname);}
+$selected = $selected ?? '';
+$varname = (string)($varname ?? '');
+if ($varname!=='' && $varname[0]=="#") { $selected=" checked";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
+if ($varname!=='' && $varname[0]=="!") { $selected=" selected";$varname[0]=" ";$varname=trim ($varname);} // добавить и в другие выборные функции эти параметры
+if ($varname!=='' && $varname[0]=="%") { $selected=" disabled";$varname[0]=" ";$varname=trim ($varname);}
 	if (!$varname) echo "<input type=checkbox name=".$varforprint." $selected>";
 		if ($varname) echo "<input type=checkbox name=".$varforprint." value=1 checked$selected>";
 		}
