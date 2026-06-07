@@ -3,10 +3,12 @@
 **Для:** внутренняя навигация и handoff dj--alex  
 **Репозиторий:** [shvshnkr/db-script](https://github.com/shvshnkr/db-script)  
 **Upstream (автор):** [dj--alex/db-script](https://github.com/dj--alex/db-script) · `master`  
-**Обновлено:** 2026-06-07 (arch-spa tip [`4e4d313`](https://github.com/shvshnkr/db-script/commit/4e4d313))
+**Обновлено:** 2026-06-07 · arch-spa tip [`a15cd8e`](https://github.com/shvshnkr/db-script/commit/a15cd8e)
 
-> Файл в `_langdb/.archive/` — **служебная папка**, не участвует в runtime CMS и закрыта от веб-доступа (`.htaccess`).  
-> Не ссылается из публичного `README.md` — только прямая ссылка на GitHub.
+> **Канон:** этот файл поддерживается **только на ветке `arch-modern`**.  
+> На `php8-port`, `modern-ops`, `arch-spa` — stub со [ссылкой сюда](https://github.com/shvshnkr/db-script/blob/arch-modern/_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md).
+
+> Файл в `_langdb/.archive/` — **служебная папка**, не участвует в runtime CMS и закрыта от веб-доступа (`.htaccess`).
 
 ---
 
@@ -26,7 +28,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 | [`php8-port`](https://github.com/shvshnkr/db-script/tree/php8-port) | `master` | механический порт на PHP 8.0+ | ✅ |
 | [`modern-ops`](https://github.com/shvshnkr/db-script/tree/modern-ops) | `php8-port` | эксплуатация: CSRF, session-auth, servicectl | ✅ |
 | [`arch-modern`](https://github.com/shvshnkr/db-script/tree/arch-modern) | `modern-ops` | черновик альтернативной архитектуры (PSR-4, TOML, JWT, Twig) | ✅ |
-| [`arch-spa`](https://github.com/shvshnkr/db-script/tree/arch-spa) | `arch-modern` | REST `/api/v1` + React SPA `/app/*` | ✅ [`4e4d313`](https://github.com/shvshnkr/db-script/commit/4e4d313) |
+| [`arch-spa`](https://github.com/shvshnkr/db-script/tree/arch-spa) | `arch-modern` | REST `/api/v1` + React SPA `/app/*` | ✅ [`a15cd8e`](https://github.com/shvshnkr/db-script/commit/a15cd8e) |
 
 ---
 
@@ -152,4 +154,4 @@ dj--alex/master (4.3.x, PHP 5/7)
 
 ---
 
-*Этот файл — единая точка входа в документацию веток. Детали — в handoff каждой ветки.*
+*Единая точка входа в документацию веток (канон на `arch-modern`). Детали — в handoff каждой ветки.*
