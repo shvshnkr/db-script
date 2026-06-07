@@ -57,6 +57,13 @@ final class MenuService
                 'spa' => true,
             ],
             [
+                'id' => 'converter',
+                'label_key' => 'A_IMPEXP',
+                'label' => 'Import Export',
+                'href' => '/app/converter',
+                'spa' => true,
+            ],
+            [
                 'id' => 'admin',
                 'label_key' => 'MNU_0',
                 'label' => 'Admin',
@@ -121,6 +128,9 @@ final class MenuService
         }
         if (str_contains($href, 'filemgr.php')) {
             return ['href' => '/app/files', 'spa' => true];
+        }
+        if (str_contains($href, 'ietbl') || str_contains($href, 'A_IMPEXP')) {
+            return ['href' => '/app/converter', 'spa' => true];
         }
         if (str_contains($href, 'admin')) {
             return ['href' => '/admin-arch.php', 'spa' => false];

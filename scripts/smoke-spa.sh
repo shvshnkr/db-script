@@ -99,4 +99,36 @@ if [[ "$sql_code" != "200" ]]; then
 fi
 echo "OK sql execute"
 
+conv_tables_code=$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${token}" \
+  "${BASE}/api/v1/converter/tables")
+if [[ "$conv_tables_code" != "200" ]]; then
+  echo "FAIL: converter tables expected 200, got ${conv_tables_code}"
+  exit 1
+fi
+echo "OK converter tables"
+
+conv_preview_code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+  -H "Authorization: Bearer ${token}" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: DbscriptSPA' \
+  -d '{"source_id":1,"destination_id":1}' \
+  "${BASE}/api/v1/converter/preview")
+if [[ "$conv_preview_code" != "422" ]]; then
+  echo "FAIL: converter same-engine preview expected 422, got ${conv_preview_code}"
+  exit 1
+fi
+echo "OK converter preview validation"
+
+conv_run_code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+  -H "Authorization: Bearer ${token}" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: DbscriptSPA' \
+  -d '{"source_id":1,"destination_id":2,"rewrite":true,"verbose":false}' \
+  "${BASE}/api/v1/converter/run")
+if [[ "$conv_run_code" != "200" ]]; then
+  echo "FAIL: converter mysql->fdb run expected 200, got ${conv_run_code}"
+  exit 1
+fi
+echo "OK converter mysql->fdb"
+
 echo "smoke-spa: PASS"

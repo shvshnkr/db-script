@@ -25,10 +25,10 @@ if [[ "$list_code" != "200" ]]; then
 fi
 echo "OK files list"
 
-tmp="$(mktemp)"
-echo "spa smoke upload" > "$tmp"
+tmp="$(mktemp --suffix=.html)"
+echo "<p>spa smoke upload</p>" > "$tmp"
 upload_resp=$(curl -sS -X POST -H "Authorization: Bearer ${token}" -H 'X-Requested-With: DbscriptSPA' \
-  -F "file=@${tmp};filename=spa-smoke.txt" \
+  -F "file=@${tmp};filename=spa-smoke.html" \
   "$SMOKE_BASE_URL/api/v1/files")
 rm -f "$tmp"
 hash=$(echo "$upload_resp" | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["hash"]??"";')

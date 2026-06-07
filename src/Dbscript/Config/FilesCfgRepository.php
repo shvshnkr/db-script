@@ -51,7 +51,7 @@ final class FilesCfgRepository
     /** @param list<list<string>> $rows */
     public function writeRows(array $rows): void
     {
-        $this->ensureFile();
+        $this->ensureDir();
         $path = $this->path();
         $handle = fopen($path, 'w');
         if ($handle === false) {
@@ -74,14 +74,19 @@ final class FilesCfgRepository
 
     private function ensureFile(): void
     {
-        if (!is_dir($this->confDir)) {
-            mkdir($this->confDir, 0775, true);
-        }
+        $this->ensureDir();
 
         if (is_file($this->path())) {
             return;
         }
 
         $this->writeRows([]);
+    }
+
+    private function ensureDir(): void
+    {
+        if (!is_dir($this->confDir)) {
+            mkdir($this->confDir, 0775, true);
+        }
     }
 }

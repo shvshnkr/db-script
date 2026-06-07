@@ -13,6 +13,7 @@ use Dbscript\I18n\LangResolver;
 use Dbscript\Security\DenywordsGuard;
 use Dbscript\Service\EditorService;
 use Dbscript\Service\FileManagerService;
+use Dbscript\Service\ImportExportService;
 use Dbscript\Service\InfoService;
 use Dbscript\Service\MenuService;
 use Dbscript\Service\ReaderService;
@@ -101,6 +102,11 @@ final class ApiKernel
         $infoCtrl = new InfoApiController(new InfoService($config));
         $i18nCtrl = new I18nApiController(new LangResolver($config, $this->app->root() . '/_langdb'));
         $themeCtrl = new ThemeApiController(new ThemeService($config));
+        $converterCtrl = new ConverterApiController(new ImportExportService(
+            new DbdataRepository($config),
+            new ConnectionFactory($config),
+            $this->app->root(),
+        ));
 
         $router = new ApiRouter();
 
@@ -171,6 +177,10 @@ final class ApiKernel
         ));
 
         $router->add('POST', '/api/v1/sql/execute', fn (Request $req, ?array $claims) => $sqlCtrl->execute($req, $claims ?? []));
+
+        $router->add('GET', '/api/v1/converter/tables', fn () => $converterCtrl->listTables());
+        $router->add('POST', '/api/v1/converter/preview', fn (Request $req) => $converterCtrl->preview($req));
+        $router->add('POST', '/api/v1/converter/run', fn (Request $req) => $converterCtrl->convert($req));
 
         return $router;
     }

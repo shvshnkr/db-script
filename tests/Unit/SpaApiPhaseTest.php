@@ -23,6 +23,12 @@ final class SpaApiPhaseTest extends TestCase
 
         require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
+        $projectRoot = dirname(__DIR__, 2);
+        $langLink = $this->tmpdir . '/_langdb';
+        if (!is_dir($langLink) && is_dir($projectRoot . '/_langdb')) {
+            symlink($projectRoot . '/_langdb', $langLink);
+        }
+
         $toml = new TomlLoader();
         $config = new ConfigRepository($this->tmpdir . '/_conf', $toml);
         $users = new UserRepository($config);
@@ -49,6 +55,9 @@ final class SpaApiPhaseTest extends TestCase
         @rmdir($this->tmpdir . '/_local/uploads');
         @rmdir($this->tmpdir . '/_local');
         @rmdir($this->tmpdir . '/_conf');
+        if (is_link($this->tmpdir . '/_langdb')) {
+            @unlink($this->tmpdir . '/_langdb');
+        }
         @rmdir($this->tmpdir);
     }
 
@@ -104,6 +113,31 @@ final class SpaApiPhaseTest extends TestCase
             'query' => '',
         ]));
         $this->assertSame(422, $response->getStatusCode());
+    }
+
+    public function testConverterPreviewRejectsSameEngine(): void
+    {
+        $config = Application::get()->config();
+        $config->save('dbdata', [
+            'tables' => [
+                ['id' => 1, 'visual_name' => 'A', 'engine' => 'mysql', 'mysql_table' => 'a'],
+                ['id' => 2, 'visual_name' => 'B', 'engine' => 'mysql', 'mysql_table' => 'b'],
+            ],
+        ]);
+
+        $kernel = new ApiKernel(Application::get());
+        $response = $this->authed($kernel, '/api/v1/converter/preview', 'POST', json_encode([
+            'source_id' => 1,
+            'destination_id' => 2,
+        ]));
+        $this->assertSame(422, $response->getStatusCode());
+    }
+
+    public function testConverterTablesRequiresAuth(): void
+    {
+        $kernel = new ApiKernel(Application::get());
+        $response = $kernel->handle(Request::create('/api/v1/converter/tables', 'GET'));
+        $this->assertSame(401, $response->getStatusCode());
     }
 
     private function authed(ApiKernel $kernel, string $path, string $method, ?string $body = null)

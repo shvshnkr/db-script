@@ -12,7 +12,8 @@
 - **i18n API:** `GET /api/v1/i18n`, `I18nProvider`, language switcher
 - **Entry redirect:** `index.php` → `/app/` (legacy query preserved where possible)
 - PHPUnit: `SpaApiPhaseTest`
-- Extended `scripts/smoke-spa.sh` (menu, i18n, files, reader, sql)
+- Extended `scripts/smoke-spa.sh` (menu, i18n, files, reader, sql, converter)
+- **A_IMPEXP converter:** `ImportExportService`, `POST /api/v1/converter/{preview,run}`, `/app/converter` SPA (legacy `importexporttbl()` fdb↔mysql)
 
 ### Removed (phase 6)
 
@@ -34,6 +35,5 @@
 
 ### Non-goals (v1)
 
-- Full legacy `importexporttbl()` converter (A_IMPEXP multi-table exchange)
 - LIVEMOD inline editing
 - Admin SPA (SSR `admin-arch.php` only)

@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
 import { I18nProvider } from './i18n/I18nContext';
 import { AppShell } from './layout/AppShell';
+import { ConverterPage } from './pages/ConverterPage';
 import { EditorPage } from './pages/EditorPage';
 import { FilesPage } from './pages/FilesPage';
 import { InfoPageView } from './pages/InfoPage';
@@ -44,6 +45,7 @@ export function App() {
               <Route path="reader" element={<ReaderPage />} />
               <Route path="reader/:tableId" element={<ReaderPage />} />
               <Route path="files" element={<FilesPage />} />
+              <Route path="converter" element={<ConverterPage />} />
               <Route path="info/:slug" element={<InfoPageView />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
