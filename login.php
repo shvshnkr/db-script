@@ -6,9 +6,15 @@ $verlogin="Login manager 4.0 (c) dj--alex";
 $enterpoint=$verlogin;
  require_once ('dbscore.lib'); // ������� ���������� � ������ � �����������
 // ������ ��������� ��������� � ������ DBSCRIPT v2.1 (�) dj--alex
-if ($prauth[$ADM][2]==false) echo "<br>";
-if ($prauth[$ADM][0]=="UNKNOWN") echo "<br><br><br><br><br><br><br><br><br><br>";
-if ($activation==false) echo "<br><br><br><br><br><br><br><br><br><br>";
+$serial = $serial ?? '';
+$loginstate = $loginstate ?? null;
+$forever = $forever ?? null;
+$demo = $demo ?? null;
+$publicdemo = $publicdemo ?? null;
+$test = $test ?? null;
+if (($prauth[$ADM][2] ?? null)==false) echo "<br>";
+if (($prauth[$ADM][0] ?? '')=="UNKNOWN") echo "<br><br><br><br><br><br><br><br><br><br>";
+if (($activation ?? null)==false) echo "<br><br><br><br><br><br><br><br><br><br>";
 if ($demo) $serial="demo";
 if ($publicdemo) $serial="publicdemo";
 if ($test) $serial=$testenable;
@@ -26,7 +32,7 @@ Header("Location: login.php");//��������� ��� � ��
 
     
     
-if (($prauth[$ADM][2]==false)AND(($prauth[$ADM][11]))) {lprint ("A_LOG_BAN");
+if ((($prauth[$ADM][2] ?? null)==false)AND(($prauth[$ADM][11] ?? null))) {lprint ("A_LOG_BAN");
 ?><form action="login.php" method="post"> <?php submitkey ("resetcookie","LOGOUT");
  echo "</form>";
 exit;}  
@@ -43,9 +49,9 @@ $p=1;
        print "<h".$sd[3].">";
 // LIMITATIONS
 $gmlimitcfg=0;
-if ($loginstate) if ($ADM==0) {msgexiterror ("notuser",0,"login.php");}// -inc pass or login
+if ($loginstate) if ($ADM==0) {msgexiterror ("notuser",0,"login.php"); exit;}// -inc pass or login
 
-If (($_COOKIE['dbsa'])AND($ADM===0)) { echo "Your login as anonymous." ;
+If (!$loginstate && isset($_COOKIE['dbsa'])AND($ADM===0)) { echo "Your login as anonymous." ;
 ?><form action="login.php" method="post"> <?php submitkey ("resetcookie","LOGOUT");$anprinted=1;
  echo "</form>";
 
@@ -56,7 +62,7 @@ echo "</tr></table>";
 
 exit;}  
 
-If (($dbsa)AND($ADM===0)) { echo "Your login as anonymous." ;
+If (!$loginstate && ($dbsa ?? null)AND($ADM===0)) { echo "Your login as anonymous." ;
 ?><form action="login.php" method="post"> <?php if ($anprinted==false) submitkey ("resetcookie","LOGOUT");
  echo "</form>";
 echo "<table border=0 ><tr><td>";pictogramm("search.png","getfile.php",cmsg ("MNU_3"));
