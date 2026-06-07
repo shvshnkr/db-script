@@ -4,6 +4,7 @@
 
 {% block body %}
 <h1>{{ t('BROWSE', 'Editor') }} — {{ t('SELLINK', 'Tables') }}</h1>
+<p class="dbs-meta"><a href="w-arch.php?action=sql">{{ t('KEY_EXECUTE', 'Execute SQL') }}</a></p>
 <ul class="dbs-table-list">
 {% for table in tables %}
   <li><a href="w-arch.php?tbl={{ table.id }}">{{ table.visual_name|default(table.mysql_table) }}</a></li>

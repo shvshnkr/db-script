@@ -47,8 +47,9 @@ docker compose exec web bash scripts/smoke-all.sh http://127.0.0.1
 2. 🔄 TOML + install (`install-arch.php`, `InstallWriter`)
 3. ✅ JWT + login (`login-arch.php`, `AuthMiddleware`)
 4. ✅ Twig layouts + i18n (`MessageCatalog`, `TwigFactory`, `admin-arch.php`)
-5. Thin controllers, удаление `dbscore.lib`
-7. Tests, CI, handoff
+5. ✅ Editor CRUD (`EditorService`, `w-arch.php` forms)
+6. ✅ Reader + SQL/export (`ReaderService`, `r-arch.php`, `executeSql`, CSV)
+7. 🔄 Legacy cutover (`dbscore.lib`/`*.cfg` parallel); tests, CI, handoff
 
 См. [`CHANGELOG-ARCH-MODERN.md`](CHANGELOG-ARCH-MODERN.md).
 

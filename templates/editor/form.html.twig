@@ -1,0 +1,40 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{% if pk %}{{ t('KEY_EDIT', 'Edit') }}{% else %}{{ t('KEY_ADD', 'Add row') }}{% endif %} — {{ site_name }}{% endblock %}
+
+{% block body %}
+<h1>{% if pk %}{{ t('KEY_EDIT', 'Edit row') }}{% else %}{{ t('KEY_ADD', 'Add row') }}{% endif %}</h1>
+<p class="dbs-meta">
+  <a href="w-arch.php?tbl={{ table_id }}">← {{ t('BROWSE', 'Back to list') }}</a>
+</p>
+
+<form method="post" action="w-arch.php?tbl={{ table_id }}">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  <input type="hidden" name="action" value="save">
+  {% if pk %}<input type="hidden" name="pk" value="{{ pk }}">{% endif %}
+
+  <table class="dbs-form-table">
+    {% for column in columns %}
+      {% if not column.primary or pk is empty %}
+      <tr>
+        <th><label for="row_{{ column.name }}">{{ column.name }}</label></th>
+        <td>
+          <input
+            id="row_{{ column.name }}"
+            name="row[{{ column.name }}]"
+            value="{{ row[column.name]|default('') }}"
+            {% if column.primary and pk is empty %}required{% endif %}
+          >
+          <small>{{ column.type }}{% if column.nullable %}, nullable{% endif %}</small>
+        </td>
+      </tr>
+      {% endif %}
+    {% endfor %}
+  </table>
+
+  <p>
+    <button type="submit">{{ t('SAVE', 'Save') }}</button>
+    <a href="w-arch.php?tbl={{ table_id }}">{{ t('CANCEL', 'Cancel') }}</a>
+  </p>
+</form>
+{% endblock %}

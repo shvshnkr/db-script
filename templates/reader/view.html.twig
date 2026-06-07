@@ -1,0 +1,20 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ loaded.visual_name }} — {{ site_name }}{% endblock %}
+
+{% block body %}
+<h1>{{ loaded.visual_name }}</h1>
+<p class="dbs-meta">
+  <a href="r-arch.php?tbl={{ loaded.table_id }}">← {{ t('BROWSE', 'Back to list') }}</a>
+  · <a href="w-arch.php?tbl={{ loaded.table_id }}&pk={{ loaded.pk|url_encode }}">{{ t('EDIT', 'Edit') }}</a>
+</p>
+
+<table class="dbs-form-table">
+  {% for col in columns %}
+  <tr>
+    <th>{{ col }}</th>
+    <td>{{ loaded.row[col] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ t('KEY_EXECUTE', 'SQL') }} — {{ site_name }}{% endblock %}
+
+{% block body %}
+<h1>{{ t('KEY_EXECUTE', 'Execute SQL') }}</h1>
+<p class="dbs-meta">
+  <a href="w-arch.php">← {{ t('BROWSE', 'Tables') }}</a>
+  {% if table_id %}· {{ t('SELLINK', 'Table') }} #{{ table_id }}{% endif %}
+</p>
+
+{% if error %}
+<p class="dbs-error">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="w-arch.php?action=sql{% if table_id %}&tbl={{ table_id }}{% endif %}">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  {% if table_id %}<input type="hidden" name="table_id" value="{{ table_id }}">{% endif %}
+  <p>
+    <textarea name="query" rows="8" cols="80">{{ query }}</textarea>
+  </p>
+  <p><button type="submit">{{ t('KEY_EXECUTE', 'Execute') }}</button></p>
+</form>
+
+{% if result %}
+  {% if result.kind == 'write' %}
+  <p>{{ t('WF_Q1', 'Affected rows') }}: {{ result.affected }}</p>
+  {% else %}
+  <div class="dbs-table-wrap">
+  <table class="dbs-table">
+    {% if result.columns is not empty %}
+    <thead><tr>{% for col in result.columns %}<th>{{ col }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for row in result.rows %}
+      <tr>{% for col in result.columns %}<td>{{ row[col] }}</td>{% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+    {% endif %}
+  </table>
+  </div>
+  <p>{{ t('RF_PRINTLIM', 'Rows') }}: {{ result.affected }}</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

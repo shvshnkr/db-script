@@ -3,7 +3,7 @@
 **Для:** dj--alex  
 **От:** форк [shvshnkr/db-script](https://github.com/shvshnkr/db-script), ветка **`arch-modern`** (база — **`modern-ops`**)  
 **Дата:** 2026-06-07  
-**Статус:** в разработке (фаза 0–1: skeleton + TOML)
+**Статус:** фаза 7 — SQL/denywords + CSV export; legacy `dbscore.lib`/`*.cfg` пока параллельно
 
 > Файл в `_langdb/.archive/` — служебная папка, **не участвует** в работе CMS.
 
@@ -121,6 +121,19 @@ sequenceDiagram
 | `updateRow()` | `PUT ...` |
 | `deleteRows()` | `DELETE ...` |
 | `executeSql()` | `POST /api/v1/sql/execute` |
+| `ReaderService::export()` | CSV download |
+
+### denywords.toml
+
+```toml
+words = ["drop", "truncate"]
+# или с уровнем (legacy plevel):
+# [[words]]
+# word = "truncate"
+# min_level = 4
+```
+
+Built-in block: `information_schema`, `mysql`, `grant`.
 
 ---
 
@@ -140,8 +153,22 @@ git checkout arch-modern
 composer install
 vendor/bin/phpunit --testsuite unit
 docker compose -f dev/docker-compose.yml up -d --build
+docker compose exec web bash -c 'php scripts/arch-modern-install-dev.php testpass12 && php scripts/arch-modern-seed-demo.php && vendor/bin/phpunit --testsuite unit && bash scripts/smoke-arch-modern.sh http://127.0.0.1'
+# legacy full gate (parallel):
 docker compose exec web bash scripts/smoke-all.sh http://127.0.0.1
 ```
+
+### arch-modern URLs (JWT + TOML)
+
+| Entry | Назначение |
+|-------|------------|
+| `install-arch.php` | Fresh install → `_conf/*.toml` |
+| `login-arch.php` | JWT login |
+| `w-arch.php` | Editor: list + CRUD |
+| `r-arch.php` | Reader: search + view |
+| `admin-arch.php` | Admin panel |
+
+Legacy (`w.php`, `r.php`, `dbscore.lib`, `*.cfg`) **не удалены** — работают параллельно до финального cutover.
 
 CI: `.github/workflows/arch-modern-ci.yml`
 

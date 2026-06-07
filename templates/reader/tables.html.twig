@@ -1,0 +1,14 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ t('BROWSE', 'Reader') }} — {{ site_name }}{% endblock %}
+
+{% block body %}
+<h1>{{ t('BROWSE', 'Reader') }}</h1>
+<ul class="dbs-table-list">
+{% for table in tables %}
+  <li><a href="r-arch.php?tbl={{ table.id }}">{{ table.visual_name|default(table.mysql_table) }}</a></li>
+{% else %}
+  <li>{{ t('NOTUSED', 'No tables configured') }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

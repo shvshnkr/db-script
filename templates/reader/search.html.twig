@@ -5,18 +5,25 @@
 {% block body %}
 <h1>{{ result.visual_name }} <small>({{ result.table }})</small></h1>
 <p class="dbs-meta">
-  <a href="w-arch.php">← {{ t('BROWSE', 'Tables') }}</a>
-  · <a href="w-arch.php?tbl={{ result.table_id }}&action=new">{{ t('KEY_ADD', 'Add row') }}</a>
-  · <a href="w-arch.php?action=sql&tbl={{ result.table_id }}">{{ t('KEY_EXECUTE', 'SQL') }}</a>
+  <a href="r-arch.php">← {{ t('BROWSE', 'Tables') }}</a>
   · {{ t('RF_PRINTLIM', 'Total') }}: {{ result.total }}
   · {{ t('PAGE', 'Page') }} {{ result.page }}
 </p>
+
+<form class="dbs-search-form" method="get" action="r-arch.php">
+  <input type="hidden" name="tbl" value="{{ result.table_id }}">
+  <input type="search" name="q" value="{{ q }}" placeholder="{{ t('SEARCH', 'Search') }}">
+  <button type="submit">{{ t('SEARCH', 'Search') }}</button>
+  {% if q %}<a href="r-arch.php?tbl={{ result.table_id }}">{{ t('CANCEL', 'Clear') }}</a>{% endif %}
+  · <a href="r-arch.php?tbl={{ result.table_id }}&export=csv{% if q %}&q={{ q|url_encode }}{% endif %}">{{ t('A_IMPEXP', 'Export CSV') }}</a>
+</form>
+
 {% if columns is not empty %}
 <div class="dbs-table-wrap">
 <table class="dbs-table">
   <thead>
     <tr>
-      <th>{{ t('EDIT', 'Edit') }}</th>
+      <th>{{ t('VIEW', 'View') }}</th>
       {% for col in columns %}<th>{{ col }}</th>{% endfor %}
     </tr>
   </thead>
@@ -24,15 +31,7 @@
   {% for row in result.rows %}
     {% set pk = pk_columns|length == 1 ? row[pk_columns[0]] : pk_columns|map(c => row[c])|join('|') %}
     <tr>
-      <td>
-        <a href="w-arch.php?tbl={{ result.table_id }}&pk={{ pk|url_encode }}">{{ t('EDIT', 'Edit') }}</a>
-        <form class="dbs-inline-form" method="post" action="w-arch.php?tbl={{ result.table_id }}" onsubmit="return confirm('{{ t('KEY_DEL', 'Delete')|e('js') }}?');">
-          <input type="hidden" name="_csrf" value="{{ csrf }}">
-          <input type="hidden" name="action" value="delete">
-          <input type="hidden" name="pk" value="{{ pk }}">
-          <button type="submit">{{ t('KEY_DEL', 'Delete') }}</button>
-        </form>
-      </td>
+      <td><a href="r-arch.php?tbl={{ result.table_id }}&pk={{ pk|url_encode }}">{{ t('VIEW', 'View') }}</a></td>
       {% for col in columns %}<td>{{ row[col] }}</td>{% endfor %}
     </tr>
   {% endfor %}

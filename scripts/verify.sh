@@ -10,7 +10,7 @@ GREP="${GREP:-grep}"
 
 scan_active() {
     local pat="$1"
-    find . \( -name '*.php' -o -name 'dbscore.lib' \) -not -path './.git/*' -not -path './scripts/port-mechanical.php' -print0 \
+    find . \( -name '*.php' -o -name 'dbscore.lib' \) -not -path './.git/*' -not -path './vendor/*' -not -path './scripts/port-mechanical.php' -print0 \
         | xargs -0 "$GREP" -nE "$pat" 2>/dev/null \
         | "$GREP" -vE '^\./[^:]+:[0-9]+:\s*(//|/\*|\*)' || true
 }
