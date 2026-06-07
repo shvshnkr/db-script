@@ -1,0 +1,153 @@
+openapi: 3.1.0
+info:
+  title: Dbscript API
+  version: 1.0.0
+  description: arch-spa REST v1 (inherits EditorService from arch-modern)
+servers:
+  - url: /api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login, password]
+              properties:
+                login: { type: string }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: OK — sets dbs_jwt cookie
+        '401':
+          description: Invalid credentials
+  /auth/logout:
+    post:
+      summary: Logout
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /auth/me:
+    get:
+      summary: Current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+  /theme:
+    get:
+      summary: CSS theme variables from styles.toml
+      responses:
+        '200':
+          description: OK
+  /tables:
+    get:
+      summary: List editor tables
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/meta:
+    get:
+      summary: Column metadata
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/rows:
+    get:
+      summary: List rows
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '201':
+          description: Created
+    delete:
+      summary: Bulk delete rows
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pks:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/rows/{pk}:
+    get:
+      summary: Get row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

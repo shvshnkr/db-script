@@ -8,6 +8,7 @@
 | Push | `github` → `arch-modern` |
 | Главный документ | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | Handoff | [`_langdb/.archive/arch-modern-2026/handoff-djalex.ru.md`](_langdb/.archive/arch-modern-2026/handoff-djalex.ru.md) |
+| SPA (next) | [`README-ARCH-SPA.md`](README-ARCH-SPA.md) — ветка `arch-spa` |
 
 ## Зачем
 

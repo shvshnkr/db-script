@@ -31,6 +31,12 @@ final class Application
         return self::$instance;
     }
 
+    /** @internal PHPUnit only */
+    public static function resetForTests(): void
+    {
+        self::$instance = null;
+    }
+
     public static function get(): self
     {
         if (self::$instance === null) {

@@ -1,0 +1,50 @@
+.wrap {
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.grid th,
+.grid td {
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.grid th {
+  position: sticky;
+  top: 0;
+  background: var(--color-bg);
+  z-index: 1;
+}
+
+.grid tbody tr {
+  cursor: pointer;
+}
+
+.grid tbody tr:hover {
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.selected {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.checkCol {
+  width: 36px;
+  text-align: center;
+}
+
+.empty {
+  color: var(--color-muted);
+  padding: var(--space-6);
+  text-align: center;
+}
