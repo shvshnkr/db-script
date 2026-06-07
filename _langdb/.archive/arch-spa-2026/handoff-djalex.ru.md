@@ -24,7 +24,7 @@ php8-port → modern-ops → arch-modern → arch-spa
 | arch-modern | Twig SSR | Services API-ready |
 | **arch-spa** | React `/app/*` | REST `/api/v1/*` |
 
-Карта всех веток: [`branch-map-2026/BRANCH-MAP.ru.md`](../branch-map-2026/BRANCH-MAP.ru.md)
+Карта всех веток (канон на `arch-modern`): [BRANCH-MAP.ru.md](https://github.com/shvshnkr/db-script/blob/arch-modern/_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md)
 
 ---
 

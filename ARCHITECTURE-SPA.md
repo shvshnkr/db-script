@@ -147,7 +147,7 @@ docker compose exec web bash scripts/smoke-all-spa.sh http://127.0.0.1
 CI: [`.github/workflows/arch-spa-ci.yml`](.github/workflows/arch-spa-ci.yml)
 
 Handoff (RU): [`_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md`](_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md)  
-Branch map: [`_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md`](_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md)
+Branch map (canonical on `arch-modern`): [BRANCH-MAP.ru.md](https://github.com/shvshnkr/db-script/blob/arch-modern/_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md)
 
 ---
 

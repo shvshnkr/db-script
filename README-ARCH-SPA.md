@@ -18,7 +18,7 @@ Dbscript на этом форке **не в prod** — прототип реда
 - [`DESIGN-SPA.md`](DESIGN-SPA.md) — UX/UI токены
 - [`openapi.yaml`](openapi.yaml) — REST контракт
 - Handoff: [`_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md`](_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md)
-- Карта веток: [`_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md`](_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md)
+- Карта веток (канон): [BRANCH-MAP.ru.md на `arch-modern`](https://github.com/shvshnkr/db-script/blob/arch-modern/_langdb/.archive/branch-map-2026/BRANCH-MAP.ru.md)
 
 ## Dev
 
