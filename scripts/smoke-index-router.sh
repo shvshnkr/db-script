@@ -39,9 +39,9 @@ check_redirect() {
     echo "OK"
 }
 
-check_redirect "index ?w → w.php" "wfoo=1" "w.php" 1
-check_redirect "index ?r → r.php" "rtest=1" "r.php" 0
-check_redirect "index ?f → filemgr.php" "ftest=1" "filemgr.php" 1
-check_redirect "index ?a → admin.php" "atest=1" "admin.php" 1
+check_redirect "index ?w → /app/editor" "wfoo=1" "/app/editor" 1
+check_redirect "index ?r → /app/reader" "rtest=1" "/app/reader" 0
+check_redirect "index ?f → /app/files" "ftest=1" "/app/files" 1
+check_redirect "index ?a → admin-arch.php" "atest=1" "admin-arch.php" 1
 
 echo "ALL OK: index.php router"

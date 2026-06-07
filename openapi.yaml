@@ -1,0 +1,356 @@
+openapi: 3.1.0
+info:
+  title: Dbscript API
+  version: 1.0.0
+  description: arch-spa REST v1 (EditorService, ReaderService, FileManagerService)
+servers:
+  - url: /api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login, password]
+              properties:
+                login: { type: string }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: OK — sets dbs_jwt cookie
+        '401':
+          description: Invalid credentials
+  /auth/logout:
+    post:
+      summary: Logout
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /auth/me:
+    get:
+      summary: Current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+  /theme:
+    get:
+      summary: CSS theme variables from styles.toml
+      responses:
+        '200':
+          description: OK
+  /menu:
+    get:
+      summary: SPA navigation items
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /i18n:
+    get:
+      summary: Message catalog bundle
+      parameters:
+        - name: lang
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /i18n/languages:
+    get:
+      summary: Available languages
+      responses:
+        '200':
+          description: OK
+  /tables:
+    get:
+      summary: List editor tables
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/meta:
+    get:
+      summary: Column metadata
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/rows:
+    get:
+      summary: List rows
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '201':
+          description: Created
+    delete:
+      summary: Bulk delete rows
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pks:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/rows/{pk}:
+    get:
+      summary: Get row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /tables/{tableId}/import:
+    post:
+      summary: Import rows from CSV body
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          text/csv:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: OK
+  /reader/tables/{tableId}/search:
+    get:
+      summary: Reader search/list
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+  /reader/tables/{tableId}/rows/{pk}:
+    get:
+      summary: Reader view row
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: pk
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /reader/tables/{tableId}/export.csv:
+    get:
+      summary: Export CSV
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tableId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: CSV file
+  /files:
+    get:
+      summary: List files
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Upload file (multipart)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201':
+          description: Created
+  /files/{hash}/download:
+    get:
+      summary: Download file
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: hash
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: File stream
+  /files/{hash}:
+    delete:
+      summary: Delete file
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: hash
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /sql/execute:
+    post:
+      summary: Execute SQL query
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string }
+                table_id: { type: string }
+      responses:
+        '200':
+          description: OK
+  /converter/tables:
+    get:
+      summary: List tables for fdb/mysql converter
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+  /converter/preview:
+    post:
+      summary: Preview fdb↔mysql conversion
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_id, destination_id]
+              properties:
+                source_id: { type: integer }
+                destination_id: { type: integer }
+      responses:
+        '200':
+          description: OK
+        '422':
+          description: Validation error (e.g. same engine)
+  /converter/run:
+    post:
+      summary: Run fdb↔mysql conversion (legacy importexporttbl)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_id, destination_id]
+              properties:
+                source_id: { type: integer }
+                destination_id: { type: integer }
+                rewrite: { type: boolean }
+                use_semicolon: { type: boolean }
+                unique_id: { type: boolean }
+                verbose: { type: boolean }
+      responses:
+        '200':
+          description: OK
+  /info/{slug}:
+    get:
+      summary: Info page content (.ver, .info, .author, .help)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Auth required for protected slugs
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

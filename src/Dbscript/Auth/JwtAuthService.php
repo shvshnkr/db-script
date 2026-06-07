@@ -89,6 +89,17 @@ final class JwtAuthService
 
     public function readFromRequest(Request $request): ?array
     {
+        $authorization = $request->headers->get('Authorization', '');
+        if (is_string($authorization) && str_starts_with($authorization, 'Bearer ')) {
+            $bearer = trim(substr($authorization, 7));
+            if ($bearer !== '') {
+                $claims = $this->validateToken($bearer);
+                if ($claims !== null) {
+                    return $claims;
+                }
+            }
+        }
+
         $cookie = $request->cookies->get(self::COOKIE_NAME);
         if (!is_string($cookie) || $cookie === '') {
             return null;

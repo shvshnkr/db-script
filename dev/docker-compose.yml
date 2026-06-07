@@ -9,6 +9,7 @@ services:
       - "8080:80"
     volumes:
       - ..:/var/www/html
+      - ./apache-vhost.conf:/etc/apache2/conf-available/dbscript.conf:ro
     depends_on:
       db:
         condition: service_healthy

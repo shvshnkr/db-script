@@ -41,16 +41,32 @@ $site['mysql'] = ['host' => $host, 'login' => $user, 'password' => $pass, 'datab
 $config->save('sitedata', $site);
 
 $config->save('dbdata', [
-    'tables' => [[
-        'id' => 1,
-        'file_base' => '',
-        'visual_name' => 'Demo items',
-        'mysql_table' => 'demo_items',
-        'mysql_host' => $host,
-        'mysql_database' => $db,
-        'engine' => 'mysql',
-        'write_acl' => 'SU',
-    ]],
+    'tables' => [
+        [
+            'id' => 1,
+            'file_base' => '',
+            'visual_name' => 'Demo items',
+            'mysql_table' => 'demo_items',
+            'mysql_host' => $host,
+            'mysql_database' => $db,
+            'engine' => 'mysql',
+            'write_acl' => 'SU',
+        ],
+        [
+            'id' => 2,
+            'file_base' => 'demo_items.csv',
+            'visual_name' => 'Demo items (FDB)',
+            'engine' => 'fdb',
+            'write_acl' => 'SU',
+        ],
+    ],
 ]);
+
+$dataDir = $root . '/_data';
+if (!is_dir($dataDir)) {
+    mkdir($dataDir, 0775, true);
+}
+$sampleCsv = "ID¦TITLE\n0¦0\n1¦Hello arch-modern\n2¦Dbscript 2026";
+file_put_contents($dataDir . '/demo_items.csv', $sampleCsv);
 
 echo "arch-modern: seeded demo_items in {$db}@{$host}\n";

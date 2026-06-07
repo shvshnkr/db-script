@@ -1,0 +1,7 @@
+.page h1 {
+  margin-top: 0;
+}
+
+.meta {
+  color: var(--color-muted);
+}

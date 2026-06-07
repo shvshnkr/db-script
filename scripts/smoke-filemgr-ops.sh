@@ -1,5 +1,5 @@
 #!/bin/bash
-# L2: filemgr ops — mkdir when prauth[12] allows; otherwise GET-only gate.
+# L3: file manager via REST API (arch-spa).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -9,47 +9,51 @@ source "$ROOT/scripts/smoke-lib.sh"
 smoke_init "${1:-http://127.0.0.1:8080}" "${2:-/var/www/html}"
 smoke_login
 
-DIR="smoke_mkdir_$(date +%s)"
-TARGET="$SMOKE_ROOT/_data/${DIR}"
-
 echo "=== smoke-filemgr-ops ==="
 
-smoke_check_url "filemgr GET" "$SMOKE_BASE_URL/filemgr.php" 'Filemgr|FMG_|filemgr'
-
-echo -n "FMG_MKDIR try ... "
-curl -fsS -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" -L --max-time 60 \
-    -X POST "$SMOKE_BASE_URL/filemgr.php" \
-    --data-urlencode "cmd=New folder" \
-    --data-urlencode "stroka0=${DIR}" \
-    --data-urlencode "path0=${SMOKE_ROOT}/_data/" \
-    --data-urlencode "pid=0" \
-    --data-urlencode "mask0=*.*" \
-    -o "$SMOKE_OUT" || { echo "curl error"; smoke_fail "FMG_MKDIR"; }
-smoke_assert_no_fatal "FMG_MKDIR"
-echo "OK"
-
-if [[ -d "$TARGET" ]]; then
-    REN="${DIR}_ren"
-    echo -n "FMG_REN try ... "
-    curl -fsS -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" -L --max-time 60 \
-        -X POST "$SMOKE_BASE_URL/filemgr.php" \
-        --data-urlencode "cmd=Rename" \
-        --data-urlencode "stroka0=${REN}" \
-        --data-urlencode "fileforaction=${DIR}" \
-        --data-urlencode "path0=${SMOKE_ROOT}/_data/" \
-        --data-urlencode "pid=0" \
-        --data-urlencode "mask0=*.*" \
-        -o "$SMOKE_OUT" || { echo "curl error"; smoke_fail "FMG_REN"; }
-    smoke_assert_no_fatal "FMG_REN"
-    echo "OK"
-    if [[ -d "$SMOKE_ROOT/_data/${REN}" ]]; then
-        rmdir "$SMOKE_ROOT/_data/${REN}" 2>/dev/null || rm -rf "$SMOKE_ROOT/_data/${REN}" 2>/dev/null || true
-        echo "OK: rename on disk"
-    else
-        echo "OK: rename not applied (prauth[12]=0)"
-    fi
-else
-    echo "OK: mkdir not applied (TEST prauth[12]=0 — manual L6 if needed)"
+token=$(curl -sS -X POST "$SMOKE_BASE_URL/api/v1/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d '{"login":"admin","password":"testpass12"}' \
+  | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["token"]??"";')
+if [[ -z "$token" ]]; then
+  smoke_fail "api login for filemgr"
 fi
 
-echo "ALL OK: filemgr ops"
+list_code=$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${token}" "$SMOKE_BASE_URL/api/v1/files")
+if [[ "$list_code" != "200" ]]; then
+  smoke_fail "files list expected 200, got $list_code"
+fi
+echo "OK files list"
+
+tmp="$(mktemp --suffix=.html)"
+echo "<p>spa smoke upload</p>" > "$tmp"
+upload_resp=$(curl -sS -X POST -H "Authorization: Bearer ${token}" -H 'X-Requested-With: DbscriptSPA' \
+  -F "file=@${tmp};filename=spa-smoke.html" \
+  "$SMOKE_BASE_URL/api/v1/files")
+rm -f "$tmp"
+hash=$(echo "$upload_resp" | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo $j["data"]["hash"]??"";')
+if [[ -z "$hash" ]]; then
+  echo "$upload_resp"
+  smoke_fail "files upload"
+fi
+echo "OK files upload hash=${hash}"
+
+dl_code=$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${token}" \
+  "$SMOKE_BASE_URL/api/v1/files/${hash}/download")
+if [[ "$dl_code" != "200" ]]; then
+  smoke_fail "files download expected 200, got $dl_code"
+fi
+echo "OK files download"
+
+del_code=$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE \
+  -H "Authorization: Bearer ${token}" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: DbscriptSPA' \
+  -d '{}' \
+  "$SMOKE_BASE_URL/api/v1/files/${hash}")
+if [[ "$del_code" != "200" ]]; then
+  smoke_fail "files delete expected 200, got $del_code"
+fi
+echo "OK files delete"
+
+echo "ALL OK: filemgr API upload/download/delete"
