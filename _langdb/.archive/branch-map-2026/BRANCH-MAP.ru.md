@@ -3,7 +3,7 @@
 **Для:** внутренняя навигация и handoff dj--alex  
 **Репозиторий:** [shvshnkr/db-script](https://github.com/shvshnkr/db-script)  
 **Upstream (автор):** [dj--alex/db-script](https://github.com/dj--alex/db-script) · `master`  
-**Обновлено:** 2026-06-07
+**Обновлено:** 2026-06-07 (arch-spa tip [`4e4d313`](https://github.com/shvshnkr/db-script/commit/4e4d313))
 
 > Файл в `_langdb/.archive/` — **служебная папка**, не участвует в runtime CMS и закрыта от веб-доступа (`.htaccess`).  
 > Не ссылается из публичного `README.md` — только прямая ссылка на GitHub.
@@ -26,7 +26,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 | [`php8-port`](https://github.com/shvshnkr/db-script/tree/php8-port) | `master` | механический порт на PHP 8.0+ | ✅ |
 | [`modern-ops`](https://github.com/shvshnkr/db-script/tree/modern-ops) | `php8-port` | эксплуатация: CSRF, session-auth, servicectl | ✅ |
 | [`arch-modern`](https://github.com/shvshnkr/db-script/tree/arch-modern) | `modern-ops` | черновик альтернативной архитектуры (PSR-4, TOML, JWT, Twig) | ✅ |
-| [`arch-spa`](https://github.com/shvshnkr/db-script/tree/arch-spa) | `arch-modern` | REST `/api/v1` + React SPA `/app/*` | ✅ push `9d9d0a6+` |
+| [`arch-spa`](https://github.com/shvshnkr/db-script/tree/arch-spa) | `arch-modern` | REST `/api/v1` + React SPA `/app/*` | ✅ [`4e4d313`](https://github.com/shvshnkr/db-script/commit/4e4d313) |
 
 ---
 
@@ -97,10 +97,10 @@ dj--alex/master (4.3.x, PHP 5/7)
 |---|---|
 | **Зачем** | Наследник `arch-modern`: backend services + **React SPA** вместо `w.php`/frameset |
 | **Что сделано** | REST `/api/v1/*`; JWT auth API; Editor/Reader/Files/Converter/Info SPA; LIVEMOD inline; `ImportExportService` (fdb↔mysql); legacy `w.php`/`wx.php`/`r.php`/`filemgr.php` удалены; smoke `smoke-all-spa.sh`; CI `arch-spa-ci.yml` |
-| **Последний коммит** | tip `arch-spa` на GitHub |
+| **Последний коммит** | [`4e4d313`](https://github.com/shvshnkr/db-script/commit/4e4d313) — LIVEMOD, parity smoke, docs |
 | **Публичный README** | [`README-ARCH-SPA.md`](https://github.com/shvshnkr/db-script/blob/arch-spa/README-ARCH-SPA.md) |
 | **Архитектура** | [`ARCHITECTURE-SPA.md`](https://github.com/shvshnkr/db-script/blob/arch-spa/ARCHITECTURE-SPA.md) |
-| **Handoff (подробно)** | [`arch-spa-2026/handoff-djalex.ru.md`](./arch-spa-2026/handoff-djalex.ru.md) |
+| **Handoff (подробно)** | [`arch-spa-2026/handoff`](https://github.com/shvshnkr/db-script/blob/arch-spa/_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md) |
 
 **API:** auth, tables CRUD, reader, files, sql, converter, menu, i18n, info — [`openapi.yaml`](https://github.com/shvshnkr/db-script/blob/arch-spa/openapi.yaml)  
 **SPA routes:** `/app/login`, `/app/editor`, `/app/reader`, `/app/files`, `/app/converter`, `/app/info/:slug`
@@ -116,7 +116,7 @@ dj--alex/master (4.3.x, PHP 5/7)
 | `php8-port` | [`php8-port-2026/handoff`](https://github.com/shvshnkr/db-script/blob/php8-port/_langdb/.archive/php8-port-2026/handoff-djalex.ru.md) | [`README.md`](https://github.com/shvshnkr/db-script/blob/php8-port/README.md) |
 | `modern-ops` | [`modern-ops-2026/handoff`](https://github.com/shvshnkr/db-script/blob/modern-ops/_langdb/.archive/modern-ops-2026/handoff-djalex.ru.md) | [`README-MODERN-OPS.md`](https://github.com/shvshnkr/db-script/blob/modern-ops/README-MODERN-OPS.md) |
 | `arch-modern` | [`arch-modern-2026/handoff`](https://github.com/shvshnkr/db-script/blob/arch-modern/_langdb/.archive/arch-modern-2026/handoff-djalex.ru.md) | [`README-ARCH-MODERN.md`](https://github.com/shvshnkr/db-script/blob/arch-modern/README-ARCH-MODERN.md) |
-| `arch-spa` | [`arch-spa-2026/handoff`](./arch-spa-2026/handoff-djalex.ru.md) | [`README-ARCH-SPA.md`](https://github.com/shvshnkr/db-script/blob/arch-spa/README-ARCH-SPA.md) |
+| `arch-spa` | [`arch-spa-2026/handoff`](https://github.com/shvshnkr/db-script/blob/arch-spa/_langdb/.archive/arch-spa-2026/handoff-djalex.ru.md) | [`README-ARCH-SPA.md`](https://github.com/shvshnkr/db-script/blob/arch-spa/README-ARCH-SPA.md) |
 
 ---
 
